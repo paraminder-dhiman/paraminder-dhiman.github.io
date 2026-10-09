@@ -65,6 +65,6 @@ const PROJECTS = [
     group: "craft",
     scale: 2,
     year: 2026,
-    status: "planned",
+    status: "draft",
   },
 ];

@@ -115,4 +115,35 @@
       if (section) section.hidden = true;
     }
   }
+
+  // ----- Video posters: click to play in place.
+  // Opened from disk, YouTube refuses to play inside the page, so the link opens YouTube instead.
+  var videoLinks = document.querySelectorAll("a[data-youtube]");
+  Array.prototype.forEach.call(videoLinks, function (link) {
+    var id = link.getAttribute("data-youtube");
+    var poster = link.querySelector("img");
+
+    // YouTube sends a tiny grey placeholder when the large poster doesn't exist. Fall back to the standard one.
+    function checkPoster() {
+      if (poster.naturalWidth > 0 && poster.naturalWidth <= 120) {
+        poster.src = "https://i.ytimg.com/vi/" + id + "/hqdefault.jpg";
+      }
+    }
+    if (poster) {
+      if (poster.complete) checkPoster();
+      poster.addEventListener("load", checkPoster);
+    }
+
+    if (location.protocol === "file:") return;
+
+    link.addEventListener("click", function (event) {
+      event.preventDefault();
+      var frame = document.createElement("iframe");
+      frame.src = "https://www.youtube-nocookie.com/embed/" + id + "?autoplay=1&rel=0";
+      frame.title = link.getAttribute("data-title") || "Video";
+      frame.allow = "autoplay; encrypted-media; picture-in-picture; fullscreen";
+      frame.allowFullscreen = true;
+      link.parentNode.replaceChild(frame, link);
+    });
+  });
 })();
