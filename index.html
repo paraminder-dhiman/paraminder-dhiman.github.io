@@ -32,12 +32,102 @@
   <main>
     <div class="prose">
       <p class="lead">I'm a technical artist at Ubisoft in Pune. I build tools and pipelines that take slow, repetitive work off artists' desks, mostly in MaxScript and Python across 3ds Max, Houdini and Ubisoft's Anvil engine.</p>
-      <p>I joined Ubisoft in 2019 on the cinematics team for Prince of Persia: The Sands of Time Remake. Since 2021 I've been on Skull and Bones, first delivering pets and now looking after the ship building pipeline.</p>
-      <p>I can't show studio work here, so this site is what I build on my own time.</p>
+      <p>I've been at Ubisoft since 2019, first on cinematics for Prince of Persia: The Sands of Time Remake and since 2021 on Skull and Bones.</p>
+      <p>The projects on this site are personal work. My studio work is described in writing below.</p>
     </div>
 
+    <section id="studio">
+      <h2>Studio work</h2>
+      <p class="section-meta">Ubisoft India Studios · November 2019 to present</p>
+
+      <article class="role-block">
+        <h3>Technical artist · Skull and Bones</h3>
+        <p class="meta">Pune · February 2023 to present · Ship building and ship customisation pipeline</p>
+        <dl class="entries">
+          <div>
+            <dt>Ornament placement tool</dt>
+            <dd>Ornaments are vanity pieces placed around a ship. They used to be placed by hand in Houdini, which was slow and heavy for the job. I wrote a placement tool in 3ds Max with MaxScript that brought the work down from up to 1.5 hours to about 15 minutes per ship. It has been used on more than 22 ships, by art teams in our studio and overseas.</dd>
+          </div>
+          <div>
+            <dt>Mirroring without negative scale</dt>
+            <dd>The engine doesn't handle negative scale well, so a mirrored ornament can't simply be flipped. I worked out a quaternion rotation that gives a correct mirror on the other side of the hull. Getting it right took a couple of weeks, and it's what made the placement tool usable.</dd>
+          </div>
+          <div>
+            <dt>Sail animation pipeline</dt>
+            <dd>Sails are simulated as cloth and baked down to bones with SSDR in Houdini. I took this pipeline over when it was broken, spent weeks working out how it functions, and now own it on the project. I'm repairing it at the moment.</dd>
+          </div>
+          <div>
+            <dt>Ship spawning system</dt>
+            <dd>Built a new spawning system for ships on the engine's entity-building tool, which assembles a ship's meshes and spawns the result.</dd>
+          </div>
+          <div>
+            <dt>Houdini workflows</dt>
+            <dd>New ships are built in Houdini. I optimised parts of that workflow so artists can iterate faster.</dd>
+          </div>
+          <div>
+            <dt>Performance</dt>
+            <dd>Profiled and optimised shaders and materials to keep ship content inside its performance budgets.</dd>
+          </div>
+          <div>
+            <dt>Mentoring</dt>
+            <dd>I mentor junior technical artists in MaxScript and Python scripting, Houdini and Anvil workflows.</dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="role-block">
+        <h3>Junior technical artist · Skull and Bones</h3>
+        <p class="meta">Mumbai · 2021 to February 2023 · Pets</p>
+        <dl class="entries">
+          <div>
+            <dt>Pet delivery</dt>
+            <dd>Pets are vanity items sold to players. I supported more than 50 of them from concept art, through ready-to-animate setup, to the finished pet running in the engine.</dd>
+          </div>
+          <div>
+            <dt>Integration and spawning</dt>
+            <dd>Rebuilt the pipeline that integrates a pet into the engine, along with the system that spawns it.</dd>
+          </div>
+          <div>
+            <dt>Animation graph</dt>
+            <dd>The pet pipeline needed restructuring, so I redid the whole pet animation graph in the in-house graph tool.</dd>
+          </div>
+          <div>
+            <dt>Tools</dt>
+            <dd>3ds Max · Blender · Maya · Anvil</dd>
+          </div>
+        </dl>
+      </article>
+
+      <article class="role-block">
+        <h3>Junior technical level designer, cinematics · Prince of Persia: The Sands of Time Remake</h3>
+        <p class="meta">Mumbai · November 2019 to 2021 · The original Mumbai and Pune version, unreleased</p>
+        <dl class="entries">
+          <div>
+            <dt>Cutscene animation</dt>
+            <dd>Integrated and checked character animations for cutscenes in the in-house cinematics editor, a timeline tool with tracks for skinned characters, audio and lighting.</dd>
+          </div>
+          <div>
+            <dt>Lighting</dt>
+            <dd>Lit around 20 cutscenes.</dd>
+          </div>
+          <div>
+            <dt>Bug fixing</dt>
+            <dd>Owned and resolved every bug related to cinematics.</dd>
+          </div>
+          <div>
+            <dt>Animation data</dt>
+            <dd>Prepared animation data in MotionBuilder for use in cutscenes, with cleanup where it was needed.</dd>
+          </div>
+          <div>
+            <dt>Scripting and editing</dt>
+            <dd>Scripted cinematic triggers, edited cinematic video in Premiere Pro, and kept the cutscene documentation up to date for the team.</dd>
+          </div>
+        </dl>
+      </article>
+    </section>
+
     <section id="work">
-      <h2>Work</h2>
+      <h2>Personal projects</h2>
       <ul class="work" id="work-list"></ul>
     </section>
   </main>

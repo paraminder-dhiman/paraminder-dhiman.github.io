@@ -161,6 +161,39 @@ figure { margin: 28px 0; max-width: 760px; }
 figure img, figure video { display: block; width: 100%; height: auto; }
 figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); }
 
+/* ---------- Studio work on the About page, and spec lists on project pages ---------- */
+
+.section-meta { margin: -6px 0 0; font-size: 14px; color: var(--muted); }
+
+.role-block { margin-top: 30px; max-width: 860px; }
+.role-block h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.35; }
+.role-block .meta { margin: 3px 0 12px; font-size: 14px; color: var(--muted); }
+
+/* A two-column list: a short label on the left, the detail on the right. */
+.entries { margin: 0; max-width: 860px; border-top: 1px solid var(--hair); }
+.entries > div {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  gap: 4px 28px;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--hair);
+}
+.entries dt { font-weight: 500; }
+.entries dd { margin: 0; color: var(--soft); }
+
+/* ---------- Diagrams ---------- */
+
+.diagram { margin: 20px 0 8px; max-width: 860px; overflow-x: auto; }
+.diagram svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: inherit; }
+.diagram .box { fill: none; stroke: var(--rule); stroke-width: 1; }
+.diagram .chip { fill: rgba(99, 197, 206, 0.07); stroke: var(--hair); stroke-width: 1; }
+.diagram .wire { fill: none; stroke: var(--muted); stroke-width: 1; }
+.diagram .head { fill: var(--muted); }
+.diagram text { fill: var(--text); font-size: 13px; }
+.diagram .t-title { font-weight: 600; }
+.diagram .t-soft { fill: var(--muted); font-size: 12px; }
+.caption { margin: 0; font-size: 14px; color: var(--muted); max-width: 680px; }
+
 /* ---------- Footer ---------- */
 
 .foot-place { padding: 6px 22px; display: flex; align-items: center; font-size: 14px; color: var(--muted); }
@@ -183,6 +216,7 @@ figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); }
   .foot-links { order: 6; padding: 4px 18px; }
   .tiles { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 14px 12px; }
   .masthead .role, .pagehead h1 { font-size: 24px; }
+  .entries > div { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (prefers-reduced-motion: reduce) {

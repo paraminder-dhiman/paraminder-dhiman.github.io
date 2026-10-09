@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Home server and automation · Paraminder Dhiman</title>
+  <meta name="description" content="A self-hosted server for 20 people, built on Unraid and Docker, with a Python Discord bot that handles onboarding and accounts.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="home-server">
+
+<div class="sheet">
+
+  <header class="masthead">
+    <a href="index.html">
+      <span class="name">Paraminder Dhiman</span>
+      <span class="role">Technical artist</span>
+    </a>
+  </header>
+
+  <div class="pagehead">
+    <h1>Home server and automation</h1>
+    <p class="meta">Infrastructure · Unraid, Docker, Python · 2026</p>
+  </div>
+
+  <nav class="rail" aria-label="Pages">
+    <ul class="tiles" id="tiles"></ul>
+    <noscript><p><a href="index.html">About</a></p></noscript>
+  </nav>
+
+  <main>
+    <div class="prose">
+      <p class="lead">A home server I designed, built and run for 20 friends. It streams media, signs people up through a Discord bot I wrote, and backs itself up every week.</p>
+      <p>I did all of it myself: the hardware, the network, the containers and the code. It started as a way to learn how networking works, and it turned into a small service that people use every day.</p>
+    </div>
+
+    <h2>How it fits together</h2>
+    <figure class="diagram" role="img" aria-label="Diagram. Friends reach the server through a Cloudflare Tunnel and through Discord. I reach it through Tailscale. The server runs Unraid with Docker containers for media streaming, a password manager, the Discord bot, a housekeeping service, DNS and DHCP, and monitoring. A weekly job backs it up to a flash drive, a second drive and my workstation.">
+      <svg viewBox="0 0 780 360" xmlns="http://www.w3.org/2000/svg">
+        <!-- people -->
+        <rect class="box" x="20" y="40" width="150" height="106"></rect>
+        <text class="t-title" x="34" y="63">20 friends</text>
+        <text x="34" y="90">Web and TV apps</text>
+        <text x="34" y="128">Discord</text>
+
+        <rect class="box" x="20" y="180" width="150" height="56"></rect>
+        <text class="t-title" x="34" y="203">Me</text>
+        <text class="t-soft" x="34" y="223">Admin access</text>
+
+        <!-- the way in -->
+        <rect class="box" x="220" y="70" width="160" height="32"></rect>
+        <text x="300" y="91" text-anchor="middle">Cloudflare Tunnel</text>
+        <rect class="box" x="220" y="108" width="160" height="32"></rect>
+        <text x="300" y="129" text-anchor="middle">Discord</text>
+        <rect class="box" x="220" y="192" width="160" height="32"></rect>
+        <text x="300" y="213" text-anchor="middle">Tailscale</text>
+
+        <!-- server -->
+        <rect class="box" x="430" y="24" width="330" height="252"></rect>
+        <text class="t-title" x="444" y="49">Server</text>
+        <text class="t-soft" x="496" y="49">Unraid · Docker</text>
+
+        <rect class="chip" x="444" y="70" width="148" height="32"></rect>
+        <text x="518" y="91" text-anchor="middle">Media streaming</text>
+        <rect class="chip" x="598" y="70" width="148" height="32"></rect>
+        <text x="672" y="91" text-anchor="middle">Password manager</text>
+
+        <rect class="chip" x="444" y="108" width="148" height="32"></rect>
+        <text x="518" y="129" text-anchor="middle">Discord bot</text>
+        <rect class="chip" x="598" y="108" width="148" height="32"></rect>
+        <text x="672" y="129" text-anchor="middle">Housekeeping</text>
+
+        <rect class="chip" x="444" y="146" width="148" height="32"></rect>
+        <text x="518" y="167" text-anchor="middle">DNS and DHCP</text>
+        <rect class="chip" x="598" y="146" width="148" height="32"></rect>
+        <text x="672" y="167" text-anchor="middle">Monitoring</text>
+
+        <rect class="chip" x="444" y="192" width="302" height="32"></rect>
+        <text x="595" y="213" text-anchor="middle">Storage array · NVMe cache</text>
+        <rect class="chip" x="444" y="230" width="302" height="32"></rect>
+        <text x="595" y="251" text-anchor="middle">Weekly backup job</text>
+
+        <!-- backups -->
+        <rect class="box" x="444" y="312" width="302" height="32"></rect>
+        <text x="595" y="333" text-anchor="middle">Flash drive · second drive · workstation</text>
+
+        <!-- wires -->
+        <path class="wire" d="M170 86 H213 M380 86 H437 M170 124 H213 M380 124 H437 M170 208 H213 M380 208 H423 M595 262 V305"></path>
+        <path class="head" d="M220 86 l-7 -3.5 v7 z M444 86 l-7 -3.5 v7 z M220 124 l-7 -3.5 v7 z M444 124 l-7 -3.5 v7 z M220 208 l-7 -3.5 v7 z M430 208 l-7 -3.5 v7 z M595 312 l-3.5 -7 h7 z"></path>
+      </svg>
+    </figure>
+    <p class="caption">Friends come in through a Cloudflare Tunnel or through Discord. Admin access is over Tailscale only.</p>
+
+    <h2>What runs on it</h2>
+    <dl class="entries">
+      <div>
+        <dt>Platform</dt>
+        <dd>Unraid, with every service in its own Docker container. App data sits on an NVMe cache and the library on a four-drive array.</dd>
+      </div>
+      <div>
+        <dt>Media streaming</dt>
+        <dd>Jellyfin with four user tiers. Each tier sets a bitrate cap, a session limit and whether group watching is allowed.</dd>
+      </div>
+      <div>
+        <dt>Library preparation</dt>
+        <dd>A Tdarr pipeline re-encoded the library and health-checked every file, so most devices play files directly and the server rarely has to transcode.</dd>
+      </div>
+      <div>
+        <dt>Network</dt>
+        <dd>AdGuard Home filters DNS and is also the network's DHCP server, so every lease lives in one place.</dd>
+      </div>
+      <div>
+        <dt>Remote access</dt>
+        <dd>Public services go out through Cloudflare Tunnels. Anything administrative is reachable over Tailscale only.</dd>
+      </div>
+      <div>
+        <dt>Monitoring</dt>
+        <dd>Uptime Kuma watches the services, and a speed test tracker logs the connection over time.</dd>
+      </div>
+      <div>
+        <dt>Power</dt>
+        <dd>My workstation stays off unless it's needed and is woken over the network when it is.</dd>
+      </div>
+    </dl>
+
+    <h2>The Discord bot</h2>
+    <div class="prose">
+      <p>Everyone who uses the server is in one Discord server, so I wrote a bot to run the front desk. It's Python with discord.py and slash commands. Each feature is its own module, loaded automatically at start, and the bot runs as its own container.</p>
+    </div>
+    <dl class="entries">
+      <div>
+        <dt>Onboarding</dt>
+        <dd>A new member gets a guest role and a Request access button. The request lands in an admin channel with Approve, Approve as trusted and Decline. Approving creates the streaming account on the right tier, swaps the member's role and sends the login details in a direct message. Declining sends the reason.</dd>
+      </div>
+      <div>
+        <dt>Accounts</dt>
+        <dd>Creates streaming accounts with the tier's limits applied, and keeps a map between Discord members and their accounts.</dd>
+      </div>
+      <div>
+        <dt>Library</dt>
+        <dd>Commands for library stats, search and what was added recently.</dd>
+      </div>
+      <div>
+        <dt>Code</dt>
+        <dd>Kept in a private Git repository. Secrets and data files stay out of version control.</dd>
+      </div>
+    </dl>
+
+    <h2>Housekeeping service</h2>
+    <div class="prose">
+      <p>A second, smaller Python service runs in its own container and looks after jobs between the server and my workstation. Files are handed over with copy, verify, then delete, so nothing is lost if a step fails.</p>
+      <p>Every action it takes is posted as one line to a private Discord channel through a webhook. It also raises a flag if no backup has run in eight days.</p>
+    </div>
+
+    <h2>Backups</h2>
+    <div class="prose">
+      <p>App data and the boot drive are backed up every Saturday at 4 AM, a time when I'm home to fix whatever breaks. The backup goes to a flash drive, then is copied to a second drive and to my workstation. Seven backups are kept.</p>
+      <p>I chose weekly over daily because only a few people use the server on any given day. That changes when usage grows.</p>
+    </div>
+
+    <h2>What's next</h2>
+    <div class="prose">
+      <p>The server is moving from a small office desktop to a Ryzen build with a graphics card for hardware encoding. The plan is to build and stress-test the new machine first, then move the boot drive and every disk across in one go.</p>
+    </div>
+  </main>
+
+  <div class="foot-place">Pune, India</div>
+
+  <footer class="foot-links">
+    <a href="mailto:paramindersd@gmail.com">Email</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://www.linkedin.com/in/paraminder-dhiman">LinkedIn</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://github.com/paraminder-dhiman">GitHub</a>
+  </footer>
+
+</div>
+
+<script src="js/projects.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

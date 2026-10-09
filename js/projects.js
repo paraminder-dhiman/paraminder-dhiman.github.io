@@ -51,11 +51,11 @@ const PROJECTS = [
     id: "home-server",
     title: "Home server and automation",
     tile: "Home server",
-    meta: "Infrastructure · Python · 2026",
+    meta: "Infrastructure · Docker, Python · 2026",
     group: "programming",
     scale: 3,
     year: 2026,
-    status: "planned",
+    status: "draft",
   },
   {
     id: "video-editing",
