@@ -73,7 +73,7 @@
   var rail = document.getElementById("tiles");
   if (rail) {
     rail.appendChild(
-      makeTile({ id: "about", tile: "About", href: "index.html", status: "live" })
+      makeTile({ id: "about", tile: "About", href: "index.html", status: "live", image: "about.jpg" })
     );
     projects.forEach(function (p) {
       rail.appendChild(
