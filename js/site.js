@@ -2,6 +2,11 @@
    You should not need to edit this file to add a project. */
 
 (function () {
+  // Switch · true shows the render only while a tile is hovered, also on the current page's tile.
+  // false keeps the current page's render showing all the time (the original behaviour).
+  var RENDER_ON_HOVER_ONLY = true;
+  if (RENDER_ON_HOVER_ONLY) document.documentElement.classList.add("hover-only");
+
   // A local preview is a file opened from disk or a server running on this computer.
   var isLocal =
     location.protocol === "file:" ||
@@ -113,6 +118,31 @@
     if (!projects.length) {
       var section = document.getElementById("work");
       if (section) section.hidden = true;
+    }
+  }
+
+  // ----- Keep the render showing on the tile that was just clicked.
+  // Browsers only work out what's under the cursor after it moves, so a freshly loaded page
+  // would show line art under a still cursor. We remember the click and show the render
+  // until the cursor moves; from then on normal hovering takes over.
+  var KEY = "tile-clicked";
+  if (rail) {
+    rail.addEventListener("click", function (event) {
+      var tile = event.target.closest("a.tile");
+      if (tile && event.detail > 0) {               // a mouse click, not the keyboard
+        try { sessionStorage.setItem(KEY, tile.getAttribute("href")); } catch (e) {}
+      }
+    });
+    var clicked = null;
+    try { clicked = sessionStorage.getItem(KEY); sessionStorage.removeItem(KEY); } catch (e) {}
+    var current = rail.querySelector(".tile[aria-current]");
+    if (clicked && current && current.getAttribute("href") === clicked) {
+      current.classList.add("is-hovered");
+      var release = function () {
+        current.classList.remove("is-hovered");
+        document.removeEventListener("pointermove", release);
+      };
+      document.addEventListener("pointermove", release);
     }
   }
 

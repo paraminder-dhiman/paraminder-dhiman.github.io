@@ -15,7 +15,9 @@
   --muted: #a9b4b6;       /* captions and secondary text */
   --accent: #63c5ce;
   --accent-hi: #9be0e6;
-  --rail: 300px;          /* width of the tile column */
+  --rail: clamp(320px, 24vw, 460px);   /* width of the tile column · grows with the window, from 320 to 460 */
+  --column: 1200px;       /* widest the text column gets */
+  --side: clamp(28px, 3vw, 48px);      /* space on each side of the text column */
   --edge: 20px;           /* space between the frame and the window */
 }
 
@@ -27,7 +29,7 @@ body {
   margin: 0;
   background: var(--ground);
   color: var(--text);
-  font: 400 16px/1.6 "IBM Plex Sans", system-ui, sans-serif;
+  font: 400 19px/1.6 "IBM Plex Sans", system-ui, sans-serif;
   -webkit-text-size-adjust: 100%;
 }
 
@@ -63,13 +65,13 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .masthead a:hover .name,
 .masthead a:hover .role { color: var(--accent); }
 
-.pagehead { padding: 16px 48px 18px; display: flex; flex-direction: column; justify-content: center; }
-.pagehead h1 { margin: 0; font-size: 27px; font-weight: 500; line-height: 1.2; }
-.pagehead .meta { margin: 2px 0 0; font-size: 14px; color: var(--muted); }
+.pagehead { padding: 16px var(--side) 18px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+.pagehead h1 { margin: 0; font-size: 32px; font-weight: 500; line-height: 1.2; }
+.pagehead .meta { margin: 2px 0 0; font-size: 16px; color: var(--muted); }
 
 /* ---------- Tile rail ---------- */
 
-.rail { padding: 22px; }
+.rail { padding: clamp(22px, 1.7vw, 28px); }
 
 .tiles {
   list-style: none;
@@ -77,11 +79,11 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px 16px;
+  gap: clamp(18px, 1.4vw, 24px) clamp(16px, 1.25vw, 22px);
 }
 
 .tile { display: block; color: var(--soft); text-decoration: none; }
-.tile:hover, .tile:focus-visible { color: var(--accent); }
+.tile:hover, .tile:focus-visible, .tile.is-hovered { color: var(--accent); }
 
 .tile-box {
   position: relative;
@@ -101,6 +103,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 }
 .tile:hover .tile-line,
 .tile:focus-visible .tile-line,
+.tile.is-hovered .tile-line,
 .tile[aria-current] .tile-line { opacity: 1; }
 
 /* Rendered image: hidden until hover, keyboard focus, or the tile's own page. */
@@ -115,12 +118,23 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 }
 .tile:hover .tile-img,
 .tile:focus-visible .tile-img,
+.tile.is-hovered .tile-img,
 .tile[aria-current] .tile-img { opacity: 1; }
 
-.tile-name { display: block; margin-top: 7px; font-size: 13px; line-height: 1.3; }
+.tile-name { display: block; margin-top: 7px; font-size: clamp(13px, 0.95vw, 15px); line-height: 1.3; }
 
 .tile[aria-current] { color: var(--accent); }
 .tile[aria-current] .tile-box { background: rgba(99, 197, 206, 0.09); }
+
+/* Optional · show the render only while hovering, also on the current page's tile.
+   Switched on in js/site.js (RENDER_ON_HOVER_ONLY). Touch screens keep the current page's render,
+   because they have no hover. */
+@media (hover: hover) {
+  .hover-only .tile[aria-current]:not(:hover):not(:focus-visible):not(.is-hovered) .tile-img { opacity: 0; }
+}
+
+/* With the switch on, the current page's tile gets a thicker border instead. */
+.hover-only .tile[aria-current] .tile-box { border-width: 2px; }
 
 /* Draft and planned projects only ever appear in a local preview. */
 .tile.is-planned { opacity: 0.55; cursor: default; }
@@ -130,16 +144,22 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* ---------- Content ---------- */
 
-main { padding: 40px 48px 56px; }
+/* The content sits in one centred column: the side padding grows so the column is never wider than --column. */
+main {
+  padding-top: 40px;
+  padding-bottom: 56px;
+  padding-left: max(var(--side), calc((100% - var(--column)) / 2));
+  padding-right: max(var(--side), calc((100% - var(--column)) / 2));
+}
 
-.prose { max-width: 680px; }
+.prose { max-width: var(--column); }
 .prose p { margin: 0 0 16px; }
 .prose p:last-child { margin-bottom: 0; }
-.lead { font-size: 19px; line-height: 1.5; }
+.lead { font-size: 23px; line-height: 1.5; }
 
-h2 { margin: 48px 0 10px; font-size: 19px; font-weight: 500; line-height: 1.3; }
+h2 { margin: 48px 0 10px; font-size: 25px; font-weight: 500; line-height: 1.3; }
 
-.work { list-style: none; margin: 0; padding: 0; max-width: 700px; border-top: 1px solid var(--hair); }
+.work { list-style: none; margin: 0; padding: 0; max-width: var(--column); border-top: 1px solid var(--hair); }
 .work li { border-bottom: 1px solid var(--hair); }
 .work a, .work .row {
   display: flex;
@@ -150,27 +170,27 @@ h2 { margin: 48px 0 10px; font-size: 19px; font-weight: 500; line-height: 1.3; }
   padding: 13px 0;
   text-decoration: none;
 }
-.work .w-title { font-size: 17px; }
-.work .w-meta { font-size: 14px; color: var(--muted); }
+.work .w-title { font-size: 20px; }
+.work .w-meta { font-size: 16px; color: var(--muted); }
 .work .row { color: var(--muted); }
 
-.empty { color: var(--muted); max-width: 680px; }
+.empty { color: var(--muted); }
 
 /* Images, clips and captions on project pages. */
-figure { margin: 28px 0; max-width: 760px; }
+figure { margin: 28px 0; }
 figure img, figure video { display: block; width: 100%; height: auto; }
-figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); }
+figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 
 /* ---------- Studio work on the About page, and spec lists on project pages ---------- */
 
-.section-meta { margin: -6px 0 0; font-size: 14px; color: var(--muted); }
+.section-meta { margin: -6px 0 0; font-size: 16px; color: var(--muted); }
 
-.role-block { margin-top: 30px; max-width: 860px; }
-.role-block h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.35; }
-.role-block .meta { margin: 3px 0 12px; font-size: 14px; color: var(--muted); }
+.role-block { margin-top: 30px; }
+.role-block h3 { margin: 0; font-size: 21px; font-weight: 600; line-height: 1.35; }
+.role-block .meta { margin: 3px 0 12px; font-size: 16px; color: var(--muted); }
 
 /* A two-column list: a short label on the left, the detail on the right. */
-.entries { margin: 0; max-width: 860px; border-top: 1px solid var(--hair); }
+.entries { margin: 0; border-top: 1px solid var(--hair); }
 .entries > div {
   display: grid;
   grid-template-columns: 200px minmax(0, 1fr);
@@ -183,7 +203,7 @@ figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); }
 
 /* ---------- Diagrams ---------- */
 
-.diagram { margin: 20px 0 8px; max-width: 860px; overflow-x: auto; }
+.diagram { margin: 20px 0 8px; overflow-x: auto; }
 .diagram svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: inherit; }
 .diagram .box { fill: none; stroke: var(--rule); stroke-width: 1; }
 .diagram .chip { fill: rgba(99, 197, 206, 0.07); stroke: var(--hair); stroke-width: 1; }
@@ -192,12 +212,12 @@ figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); }
 .diagram text { fill: var(--text); font-size: 13px; }
 .diagram .t-title { font-weight: 600; }
 .diagram .t-soft { fill: var(--muted); font-size: 12px; }
-.caption { margin: 0; font-size: 14px; color: var(--muted); max-width: 680px; }
+.caption { margin: 0; font-size: 16px; color: var(--muted); }
 
 /* ---------- Video ----------
    A poster with a play button. Clicking plays the video in place; from disk it opens YouTube. */
 
-.video { margin: 28px 0 8px; max-width: 760px; }
+.video { margin: 28px 0 8px; }
 .video-link, .video iframe {
   display: block;
   position: relative;
@@ -237,7 +257,7 @@ figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); }
 
 .foot-place { padding: 6px 22px; display: flex; align-items: center; font-size: 14px; color: var(--muted); }
 
-.foot-links { padding: 6px 48px; display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; font-size: 15px; }
+.foot-links { padding: 6px var(--side); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 12px; font-size: 15px; }
 .foot-links a { display: inline-block; padding: 11px 0; text-decoration: none; }
 .foot-links .dot { color: var(--rule); }
 
@@ -255,6 +275,10 @@ figcaption { margin-top: 8px; font-size: 14px; color: var(--muted); }
   .foot-links { order: 6; padding: 4px 18px; }
   .tiles { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 14px 12px; }
   .masthead .role, .pagehead h1 { font-size: 24px; }
+  body { font-size: 17px; }
+  .lead { font-size: 20px; }
+  h2 { font-size: 22px; }
+  .role-block h3 { font-size: 19px; }
   .entries > div { grid-template-columns: minmax(0, 1fr); }
 }
 
