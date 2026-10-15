@@ -5,18 +5,18 @@
 <circle cx="23.8" cy="68.8" r="1.0" fill="#fff"/>
 <circle cx="26.9" cy="70.6" r="1.0" fill="#fff"/>
 <circle cx="30.0" cy="72.4" r="1.0" fill="#fff"/>
-<path d="M63.1 90.3 L35.2 74.2" opacity="0.6" stroke-width="0.9"/>
+<path d="M63.1 90.3 L34.9 74.1" stroke-width="0.9" opacity="0.6"/>
 <path d="M68.3 85.8 L20.7 58.3 L20.7 47.6 L68.3 75.1 Z"/>
 <path d="M68.3 85.8 L99.3 67.9 L99.3 57.1 L68.3 75.1"/>
 <circle cx="23.8" cy="55.9" r="1.0" fill="#fff"/>
 <circle cx="26.9" cy="57.7" r="1.0" fill="#fff"/>
 <circle cx="30.0" cy="59.5" r="1.0" fill="#fff"/>
-<path d="M63.1 77.4 L35.2 61.3" opacity="0.6" stroke-width="0.9"/>
+<path d="M63.1 77.4 L34.9 61.2" stroke-width="0.9" opacity="0.6"/>
 <path d="M68.3 72.9 L20.7 45.4 L20.7 34.7 L68.3 62.2 Z"/>
 <path d="M68.3 72.9 L99.3 55.0 L99.3 44.2 L68.3 62.2"/>
 <path d="M20.7 34.7 L51.7 16.7 L99.3 44.2"/>
 <circle cx="23.8" cy="43.0" r="1.0" fill="#fff"/>
 <circle cx="26.9" cy="44.8" r="1.0" fill="#fff"/>
 <circle cx="30.0" cy="46.6" r="1.0" fill="#fff"/>
-<path d="M63.1 64.5 L35.2 48.4" opacity="0.6" stroke-width="0.9"/>
+<path d="M63.1 64.5 L34.9 48.3" stroke-width="0.9" opacity="0.6"/>
 </svg>
