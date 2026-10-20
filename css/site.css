@@ -181,6 +181,12 @@ figure { margin: 28px 0; }
 figure img, figure video { display: block; width: 100%; height: auto; }
 figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 
+/* Text beside a small screenshot, such as a tool's panel. Stacks on narrow screens. */
+.split { display: grid; grid-template-columns: minmax(0, 1fr) max-content; gap: 40px; align-items: start; max-width: var(--column); }
+.split figure { margin: 4px 0 0; }
+.split figure img { width: 246px; }         /* half the screenshot's pixel width, so it stays sharp on high-density screens */
+@media (max-width: 760px) { .split { grid-template-columns: 1fr; gap: 20px; } .split figure img { max-width: 100%; height: auto; } }
+
 /* ---------- Studio work on the About page, and spec lists on project pages ---------- */
 
 .section-meta { margin: -6px 0 0; font-size: 16px; color: var(--muted); }
@@ -260,6 +266,28 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 .foot-links { padding: 6px var(--side); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 12px; font-size: 15px; }
 .foot-links a { display: inline-block; padding: 11px 0; text-decoration: none; }
 .foot-links .dot { color: var(--rule); }
+
+/* ---------- Fixed frame on larger screens ----------
+   The frame fills the window and stays put. Only the content scrolls, and the tile rail
+   scrolls on its own once there are more tiles than fit. The header and footer always show.
+   Phones and very short windows keep the normal page scroll below. */
+
+@media (min-width: 761px) and (min-height: 560px) {
+  html, body { height: 100%; overflow: hidden; }
+  .sheet {
+    height: calc(100vh - 2 * var(--edge));
+    height: calc(100dvh - 2 * var(--edge));
+    min-height: 0;
+    grid-template-rows: auto minmax(0, 1fr) auto;
+  }
+  .rail, main {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: var(--hair) transparent;
+  }
+  main:focus { outline: none; }
+}
 
 /* ---------- Small screens ----------
    One column: name, tiles, page title, content, footer. */

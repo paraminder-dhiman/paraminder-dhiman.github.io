@@ -17,6 +17,7 @@
 
   function byOrder(a, b) {
     return (
+      (a.pin || Infinity) - (b.pin || Infinity) ||
       GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group) ||
       b.scale - a.scale ||
       b.year - a.year ||
@@ -144,6 +145,15 @@
       };
       document.addEventListener("pointermove", release);
     }
+  }
+
+  // ----- Keyboard scrolling in the fixed frame.
+  // On larger screens only the content area scrolls, so the arrow keys, Page Down and Space
+  // need it focused. Focusing it quietly on load does that without moving anything.
+  var content = document.querySelector("main");
+  if (content) {
+    content.setAttribute("tabindex", "-1");
+    try { content.focus({ preventScroll: true }); } catch (e) {}
   }
 
   // ----- Video posters: click to play in place.

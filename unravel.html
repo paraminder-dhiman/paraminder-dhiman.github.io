@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Unravel · Paraminder Dhiman</title>
+  <meta name="description" content="A Blender extension that tears holes in cloth and grows frayed threads around them, built in Geometry Nodes with a Python add-on.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="unravel">
+
+<div class="sheet">
+
+  <header class="masthead">
+    <a href="index.html">
+      <span class="name">Paraminder Dhiman</span>
+      <span class="role">Technical artist</span>
+    </a>
+  </header>
+
+  <div class="pagehead">
+    <h1>Unravel</h1>
+    <p class="meta">Tool · Blender, Geometry Nodes, Python · 2026</p>
+  </div>
+
+  <nav class="rail" aria-label="Pages">
+    <ul class="tiles" id="tiles"></ul>
+    <noscript><p><a href="index.html">About</a></p></noscript>
+  </nav>
+
+  <main>
+    <div class="prose">
+      <p class="lead">A Blender extension for torn cloth. You paint where the cloth should tear, and Unravel cuts the holes, thickens their edges and grows frayed threads around them.</p>
+      <p>The systems are built in Geometry Nodes, with a Python add-on on top for the panel, the presets and the steps that need real mesh edits. It's free and open source. The code is on <a href="https://github.com/paraminder-dhiman/unravel" target="_blank" rel="noopener">GitHub</a>, and the latest version can be downloaded from its <a href="https://github.com/paraminder-dhiman/unravel/releases" target="_blank" rel="noopener">releases page</a>.</p>
+    </div>
+
+    <figure>
+      <img src="images/unravel/hero.jpg" width="1600" height="1000" alt="Close-up of torn denim with two ragged holes, frayed threads hanging across them.">
+    </figure>
+
+    <h2>How it fits together</h2>
+    <figure class="diagram" role="img" aria-label="Diagram. A cloth mesh with UVs and a painted Tears group goes into five Geometry Nodes groups: Tears, Fray threads, Stray threads, drawn Strands and Thread Mesh. The result renders in Blender as it is, can be baked for cloth simulation and rigs, or applied as plain mesh or hair for export to FBX, glTF, Alembic and USD.">
+      <svg viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg">
+        <!-- input -->
+        <rect class="box" x="20" y="90" width="170" height="110"></rect>
+        <text class="t-title" x="34" y="113">Cloth mesh</text>
+        <text x="34" y="142">Painted Tears group</text>
+        <text x="34" y="166">UVs for the weave</text>
+        <text class="t-soft" x="34" y="188">Any material</text>
+
+        <!-- node groups -->
+        <rect class="box" x="240" y="24" width="250" height="252"></rect>
+        <text class="t-title" x="254" y="49">Geometry Nodes</text>
+        <text class="t-soft" x="368" y="49">five groups</text>
+
+        <rect class="chip" x="254" y="66" width="222" height="32"></rect>
+        <text x="365" y="87" text-anchor="middle">Tears · holes, edges, thickness</text>
+        <rect class="chip" x="254" y="104" width="108" height="32"></rect>
+        <text x="308" y="125" text-anchor="middle">Fray threads</text>
+        <rect class="chip" x="368" y="104" width="108" height="32"></rect>
+        <text x="422" y="125" text-anchor="middle">Stray threads</text>
+        <rect class="chip" x="254" y="142" width="222" height="32"></rect>
+        <text x="365" y="163" text-anchor="middle">Strands · drawn by hand</text>
+        <rect class="chip" x="254" y="180" width="222" height="32"></rect>
+        <text x="365" y="201" text-anchor="middle">Thread Mesh · tubes for export</text>
+        <text class="t-soft" x="365" y="246" text-anchor="middle">Python panel · presets · seeds · help</text>
+
+        <!-- outputs -->
+        <rect class="box" x="560" y="40" width="200" height="56"></rect>
+        <text class="t-title" x="574" y="63">Render</text>
+        <text class="t-soft" x="574" y="83">Live in Blender, fully editable</text>
+
+        <rect class="box" x="560" y="122" width="200" height="56"></rect>
+        <text class="t-title" x="574" y="145">Bake Tears</text>
+        <text class="t-soft" x="574" y="165">Cloth simulation · rigs</text>
+
+        <rect class="box" x="560" y="204" width="200" height="56"></rect>
+        <text class="t-title" x="574" y="227">Apply Unravel</text>
+        <text class="t-soft" x="574" y="247">FBX · glTF · Alembic · USD</text>
+
+        <!-- wires -->
+        <path class="wire" d="M190 145 H233 M490 150 H520 M520 68 V232 M520 68 H553 M520 150 H553 M520 232 H553"></path>
+        <path class="head" d="M240 145 l-7 -3.5 v7 z M560 68 l-7 -3.5 v7 z M560 150 l-7 -3.5 v7 z M560 232 l-7 -3.5 v7 z"></path>
+      </svg>
+    </figure>
+    <p class="caption">Everything stays live until you choose to bake or apply, and both can be undone.</p>
+
+    <h2>Presets</h2>
+    <div class="prose">
+      <p>Eight presets set the tears and both thread layers to read like a type of cloth, from coarse burlap to fine silk. I tuned them by eye against renders, aiming for something believable rather than dramatic. Presets only change the look, so your painted tears are never touched.</p>
+    </div>
+    <figure>
+      <img src="images/unravel/presets.jpg" width="1600" height="627" alt="Eight renders of the same tear, one per preset: Burlap, Canvas, Denim, Tweed, Linen, Cotton, Silk and Gauze." loading="lazy">
+    </figure>
+
+    <h2>Simulation and export</h2>
+    <div class="prose">
+      <p>Live tears are a modifier on top of the cloth, so a cloth simulation would never see the holes. Bake Tears cuts the holes into the mesh itself, so the simulation moves the torn cloth properly. The thickness, threads and strands stay live and follow the moving cloth, because they're worked out at the cloth's rest shape and then carried onto the deformed surface.</p>
+    </div>
+    <figure>
+      <img src="images/unravel/simulation.jpg" width="1600" height="507" alt="The same cloth twice: flat at frame 1 with its tears baked, then falling at frame 16 with the tears opening." loading="lazy">
+    </figure>
+    <div class="prose">
+      <p>Apply Unravel turns everything into plain objects for export. Threads become either hair curves, for Blender, Alembic and USD, or a light tube mesh for FBX, glTF and game engines. On rigged cloth, the thread mesh is given the cloth's bone weights so it bends with the rig. The original setup is kept in a hidden backup, and Restore brings it all back.</p>
+    </div>
+    <figure>
+      <img src="images/unravel/apply-mesh.jpg" width="1600" height="1056" alt="Threads applied as a mesh, shown in orange on grey cloth: 17,924 thread faces with 4 sides and detail 0.6." loading="lazy">
+    </figure>
+
+    <h2>Technical breakdown</h2>
+    <div class="prose">
+      <p>The main decisions behind Unravel, and why I made them the way I did.</p>
+    </div>
+    <dl class="entries">
+      <div>
+        <dt>Nodes first, Python where needed</dt>
+        <dd>All the geometry is built in Geometry Nodes, so everything stays live, non-destructive and open to inspect in the node editor. Python only does what nodes can't: the panel, the presets, and the real mesh edits behind Bake and Apply. Keeping the logic in nodes means an artist can follow or tweak it without reading code.</dd>
+      </div>
+      <div>
+        <dt>Tears are painted</dt>
+        <dd>A tear is a vertex group you weight-paint, because every artist already knows how, and the paint keeps working if the mesh changes. Each face gets a score from its paint plus noise, and faces above a threshold are cut. New open edges are found by comparing against the cloth's original border, so the outer edge of the cloth is never mistaken for a tear.</dd>
+      </div>
+    </dl>
+    <figure class="diagram" role="img" aria-label="Diagram of the tear pipeline: the painted weights and noise give each face a score, faces above the threshold are cut, the new open edges are found, their outline is smoothed, and the lip and walls are built from the distance to those edges.">
+      <svg viewBox="0 0 780 90" xmlns="http://www.w3.org/2000/svg">
+        <rect class="chip" x="20" y="28" width="80" height="34"></rect>
+        <text x="60" y="50" text-anchor="middle">Paint</text>
+        <rect class="chip" x="109" y="28" width="150" height="34"></rect>
+        <text x="184" y="50" text-anchor="middle">Score · paint + noise</text>
+        <rect class="chip" x="268" y="28" width="100" height="34"></rect>
+        <text x="318" y="50" text-anchor="middle">Cut faces</text>
+        <rect class="chip" x="378" y="28" width="128" height="34"></rect>
+        <text x="442" y="50" text-anchor="middle">Find hole edges</text>
+        <rect class="chip" x="515" y="28" width="124" height="34"></rect>
+        <text x="577" y="50" text-anchor="middle">Smooth outline</text>
+        <rect class="chip" x="648" y="28" width="112" height="34"></rect>
+        <text x="704" y="50" text-anchor="middle">Lip and walls</text>
+        <path class="wire" d="M100 45 H102 M259 45 H261 M368 45 H371 M506 45 H508 M639 45 H641"></path>
+        <path class="head" d="M109 45 l-7 -3.5 v7 z M268 45 l-7 -3.5 v7 z M378 45 l-7 -3.5 v7 z M515 45 l-7 -3.5 v7 z M648 45 l-7 -3.5 v7 z"></path>
+      </svg>
+    </figure>
+    <p class="caption">The tear pipeline, from paint to a solid torn edge.</p>
+    <dl class="entries">
+      <div>
+        <dt>Lip and walls</dt>
+        <dd>The lip comes from the distance to the hole edges. A smooth falloff over Lip Width pushes the surface out along its normal, and walls join it to a back layer, so the torn edge reads as solid cloth rather than a paper-thin cut.</dd>
+      </div>
+    </dl>
+    <figure>
+      <a href="images/unravel/tears-graph.png" target="_blank" rel="noopener"><img src="images/unravel/tears-graph.jpg" width="1600" height="625" alt="A section of the Tears node group in Blender's Geometry Nodes editor." loading="lazy"></a>
+      <figcaption>Part of the Tears group: the switch between live and baked holes, the rest position block that keeps the lip steady on moving cloth, and the falloff that pushes the lip out along the normal. Click for full size.</figcaption>
+    </figure>
+
+    <dl class="entries">
+      <div>
+        <dt>Threads follow the weave</dt>
+        <dd>Roots are spaced along the hole outlines. Each thread then takes its direction from the UVs, along the warp or the weft, whichever runs across the tear, which is how real cloth unravels. That's why Unravel asks for UVs.</dd>
+      </div>
+      <div>
+        <dt>One system, used twice</dt>
+        <dd>Fray and strays are the same node group on two modifiers with different settings, so there's one system to maintain and every fix lands in both. Clumping pulls threads towards a few random guide threads, curl is a helix around each thread, frizz is noise, and droop grows towards the tip.</dd>
+      </div>
+      <div>
+        <dt>Bridges</dt>
+        <dd>A share of the threads look across the hole with a raycast. If the far edge is close enough, the thread spans the gap and sags in the middle, the way threads hang across a real tear.</dd>
+      </div>
+      <div>
+        <dt>Surface contact</dt>
+        <dd>Threads that would sink into the cloth are lifted back onto its surface, but only within a set depth, so threads hanging behind the cloth on purpose are left alone.</dd>
+      </div>
+      <div>
+        <dt>Drawn strands</dt>
+        <dd>A curve you draw on the cloth becomes a twisted bundle of fibres. It remembers its spot on the rest shape and its height above the surface, so it follows the cloth when it moves.</dd>
+      </div>
+      <div>
+        <dt>Rest space</dt>
+        <dd>Threads grown on a deforming surface flicker, because their roots move from frame to frame. Roots and the lip are worked out once on the cloth's rest shape, then carried onto the moving surface. The thread count stays steady and the roots stay within half a millimetre of the cloth.</dd>
+      </div>
+    </dl>
+    <figure class="diagram" role="img" aria-label="Diagram. On the cloth's flat rest shape, thread roots sit at fixed spots. On the moving cloth, each root is placed at the same spot of the deformed surface, so the roots move with the cloth instead of being worked out again every frame.">
+      <svg viewBox="0 0 780 190" xmlns="http://www.w3.org/2000/svg">
+        <rect class="box" x="20" y="20" width="300" height="150"></rect>
+        <text class="t-title" x="34" y="43">Rest shape</text>
+        <text class="t-soft" x="34" y="62">Roots and lip worked out here, once</text>
+        <path class="wire" d="M44 120 H296"></path>
+        <circle class="head" cx="90" cy="120" r="4"></circle>
+        <circle class="head" cx="150" cy="120" r="4"></circle>
+        <circle class="head" cx="210" cy="120" r="4"></circle>
+        <circle class="head" cx="260" cy="120" r="4"></circle>
+
+        <path class="wire" d="M320 95 H453"></path>
+        <path class="head" d="M460 95 l-7 -3.5 v7 z"></path>
+        <text class="t-soft" x="390" y="84" text-anchor="middle">same spot on the cloth</text>
+
+        <rect class="box" x="460" y="20" width="300" height="150"></rect>
+        <text class="t-title" x="474" y="43">Moving cloth</text>
+        <text class="t-soft" x="474" y="62">Carried onto the surface every frame</text>
+        <path class="wire" d="M484 132.7 L490 135.4 L496 137.9 L502 139.9 L508 141.6 L514 142.9 L520 143.7 L526 144.0 L532 143.9 L538 143.2 L544 142.2 L550 140.7 L556 138.8 L562 136.5 L568 133.9 L574 131.0 L580 127.8 L586 124.5 L592 121.1 L598 117.6 L604 114.1 L610 110.7 L616 107.4 L622 104.3 L628 101.5 L634 98.9 L640 96.7 L646 94.9 L652 93.5 L658 92.6 L664 92.1 L670 92.0 L676 92.5 L682 93.4 L688 94.8 L694 96.5 L700 98.7 L706 101.2 L712 104.0 L718 107.1 L724 110.4 L730 113.8 L736 117.3"></path>
+        <circle class="head" cx="530" cy="144.0" r="4"></circle>
+        <circle class="head" cx="590" cy="122.2" r="4"></circle>
+        <circle class="head" cx="650" cy="93.9" r="4"></circle>
+        <circle class="head" cx="700" cy="98.7" r="4"></circle>
+      </svg>
+    </figure>
+    <dl class="entries">
+      <div>
+        <dt>Baking only the holes</dt>
+        <dd>A cloth simulation can't see holes made by a modifier, but baking everything made the thickness drift up to 40 mm from the cloth as it moved. So Bake Tears cuts only the holes into the mesh and records which edges were hole edges. The thickness is rebuilt live from that record on top of the simulation.</dd>
+      </div>
+      <div>
+        <dt>Scale</dt>
+        <dd>Thread sizes only look right at real size, and not every scene is in metres. Each node group shrinks the cloth to real units at the start and grows the result back at the end, with thread radius scaled separately, since moving curves doesn't change their thickness. The value is set from the scene's unit scale automatically.</dd>
+      </div>
+      <div>
+        <dt>Export in place</dt>
+        <dd>Apply swaps the cloth's own mesh for the result instead of making new objects, so names, parenting and rig links stay intact for export. For engines that can't read hair, a small node group turns the threads into tubes with UVs and a choice of sides and points. Thread tubes get the cloth's bone weights through a data transfer from the nearest face. The originals go into a hidden backup collection, which is what makes Restore possible.</dd>
+      </div>
+      <div>
+        <dt>Performance</dt>
+        <dd>Viewport Density hides a share of the threads while you work, and renders always show them all. Detail only subdivides the cloth when you ask for finer edges.</dd>
+      </div>
+      <div>
+        <dt>Black spots</dt>
+        <dd>Some presets showed dark spots along the tear edges in renders. I traced them to z-fighting between two surfaces at the outer rim of the lip and fixed it with a small offset.</dd>
+      </div>
+      <div>
+        <dt>Version stamps</dt>
+        <dd>Each node group carries a version stamp. If a file was made with an older Unravel, the panel offers to update its node groups while keeping every setting and the paint.</dd>
+      </div>
+    </dl>
+
+    <h2>The panel</h2>
+    <div class="split">
+      <div class="prose">
+        <p>Everything lives in one tab in the sidebar. Paint Tears switches straight to weight painting on the right group, and Done Painting switches back. Every seed has a button for a quick new variation, every setting has a tooltip, and the help button opens a short guide.</p>
+        <p>All the actions are also in the Object menu and in search, and the Make Unravel step is in the right-click menu.</p>
+      </div>
+      <figure>
+        <img src="images/unravel/panel.png" width="246" height="388" alt="The Unravel sidebar tab, showing Presets, Scale, Apply Unravel and the Tears settings with Paint Tears and Bake Tears.">
+      </figure>
+    </div>
+  </main>
+
+  <div class="foot-place">Pune, India</div>
+
+  <footer class="foot-links">
+    <a href="mailto:paramindersd@gmail.com">Email</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://www.linkedin.com/in/paraminder-dhiman">LinkedIn</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://github.com/paraminder-dhiman">GitHub</a>
+  </footer>
+
+</div>
+
+<script src="js/projects.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

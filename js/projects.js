@@ -5,9 +5,10 @@
 
    ORDER
    Projects are sorted automatically, in this order:
-     1. group  · the order written in GROUP_ORDER below
-     2. scale  · bigger first (3 = large, 2 = medium, 1 = small)
-     3. year   · newest first
+     1. pin    · optional. Pinned projects come first, pin 1 before pin 2
+     2. group  · the order written in GROUP_ORDER below
+     3. scale  · bigger first (3 = large, 2 = medium, 1 = small)
+     4. year   · newest first
    So a new project lands in the right place by itself. You never move lines around.
 
    STATUS
@@ -22,6 +23,7 @@
      meta   the line shown next to the title, separated with dots
      image  optional. A square picture in /tiles, shown when the tile is hovered
      line   optional. The line drawing's file name in /tiles, if it isn't id.svg
+     pin    optional. A number that puts the project ahead of the normal order
 */
 
 const GROUP_ORDER = ["tech-art", "programming", "craft"];
@@ -35,14 +37,26 @@ const PROJECTS = [
     group: "tech-art",
     scale: 3,
     year: 2023,
+    pin: 1,
     status: "planned",
+  },
+  {
+    id: "unravel",
+    title: "Unravel",
+    tile: "Unravel",
+    image: "unravel.jpg",
+    meta: "Tool · Blender, Geometry Nodes, Python · 2026",
+    group: "tech-art",
+    scale: 3,
+    year: 2026,
+    status: "draft",
   },
   {
     id: "blender-tools",
     title: "Blender tools",
     tile: "Blender tools",
     meta: "Tools · Blender, Python",
-    group: "tech-art",
+    group: "programming",
     scale: 2,
     year: 2026,
     status: "planned",
