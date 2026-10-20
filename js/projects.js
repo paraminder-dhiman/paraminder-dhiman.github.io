@@ -74,6 +74,17 @@ const PROJECTS = [
     status: "draft",
   },
   {
+    id: "behind-the-site",
+    title: "Behind the site",
+    tile: "Behind the site",
+    image: "behind-the-site.jpg",
+    meta: "Web · Blender, Python, HTML, CSS, JavaScript · 2026",
+    group: "programming",
+    scale: 1,
+    year: 2026,
+    status: "draft",
+  },
+  {
     id: "video-editing",
     title: "Video editing",
     tile: "Editing",
