@@ -162,6 +162,30 @@
       <p>App data and the boot drive are backed up once a week, at a time when I'm home to fix whatever breaks. The backup goes to a flash drive, then is copied to a second drive and to my workstation. Seven backups are kept, which covers the last 50 days.</p>
       <p>I chose weekly over daily because only a few people use the server on any given day.</p>
     </div>
+
+    <h2>Design decisions</h2>
+    <dl class="entries">
+      <div>
+        <dt>No open ports</dt>
+        <dd>Nothing on the router is opened to the internet. Public pages go out through Cloudflare Tunnels, and admin access is over Tailscale only, so there's nothing to scan or attack from outside.</dd>
+      </div>
+      <div>
+        <dt>One place for the network</dt>
+        <dd>AdGuard Home is also the DHCP server, so every device's address and every DNS rule live in one place instead of being split with the router.</dd>
+      </div>
+      <div>
+        <dt>Encode once, direct play everywhere</dt>
+        <dd>The library is re-encoded once to a format almost every device plays directly. That costs a one-off pass on the graphics card, but means the server rarely transcodes while people watch.</dd>
+      </div>
+      <div>
+        <dt>Separate services</dt>
+        <dd>The Discord bot and the housekeeping service are separate programs, each in its own container and Git repository. Media-facing jobs go to the bot, and jobs between machines go to the housekeeping service, so one can change without risking the other.</dd>
+      </div>
+      <div>
+        <dt>Logs you can read</dt>
+        <dd>Every automated action is posted as a single line to a private channel, so I can see what happened without opening a terminal. Noisy events are left out on purpose.</dd>
+      </div>
+    </dl>
   </main>
 
   <div class="foot-place">Pune, India</div>

@@ -185,6 +185,7 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 .split { display: grid; grid-template-columns: minmax(0, 1fr) max-content; gap: 40px; align-items: start; max-width: var(--column); }
 .split figure { margin: 4px 0 0; }
 .split figure img { width: 246px; }         /* half the screenshot's pixel width, so it stays sharp on high-density screens */
+.split.wide figure img { width: 380px; }    /* for screenshots taken at the normal interface scale */
 @media (max-width: 760px) { .split { grid-template-columns: 1fr; gap: 20px; } .split figure img { max-width: 100%; height: auto; } }
 
 /* ---------- Studio work on the About page, and spec lists on project pages ---------- */

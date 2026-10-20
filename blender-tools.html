@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blender tools · Paraminder Dhiman</title>
+  <meta name="description" content="Two Blender add-ons: Positive Mirror, which mirrors objects with a live link and no negative scale, and UV Island Colorizer, which colours every UV island and bakes a colour ID map.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="blender-tools">
+
+<div class="sheet">
+
+  <header class="masthead">
+    <a href="index.html">
+      <span class="name">Paraminder Dhiman</span>
+      <span class="role">Technical artist</span>
+    </a>
+  </header>
+
+  <div class="pagehead">
+    <h1>Blender tools</h1>
+    <p class="meta">Tools · Blender, Python · 2026</p>
+  </div>
+
+  <nav class="rail" aria-label="Pages">
+    <ul class="tiles" id="tiles"></ul>
+    <noscript><p><a href="index.html">About</a></p></noscript>
+  </nav>
+
+  <main>
+    <div class="prose">
+      <p class="lead">Small production tools I wrote for my own Blender work. Each one takes a fiddly, repetitive job and makes it one click.</p>
+      <p>Both are free and open source, packaged as Blender extensions.</p>
+    </div>
+
+    <h2>Positive Mirror</h2>
+    <div class="prose">
+      <p>Mirroring an object in Blender usually means a scale of −1 on one axis. That flips the normals and the winding of the mesh, and many exporters and game engines handle it badly. Positive Mirror makes the mirrored copy with a positive scale instead, and keeps it linked to the source, so the copy follows as you move, rotate or animate the original.</p>
+      <p>The code is on <a href="https://github.com/paraminder-dhiman/positive-mirror" target="_blank" rel="noopener">GitHub</a>, and the latest version can be downloaded from its <a href="https://github.com/paraminder-dhiman/positive-mirror/releases" target="_blank" rel="noopener">releases page</a>.</p>
+    </div>
+    <figure>
+      <img src="images/blender-tools/positive-mirror.jpg" width="1600" height="744" alt="Two Suzanne heads mirrored across the world X axis, with the Positive Mirror panel open in the sidebar showing the mirror plane, axis, flip axis and link settings.">
+    </figure>
+    <dl class="entries">
+      <div>
+        <dt>Transforms, not the mesh</dt>
+        <dd>The tool only ever changes the copy's transform. It never flips vertices or normals, and the copy shares the source's mesh, so instancing is kept.</dd>
+      </div>
+      <div>
+        <dt>The maths</dt>
+        <dd>The source's world matrix is reflected across the mirror plane, then flipped back along a Flip Axis in the object's own space. Two reflections make a proper rotation, so the result has a positive scale. The Flip Axis is the axis the mesh is symmetric along, which is X for most assets.</dd>
+      </div>
+    </dl>
+    <figure>
+      <img src="images/blender-tools/positive-mirror-transforms.png" width="1228" height="370" alt="The Transform panels of the source and the copy side by side. The copy's X location and its Y and Z rotations are mirrored, and its scale is 2.573 on every axis, the same positive value as the source." loading="lazy">
+      <figcaption>Source and copy. The copy's location and rotation are mirrored, its scale stays positive, and its transform is locked because the constraints drive it.</figcaption>
+    </figure>
+    <dl class="entries">
+      <div>
+        <dt>A live link without a handler</dt>
+        <dd>My first version kept copies in sync with a depsgraph handler. The extensions review flagged that as a risk to stability and performance, so I rebuilt the link with Blender's own constraints. Copy Location inverts the plane axis, Copy Rotation inverts the other two, and Copy Scale keeps the scale. When the Flip Axis differs from the plane axis, a Transformation constraint adds a fixed half turn. Blender evaluates all of it natively, and copies keep following even with the add-on disabled.</dd>
+      </div>
+    </dl>
+    <div class="split wide">
+      <div class="prose">
+        <p>For a mirror across X, the copy gets three constraints targeting the source: Copy Location with X inverted, Copy Rotation with Y and Z inverted, and Copy Scale as it is. That's the same result as the quaternion rule for an X mirror, keeping x and w and negating y and z, but worked out by Blender every frame instead of by Python.</p>
+      </div>
+      <figure>
+        <img src="images/blender-tools/positive-mirror-constraints.png" width="628" height="1058" alt="The copy's constraint stack: Positive Mirror Copy Location with Invert X, Positive Mirror Copy Rotation with Invert Y and Z, and Positive Mirror Copy Scale, all targeting Suzanne in world space.">
+      </figure>
+    </div>
+    <dl class="entries">
+      <div>
+        <dt>Mirror planes</dt>
+        <dd>Mirror across a world axis, across the 3D Cursor or across any object's local axis. The last two use a small Mirror Plane empty as the constraints' space. In Object mode that empty copies only the object's location and rotation, so a scaled mirror object can't skew the result.</dd>
+      </div>
+      <div>
+        <dt>Left and right meshes</dt>
+        <dd>Names like Asset_L and Asset_R are paired automatically, so the copy can use the mesh of the other side when an asset isn't symmetric.</dd>
+      </div>
+      <div>
+        <dt>Tidying up</dt>
+        <dd>With no handler running, nothing notices a deleted source by itself. The panel shows when copies have lost their source, and Refresh unlinks them, or deletes them if you choose. Refresh also turns copies made with the first version into constraint links.</dd>
+      </div>
+    </dl>
+
+    <h2>UV Island Colorizer</h2>
+    <div class="prose">
+      <p>Gives every UV island on a mesh its own colour, so you can check a UV layout at a glance, and can bake the result to a colour ID map for texturing. It works on many meshes at once.</p>
+      <p>It's published on <a href="https://extensions.blender.org/add-ons/uv-island-colorizer/" target="_blank" rel="noopener">Blender Extensions</a>, and the code is on <a href="https://github.com/paraminder-dhiman/uv-island-colorizer" target="_blank" rel="noopener">GitHub</a>.</p>
+    </div>
+    <figure>
+      <img src="images/blender-tools/uv-island-colorizer.jpg" width="1600" height="602" alt="Suzanne in the viewport with each UV island in its own colour, next to the baked colour ID map showing the same islands." loading="lazy">
+      <figcaption>The coloured islands in the viewport, and the colour ID map baked from them.</figcaption>
+    </figure>
+    <dl class="entries">
+      <div>
+        <dt>Finding islands</dt>
+        <dd>Islands are found on each mesh's active UV map by walking across faces that are connected in UV space, not just in 3D, so a seam always starts a new island.</dd>
+      </div>
+      <div>
+        <dt>Colours</dt>
+        <dd>Every island gets a distinct colour, stored in a colour attribute called UV Island Colors, and the viewport switches to show it.</dd>
+      </div>
+      <div>
+        <dt>Baking</dt>
+        <dd>The bake uses Cycles and captures only the colour, with no lighting, at 64 to 8192 pixels. Each mesh is saved as its own PNG. Your render engine, materials and selection are put back exactly as they were afterwards.</dd>
+      </div>
+      <div>
+        <dt>Many meshes at once</dt>
+        <dd>Meshes come from a picker, the viewport selection or a whole collection. Meshes without UVs are skipped, and the bake settings are remembered between sessions.</dd>
+      </div>
+    </dl>
+
+    <h2>See also</h2>
+    <div class="prose">
+      <p><a href="unravel.html">Unravel</a>, my larger Blender tool for torn cloth and frayed threads.</p>
+    </div>
+  </main>
+
+  <div class="foot-place">Pune, India</div>
+
+  <footer class="foot-links">
+    <a href="mailto:paramindersd@gmail.com">Email</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://www.linkedin.com/in/paraminder-dhiman">LinkedIn</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://github.com/paraminder-dhiman">GitHub</a>
+  </footer>
+
+</div>
+
+<script src="js/projects.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
