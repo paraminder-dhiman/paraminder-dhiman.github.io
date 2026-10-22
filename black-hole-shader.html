@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Black hole shader · Paraminder Dhiman</title>
+  <meta name="description" content="A real-time black hole for Unreal Engine 5: light bent by the Schwarzschild equations, a volumetric accretion disk and relativistic colour, in one material with a custom HLSL node.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="black-hole-shader">
+
+<div class="sheet">
+
+  <header class="masthead">
+    <a href="index.html">
+      <span class="name">Paraminder Dhiman</span>
+      <span class="role">Technical artist</span>
+    </a>
+  </header>
+
+  <div class="pagehead">
+    <h1>Black hole shader</h1>
+    <p class="meta">Shader · Unreal Engine 5, HLSL · 2023 · 2026</p>
+  </div>
+
+  <nav class="rail" aria-label="Pages">
+    <ul class="tiles" id="tiles"></ul>
+    <noscript><p><a href="index.html">About</a></p></noscript>
+  </nav>
+
+  <main>
+    <div class="prose">
+      <p class="lead">A real-time black hole for Unreal Engine 5. Starlight bends around it, a glowing disk of gas orbits it, and the side of the disk rushing toward you shines brighter and bluer than the side moving away.</p>
+      <p>It's a single material on an inverted sphere, with the heavy lifting in one custom HLSL node. Version 2.0 is free on <a href="https://www.fab.com/listings/a15ec3ff-d601-4c25-8338-f12082425b43" target="_blank" rel="noopener">Fab</a>, with a demo level, presets and a parameter set grouped for artists.</p>
+    </div>
+
+    <figure>
+      <img src="images/black-hole/01-hero.jpg" width="1600" height="900" alt="The black hole seen at a low angle: a bright orange accretion disk wraps around a black shadow, its far side bent up over the top, against a starfield and the Milky Way.">
+    </figure>
+
+    <div class="video">
+      <a class="video-link" href="https://www.youtube.com/watch?v=U_VcXvOcbJQ" target="_blank" rel="noopener" data-youtube="U_VcXvOcbJQ" data-title="Black hole shader 2.0">
+        <img src="https://i.ytimg.com/vi/U_VcXvOcbJQ/maxresdefault.jpg" alt="" loading="lazy">
+        <span class="video-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5.5v13l11-6.5z" fill="currentColor"></path></svg>
+        </span>
+        <span class="visually-hidden">Play the video: black hole shader 2.0</span>
+      </a>
+    </div>
+
+    <h2>How it fits together</h2>
+    <div class="prose">
+      <p>Every pixel of the sphere fires a ray from the camera and marches it toward the black hole, one step at a time. Each step bends the ray a little and checks whether it's inside the disk. The ray either falls in, which leaves the pixel black, or escapes. An escaped ray hands its final, bent direction back to the material graph, which looks up the sky in that direction. That's what makes the stars behind the hole appear warped around it.</p>
+    </div>
+    <figure class="diagram" role="img" aria-label="Diagram. A camera ray enters the raymarch loop inside the custom HLSL node. Each step bends the ray, moves it, and if it is inside the disk samples the gas, lights it with a shadow ray toward the centre and adds its colour. The loop ends when the ray falls into the horizon, which gives black, or escapes, which returns the bent direction. In the material graph the bent direction looks up the sky cubemap, and the disk colour is placed over it.">
+      <svg viewBox="0 0 780 290" xmlns="http://www.w3.org/2000/svg">
+        <rect class="box" x="20" y="105" width="130" height="70"></rect>
+        <text class="t-title" x="34" y="132">Camera ray</text>
+        <text class="t-soft" x="34" y="155">one per pixel</text>
+
+        <rect class="box" x="195" y="22" width="300" height="246"></rect>
+        <text class="t-title" x="209" y="46">Custom HLSL node</text>
+        <text class="t-soft" x="345" y="46">the raymarch loop</text>
+        <rect class="chip" x="209" y="62" width="272" height="32"></rect>
+        <text x="345" y="83" text-anchor="middle">Bend · Schwarzschild equation</text>
+        <rect class="chip" x="209" y="100" width="272" height="32"></rect>
+        <text x="345" y="121" text-anchor="middle">Step · small in the disk, large far out</text>
+        <rect class="chip" x="209" y="138" width="272" height="32"></rect>
+        <text x="345" y="159" text-anchor="middle">In the disk · gas density from the rings</text>
+        <rect class="chip" x="209" y="176" width="272" height="32"></rect>
+        <text x="345" y="197" text-anchor="middle">Light · shadow ray toward the centre</text>
+        <rect class="chip" x="209" y="214" width="272" height="32"></rect>
+        <text x="345" y="235" text-anchor="middle">Colour · Doppler, redshift, blackbody</text>
+
+        <rect class="box" x="545" y="40" width="215" height="62"></rect>
+        <text class="t-title" x="559" y="64">Falls in</text>
+        <text class="t-soft" x="559" y="85">Mask 0 · the black shadow</text>
+
+        <rect class="box" x="545" y="128" width="215" height="62"></rect>
+        <text class="t-title" x="559" y="152">Escapes</text>
+        <text class="t-soft" x="559" y="173">Bent direction · Mask 1</text>
+
+        <rect class="box" x="545" y="212" width="215" height="56"></rect>
+        <text class="t-title" x="559" y="236">Material graph</text>
+        <text class="t-soft" x="559" y="255">Sky in that direction + disk colour</text>
+
+        <path class="wire" d="M150 140 H188 M495 140 H515 M515 71 V159 M515 71 H538 M515 159 H538 M652 190 V205"></path>
+        <path class="head" d="M195 140 l-7 -3.5 v7 z M545 71 l-7 -3.5 v7 z M545 159 l-7 -3.5 v7 z M652 212 l-3.5 -7 h7 z"></path>
+      </svg>
+    </figure>
+
+    <h2>Bending the light</h2>
+    <div class="prose">
+      <p>Light near a black hole follows curved paths. For a non-spinning hole, the bend can be written as a pull toward the centre that a ray picks up as it moves. It grows quickly as the ray gets closer, and it depends on how sideways the ray is travelling. That one line is the core of the shader:</p>
+      <p><code>a = −3M · |p × v|² · p / r⁵</code></p>
+      <p>Each step applies half of the bend, moves the ray, then applies the other half. This is the leapfrog method, which keeps paths stable even when they swing tightly around the hole, so the thin ring of light at the shadow's edge stays sharp. Steps are small inside the disk, where detail matters, and grow with distance outside it, but never so large that a ray jumps over the disk.</p>
+    </div>
+    <figure>
+      <img src="images/black-hole/02-from-above.jpg" width="1600" height="900" alt="The black hole seen from above: the disk is a wide orange spiral around a round black shadow with a thin bright ring at its edge." loading="lazy">
+      <figcaption>From above, the disk's far side is no longer lifted over the top, and the thin bright ring at the edge of the shadow shows clearly.</figcaption>
+    </figure>
+
+    <h2>The disk</h2>
+    <div class="prose">
+      <p>The disk is a volume of gas, made of two layers. A smooth fog is thickest at the middle of the disk and thins toward its top and bottom. On top of it, a ring texture is split into orbital bands that each rotate at their own speed, faster near the hole, like real orbits. Two offset copies of the texture are blended across each band so the seams between bands never show.</p>
+      <p>Light comes from the centre. Each sample sends a short shadow ray toward it and dims by how much gas is in the way, so the inner disk shades the outer disk. Within each step, the light fades with depth following the Beer–Lambert law, so thick gas turns opaque and thin gas stays see-through.</p>
+    </div>
+    <figure>
+      <img src="images/black-hole/03-presets.jpg" width="1600" height="900" alt="Three versions of the black hole side by side: Classic with the colour curve and no Doppler, Default with physical colour and Doppler, and Physical, hotter and fully physical." loading="lazy">
+      <figcaption>The three presets: Classic, Default and Physical.</figcaption>
+    </figure>
+
+    <h2>Physics on top</h2>
+    <div class="prose">
+      <p>Gas near the hole orbits at a large fraction of the speed of light. The side coming toward you is brightened and shifted blue, and the side moving away is dimmed and shifted red. That's relativistic Doppler beaming, and it's why real black hole images are lopsided. Light climbing out of the hole's gravity also loses energy, which reddens the inner disk.</p>
+      <p>Both effects combine into one factor that scales brightness and shifts the gas's temperature. Temperature sets colour through a blackbody curve: the inner edge is hottest and the disk cools outward. A Physical Colour slider blends from the artist's colour curve to this physical colour, and Doppler Intensity scales the effect, so the same shader can look accurate or stylised.</p>
+    </div>
+    <figure>
+      <img src="images/black-hole/04-doppler.jpg" width="1600" height="900" alt="Two renders compared: with Doppler 0 both sides of the disk are equally bright, with Doppler 1 the approaching side is brighter and whiter." loading="lazy">
+      <figcaption>Doppler off and on. With it on, the side moving toward the camera is brighter and whiter.</figcaption>
+    </figure>
+    <figure>
+      <img src="images/black-hole/05-temperature.jpg" width="1600" height="900" alt="Four renders at inner temperatures of 2500, 4000, 8000 and 12000 kelvin, going from deep red and orange to white and pale blue." loading="lazy">
+      <figcaption>Inner temperature from 2,500 K to 12,000 K.</figcaption>
+    </figure>
+    <figure>
+      <img src="images/black-hole/06-colour.jpg" width="1600" height="900" alt="Two renders: one with a custom pink light colour and Physical Colour at 0, and the default orange with Physical Colour at 1." loading="lazy">
+      <figcaption>With Physical Colour at 0, any light colour works. At 1, colour comes from temperature.</figcaption>
+    </figure>
+
+    <h2>Version 2.0</h2>
+    <div class="prose">
+      <p>Version 1.0, from 2023, had the lit-fog look but approximate bending and fixed step sizes. For 2.0 I rebuilt the raymarch around the exact light-bending equation with leapfrog steps, added adaptive step sizes, fixed long-standing artifacts, and layered the relativistic colour on top as optional controls. The defaults are physically based, and every artistic control from 1.0 is still there.</p>
+      <p>I also tried a full rebuild for a spinning (Kerr) black hole, with a self-lit disk modelled on how real disks radiate. It was accurate and passed checks against the known shadow shape of spinning holes, but it lost the lit-fog look that defines this shader, and its disk read blurrier. I kept the hybrid as 2.0, and the Kerr version lives in the repository as an experiment.</p>
+    </div>
+
+    <h2>Material graph and parameters</h2>
+    <div class="prose">
+      <p>The HLSL node takes 30 inputs and returns three outputs: the disk colour, the bent ray direction and a mask for the shadow. The graph around it handles the camera, the sky lookup and the final composite. In the material instance, parameters are grouped by what an artist would reach for: disk, fog, light, shadow, Doppler, animation and quality.</p>
+    </div>
+    <figure>
+      <img src="images/black-hole/07-parameters.jpg" width="1600" height="900" alt="The material instance's parameter panel, grouped into Accretion Disk, Animation, Background, Black Hole, Doppler, Fog, Light, Quality and Shadow." loading="lazy">
+    </figure>
+    <figure>
+      <img src="images/black-hole/08-graph-parameters.jpg" width="1600" height="900" alt="The material graph's parameters, wired into the custom HLSL node." loading="lazy">
+    </figure>
+    <figure>
+      <img src="images/black-hole/09-graph-composite.jpg" width="1600" height="900" alt="The end of the material graph, where the bent direction samples the sky and the disk colour is composited over it." loading="lazy">
+      <figcaption>The custom node's outputs: the bent direction samples the sky, and the disk colour goes over it.</figcaption>
+    </figure>
+
+    <h2>Technical breakdown</h2>
+    <div class="prose">
+      <p>The main decisions behind the shader, and why I made them.</p>
+    </div>
+    <dl class="entries">
+      <div>
+        <dt>One node, one sphere</dt>
+        <dd>All the raymarching lives in one custom HLSL node on an inverted sphere, so the black hole is a single actor you drop into a level, move and scale. The camera is passed in the actor's local space, so the whole effect moves with it.</dd>
+      </div>
+      <div>
+        <dt>Leapfrog stepping</dt>
+        <dd>A simple step that bends and then moves drifts on tight orbits around the hole. Splitting each bend in half around the move keeps paths stable at the same cost, which matters most for the thin ring at the shadow's edge.</dd>
+      </div>
+      <div>
+        <dt>Adaptive steps</dt>
+        <dd>Steps are fixed inside the disk, where the gas is sampled, and grow with distance outside it, capped by the distance to the disk so a ray can't skip it. Rays stop once they're far away and heading out.</dd>
+      </div>
+      <div>
+        <dt>Bent sky, not a second pass</dt>
+        <dd>The node returns the ray's final direction instead of a colour for the sky. The material graph samples the sky with it, so any sky the artist uses is lensed correctly at no extra cost.</dd>
+      </div>
+      <div>
+        <dt>Jitter the sample, not the path</dt>
+        <dd>Each step samples the gas at a random point along itself to hide banding, but the ray's path never changes between frames. The noise is cleaned up by temporal anti-aliasing (TAA) without the stars or the ring shimmering.</dd>
+      </div>
+      <div>
+        <dt>Shadows inside the gas</dt>
+        <dd>Each sample sends a short, cheap shadow ray toward the centre that reads density without colour, so the disk can shade itself without doubling the cost.</dd>
+      </div>
+      <div>
+        <dt>Physics as layers</dt>
+        <dd>Doppler, redshift and blackbody colour are multipliers on the artistic result, with sliders from 0 to 1. Artists can start from the physical look and push it, or switch it off and use colour curves as in 1.0.</dd>
+      </div>
+      <div>
+        <dt>Checked against references</dt>
+        <dd>The bending was checked against an exact, high-precision solution written in Python, and the HLSL was run on the CPU against that reference before going into Unreal, so a difference in the image could be traced to the code rather than guessed at.</dd>
+      </div>
+    </dl>
+
+    <h2>Credit</h2>
+    <div class="prose">
+      <p>Version 1.0 was built by me. For 2.0, the physics and HLSL rewrite was developed with AI assistance, directed, tested and tuned by me in Unreal.</p>
+    </div>
+  </main>
+
+  <div class="foot-place">Pune, India</div>
+
+  <footer class="foot-links">
+    <a href="mailto:paramindersd@gmail.com">Email</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://www.linkedin.com/in/paraminder-dhiman">LinkedIn</a>
+    <span class="dot" aria-hidden="true">·</span>
+    <a href="https://github.com/paraminder-dhiman">GitHub</a>
+  </footer>
+
+</div>
+
+<script src="js/projects.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

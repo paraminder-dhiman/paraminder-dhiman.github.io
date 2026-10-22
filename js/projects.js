@@ -43,12 +43,13 @@ const PROJECTS = [
     id: "black-hole-shader",
     title: "Black hole shader",
     tile: "Black hole",
-    meta: "Shader · Unreal Engine 5 · 2023",
+    image: "black-hole-shader.jpg",
+    meta: "Shader · Unreal Engine 5, HLSL · 2023 · 2026",
     group: "tech-art",
     scale: 3,
     year: 2023,
     pin: 1,
-    status: "planned",
+    status: "live",
   },
   {
     id: "unravel",
@@ -59,7 +60,7 @@ const PROJECTS = [
     group: "tech-art",
     scale: 3,
     year: 2026,
-    status: "draft",
+    status: "live",
   },
   {
     id: "blender-tools",
@@ -70,7 +71,7 @@ const PROJECTS = [
     group: "tech-art",
     scale: 2,
     year: 2026,
-    status: "draft",
+    status: "live",
   },
   {
     id: "home-server",
@@ -81,7 +82,7 @@ const PROJECTS = [
     group: "beyond",
     scale: 3,
     year: 2026,
-    status: "draft",
+    status: "live",
   },
   {
     id: "behind-the-site",
@@ -92,7 +93,7 @@ const PROJECTS = [
     group: "beyond",
     scale: 1,
     year: 2026,
-    status: "draft",
+    status: "live",
   },
   {
     id: "video-editing",
@@ -103,6 +104,6 @@ const PROJECTS = [
     group: "beyond",
     scale: 2,
     year: 2026,
-    status: "draft",
+    status: "live",
   },
 ];
