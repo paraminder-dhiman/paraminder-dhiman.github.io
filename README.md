@@ -18,6 +18,7 @@ Plain HTML, CSS and a little JavaScript. No framework and no build step. How it'
 | `tiles/` | Each tile's line art (`.svg`) and render (`.jpg`) |
 | `images/` | Images for the project pages, one folder per page |
 | `files/` | The resume PDF |
+| `tools/tile-grid.html` | Builds the tile grid image on the Behind the site page · instructions inside |
 | `fonts/` | IBM Plex Sans, used under the SIL Open Font License |
 
 ## Preview locally

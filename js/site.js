@@ -344,8 +344,9 @@
   // ----- The footer's little black hole.
   // Clicking the dot wakes it up. It swells and trembles, smoke swirls in, and the letters on
   // both sides fall in, nearest first, each curling round the rim as it disappears. The hole
-  // fattens with every letter, throbs for a moment, lets out a ring of light, then gives the
-  // letters back in the order it took them, each shooting out and slowing into place.
+  // fattens with every letter and throbs, then caves in to a tiny point, holds for a beat, and
+  // bursts: a flash of the rim, two rings of light, smoke blown outward, and the letters thrown
+  // back out in the order it took them, lobbed in small arcs, tumbling, landing in place.
   var egg = document.querySelector(".foot-note");
   if (egg) {
     var dot = egg.querySelector(".egg-dot");
@@ -373,9 +374,13 @@
 
     var PULL = 1700;      // letters falling in
     var HOLD = 700;       // the hole on its own, throbbing
-    var EMIT = 1600;      // letters coming back out
-    var TRAVEL = 700;     // how long one letter takes to fall in or fly out
+    var COLLAPSE = 380;   // the full hole caving in to a point
+    var STILL = 160;      // the tiny, trembling pause before the burst
+    var SPREAD = 380;     // how close together the letters are thrown out
+    var FLY = 950;        // how long one letter is in the air
+    var TRAVEL = 700;     // how long one letter takes to fall in
     var GROW = 1.6;       // how much fatter the hole gets once it has swallowed everything
+    var TINY = 0.45;      // how small the hole gets just before the burst
     var SHAKE = 0.45;     // pixels of tremble at full power
 
     // Two small canvases centred on the hole: smoke behind it, the ring of light in front.
@@ -401,15 +406,17 @@
     function newWisp(anywhere) {
       return { r: anywhere ? range(10, 62) : range(48, 64), a: range(0, 6.283), w: range(1.6, 3.2), size: range(5, 13), alpha: range(0.05, 0.13), teal: Math.random() < 0.6 };
     }
-    function drawSmoke(wisps, power, holeR, dt) {
+    function drawSmoke(wisps, power, holeR, dt, push) {
       var step = dt / 33.3;                                   // the same speed on any screen refresh rate
       sctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       sctx.clearRect(0, 0, FX_W, FX_H);
       sctx.globalCompositeOperation = "lighter";
       wisps.forEach(function (s, i) {
         s.a += s.w / 30 * (1 + 2.5 * power) * step;
-        s.r -= (0.25 + 0.9 * power) * (40 / (s.r + 8)) * step;
+        if (push > 0) s.r += push * 5 * step;                 // blown outward by the burst
+        else s.r -= (0.25 + 0.9 * power) * (40 / (s.r + 8)) * step;
         if (s.r < holeR * 0.9) wisps[i] = s = newWisp(false);
+        if (push > 0 && s.r > 110) s.alpha = 0;
         var px = FX_W / 2 + Math.cos(s.a) * s.r, py = FX_H / 2 + Math.sin(s.a) * s.r * 0.38;
         var alpha = s.alpha * power * clamp((s.r - holeR) / 6);
         var g = sctx.createRadialGradient(px, py, 0, px, py, s.size);
@@ -422,9 +429,10 @@
     }
 
     // The hole itself: size, glow and a low, uneven tremble. Returns its radius in pixels.
-    function drawHole(t, power, scale) {
-      var shx = (Math.sin(t * 0.083) + 0.6 * Math.sin(t * 0.051 + 1.3)) / 1.6 * SHAKE * power;
-      var shy = (Math.sin(t * 0.071 + 2.1) + 0.6 * Math.sin(t * 0.047)) / 1.6 * SHAKE * power;
+    function drawHole(t, power, scale, shake) {
+      var amount = SHAKE * (shake || 1);
+      var shx = (Math.sin(t * 0.083) + 0.6 * Math.sin(t * 0.051 + 1.3)) / 1.6 * amount * power;
+      var shy = (Math.sin(t * 0.071 + 2.1) + 0.6 * Math.sin(t * 0.047)) / 1.6 * amount * power;
       dot.style.transform = "translate(" + shx.toFixed(2) + "px," + shy.toFixed(2) + "px) scale(" + scale.toFixed(3) + ")";
       dot.style.boxShadow = "0 0 " + (5 + 4 * power) + "px " + (1 + power) + "px rgba(155,224,230," + (0.45 + 0.4 * power) + "), 0 0 " + (16 * power) + "px " + (5 * power) + "px rgba(99,197,206," + (0.45 * power) + ")";
       var e = egg.getBoundingClientRect(), d = dot.getBoundingClientRect();
@@ -460,12 +468,14 @@
       units.forEach(function (u) {
         var k = u.dist / far;                             // 0 next to the hole, 1 at the far ends
         u.inAt = k * (PULL - TRAVEL);                     // nearest go in first
-        u.outAt = k * (EMIT - TRAVEL);                    // and come out first
+        u.outAt = k * SPREAD;                             // and are thrown out first
         u.curl = (u.hx < 0 ? 1 : -1) * range(0.6, 1.2);   // a short curl round the rim as it goes in
+        u.arc = range(6, 18);                             // how high it's lobbed on the way out
+        u.spin = (Math.random() < 0.5 ? -1 : 1) * range(160, 420);   // degrees it tumbles in the air
       });
       var wisps = [];
       for (var i = 0; i < 90; i++) wisps.push(newWisp(true));
-      var emitAt = PULL + HOLD, total = emitAt + EMIT + 300;
+      var holdEnd = PULL + HOLD, blast = holdEnd + COLLAPSE + STILL, total = blast + SPREAD + FLY + 250;
       egg.classList.add("is-swallowing");
       var start = null, last = null;
 
@@ -474,10 +484,9 @@
         var t = now - start, dt = Math.min(50, now - last);
         last = now;
         var eaten = 0;
-        var power = t < 600 ? smooth(t / 600) : t < emitAt ? 1 : 1 - smooth(clamp((t - emitAt - 300) / 1200));
 
         units.forEach(function (u) {
-          if (t < emitAt) {
+          if (t < blast) {
             // Falling in: straight along the line, speeding up, then curling and shrinking into the hole.
             var pi = clamp((t - u.inAt) / TRAVEL), p = easeIn(pi);
             if (pi >= 1) eaten++;
@@ -485,33 +494,56 @@
             var size = Math.max(0.001, 1 - smooth(clamp((p - 0.55) / 0.45)));
             place(u, r * Math.cos(a), r * Math.sin(a) * mix(1, 0.6, p), stretch(u, Math.sin(Math.PI * pi) * 0.9) + "scale(" + size.toFixed(3) + ")", pi >= 1 ? 0 : 1);
           } else {
-            // Coming out: shooting from the centre and slowing into place, growing back to full size.
-            var q = clamp((t - emitAt - u.outAt) / TRAVEL), e = easeOut(q);
-            place(u, mix(0, u.hx, e), mix(0, u.hy, e), stretch(u, Math.sin(Math.PI * q) * 0.6) + "scale(" + Math.max(0.001, smooth(clamp(q * 1.6))).toFixed(3) + ")", q > 0 ? 1 : 0);
+            // Thrown out: launched fast, lobbed in an arc, tumbling, overshooting home a touch, then landing.
+            var q = clamp((t - blast - u.outAt) / FLY);
+            if (q <= 0) { place(u, 0, 0, "scale(0.001)", 0); return; }
+            var f = clamp(q / 0.72), e = q < 0.72 ? easeOut(f) * 1.1 : 1.1 - 0.1 * smooth((q - 0.72) / 0.28);
+            var land = q > 0.72 ? Math.sin(Math.PI * clamp((q - 0.72) / 0.28)) : 0;   // a small squash on landing
+            var grow = smooth(clamp(q / 0.25));
+            place(u, u.hx * e, u.hy * e - u.arc * Math.sin(Math.PI * f),
+              "rotate(" + (u.spin * (1 - easeOut(f))).toFixed(1) + "deg) scale(" + Math.max(0.001, grow * (1 + 0.15 * land)).toFixed(3) + "," + Math.max(0.001, grow * (1 - 0.2 * land)).toFixed(3) + ")", 1);
           }
         });
 
-        // The hole fattens with every letter it swallows, throbs while full, then gives it all back.
-        var full = t < emitAt ? eaten / units.length : 1 - easeOut(clamp((t - emitAt) / EMIT));
-        var throb = t > PULL && t < emitAt ? 0.12 * Math.sin((t - PULL) / HOLD * Math.PI * 3) : 0;
-        var holeR = drawHole(t, power, 1 + 0.6 * smooth(clamp(t / 500)) + GROW * full + throb);
-        drawSmoke(wisps, power, holeR, dt);
+        // The hole: fattens as it eats, throbs, caves in to a point, then bursts back to its small self.
+        var base = 1 + 0.6 * smooth(clamp(t / 500)) + GROW * (t < holdEnd ? eaten / units.length : 1);
+        var scale, power, shake = 1, push = 0;
+        if (t < holdEnd) {
+          scale = base + (t > PULL ? 0.12 * Math.sin((t - PULL) / HOLD * Math.PI * 3) : 0);
+          power = t < 600 ? smooth(t / 600) : 1;
+        } else if (t < blast) {
+          var b = easeIn(clamp((t - holdEnd) / COLLAPSE));
+          scale = mix(base, TINY, b); power = mix(1, 0.35, b); shake = 1 + 2.5 * b;
+        } else {
+          var k = t - blast;
+          var pop = k < 90 ? easeOut(k / 90) : 1;
+          scale = mix(TINY, base + 0.5, pop) + (1 - (base + 0.5)) * easeOut(clamp((k - 90) / 1300));
+          power = mix(0.35, 1.8, pop) * (1 - smooth(clamp((k - 90) / 1500)));
+          shake = 1 + 5 * Math.max(0, 1 - k / 420);
+          push = Math.max(0, 1 - k / 650);
+        }
+        var holeR = drawHole(t, Math.min(power, 1), scale, shake);
+        // the burst brightens the rim for a moment, without growing the glow's reach
+        var flash = Math.min(1, Math.max(0, power - 1));
+        dot.style.borderColor = flash > 0 ? "rgb(" + Math.round(mix(99, 230, flash)) + "," + Math.round(mix(197, 250, flash)) + "," + Math.round(mix(206, 252, flash)) + ")" : "";
+        drawSmoke(wisps, Math.min(1, power), holeR, dt, push);
 
-        // One soft ring of light the moment it lets go.
-        var ring = (t - emitAt) / 500;
+        // Two quick rings of light from the burst.
         rctx.setTransform(ratio, 0, 0, ratio, 0, 0);
         rctx.clearRect(0, 0, FX_W, FX_H);
-        if (ring > 0 && ring < 1) {
-          var rr = mix(holeR, 70, easeOut(ring));
-          rctx.strokeStyle = "rgba(155,224,230," + (0.7 * (1 - ring)).toFixed(3) + ")";
-          rctx.lineWidth = mix(3, 0.5, ring);
-          rctx.shadowColor = "rgba(99,197,206,0.9)"; rctx.shadowBlur = 8;
+        [0, 130].forEach(function (lag, j) {
+          var rt = (t - blast - lag) / 450;
+          if (rt <= 0 || rt >= 1) return;
+          var rr = mix(holeR, j ? 95 : 75, easeOut(rt));
+          rctx.strokeStyle = "rgba(155,224,230," + ((j ? 0.45 : 0.85) * (1 - rt)).toFixed(3) + ")";
+          rctx.lineWidth = mix(j ? 2 : 3.5, 0.4, rt);
+          rctx.shadowColor = "rgba(99,197,206,0.9)"; rctx.shadowBlur = 10;
           rctx.beginPath(); rctx.ellipse(FX_W / 2, FX_H / 2, rr, rr * 0.45, 0, 0, 6.283); rctx.stroke();
-        }
+        });
 
         if (t < total) { requestAnimationFrame(frame); return; }
         letters.forEach(function (span) { span.style.transform = span.style.opacity = ""; });
-        dot.style.transform = dot.style.boxShadow = "";
+        dot.style.transform = dot.style.boxShadow = dot.style.borderColor = "";
         sctx.clearRect(0, 0, smokeCanvas.width, smokeCanvas.height);
         rctx.clearRect(0, 0, ringCanvas.width, ringCanvas.height);
         egg.classList.remove("is-swallowing");

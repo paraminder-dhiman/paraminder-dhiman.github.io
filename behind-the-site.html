@@ -60,7 +60,7 @@
       </div>
       <div>
         <dt>Tiles as one family</dt>
-        <dd>Every tile shares the same camera, lighting and plate, and follows the same palette rules, so new projects always look like they belong.</dd>
+        <dd>Every tile shares the same camera, lighting and plate, and follows the same palette rules, so new projects always look like they belong. The plate lands on exactly the same pixels in every tile, and only the object standing on it changes.</dd>
       </div>
     </dl>
 
@@ -162,6 +162,10 @@
         <dd>An orthographic camera at the true isometric angle, 35.264° down and 45° around, with a warm key light and a cool fill. Every object sits in the same space and catches the same light.</dd>
       </div>
       <div>
+        <dt>Shared framing</dt>
+        <dd>The first tiles were framed one by one, by eye, and side by side some plates sat a little lower or smaller than others. Now the camera's aim and zoom live in one shared block at the top of every script, and each tile fits its object to the frame instead of the other way round: the paper plane flies a little lower, the server stack is scaled down evenly, and the editing tile became an editor's viewer and timeline laid out on the plate.</dd>
+      </div>
+      <div>
         <dt>Palette rules</dt>
         <dd>Objects are near-black. The accents are Blender's red, green and blue axis colours, and each tile gets its own glow colour, so no two tiles light up the same way.</dd>
       </div>
@@ -176,6 +180,10 @@
       <div>
         <dt>Line art from the geometry</dt>
         <dd>The line art isn't edge detection on the image. Each tile lists what to draw by object name: outlines, edges, dots. Those real 3D points are projected through the render camera and written as a clean SVG, plus a smooth PNG drawn the same way. That's why the lines are crisp and never noisy.</dd>
+      </div>
+      <div>
+        <dt>The grid on this page</dt>
+        <dd>The image of every tile at the top of this page is made by a small page that reads the same project list, so it always shows the tiles in the same groups and order as the rail.</dd>
       </div>
       <div>
         <dt>Saved on F12</dt>
@@ -222,11 +230,11 @@
       </div>
       <div>
         <dt>A small black hole</dt>
-        <dd>The dot in the footer is a tiny black hole: black, with a teal rim and glow. Click it and it swells and trembles, smoke starts swirling in, and the letters on both sides fall into it, nearest first, each curling round the rim as it vanishes. The hole grows fatter with every letter, throbs for a moment once it's full, lets out a single ring of light, then gives the letters back in the order it took them, each shooting out and slowing into place. A nod to the black hole project, kept small enough that the footer still reads as a footer.</dd>
+        <dd>The dot in the footer is a tiny black hole: black, with a teal rim and glow. Click it and it swells and trembles, smoke starts swirling in, and the letters on both sides fall into it, nearest first, each curling round the rim as it vanishes. The hole grows fatter with every letter and throbs once it's full. Then it caves in on itself to a tiny point, holds for a beat, and bursts: the rim flashes, two rings of light ripple out, the smoke is blown away, and the letters are thrown back out in the order it took them, lobbed in small arcs, tumbling, landing in place.</dd>
       </div>
       <div>
         <dt>Finding the moment</dt>
-        <dd>The first versions pulled the letters into orbit and let them go again. They moved well but felt unfinished, because nothing actually happened at the hole. I tried whole words orbiting, a spinning disk of text with Doppler colour, and letters pulled in as threads. Swallowing won because it has a beginning, a middle and an end: the hole takes the footer, holds it, and gives it back. Lightning and a hard shake made it look busy, so they went, leaving a gentle tremble and the smoke.</dd>
+        <dd>The first versions pulled the letters into orbit and let them go again. They moved well but felt unfinished, because nothing actually happened at the hole. I tried whole words orbiting, a spinning disk of text with Doppler colour, and letters pulled in as threads. Swallowing won because it has a beginning, a middle and an end: the hole takes the footer, holds it, and gives it back. Shrinking to a point just before the burst works like a wind-up before a throw, so the release lands harder without needing anything louder. Lightning and a hard shake made it look busy, so they went, leaving a gentle tremble and the smoke.</dd>
       </div>
       <div>
         <dt>Why it's scripted</dt>
