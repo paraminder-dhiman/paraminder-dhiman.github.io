@@ -3,12 +3,17 @@
    This is the only file to edit when you add, hide or reorder a project.
    The tile rail and the work list on the About page are both built from it.
 
+   GROUPS
+   The rail starts with the "Me" group (About and Contact), set in js/site.js.
+   Projects follow in groups, in the order written in GROUP_ORDER below.
+   Each group gets a heading in the tile rail and in the work list on the About page,
+   taken from GROUP_NAMES. To add a group, add it to both lists.
+
    ORDER
-   Projects are sorted automatically, in this order:
+   Inside a group, projects are sorted automatically, in this order:
      1. pin    · optional. Pinned projects come first, pin 1 before pin 2
-     2. group  · the order written in GROUP_ORDER below
-     3. scale  · bigger first (3 = large, 2 = medium, 1 = small)
-     4. year   · newest first
+     2. scale  · bigger first (3 = large, 2 = medium, 1 = small)
+     3. year   · newest first
    So a new project lands in the right place by itself. You never move lines around.
 
    STATUS
@@ -21,12 +26,17 @@
      title  full name, used in the work list
      tile   short name under the tile
      meta   the line shown next to the title, separated with dots
+     group  which group it sits in · one of the names in GROUP_ORDER
      image  optional. A square picture in /tiles, shown when the tile is hovered
      line   optional. The line drawing's file name in /tiles, if it isn't id.svg
      pin    optional. A number that puts the project ahead of the normal order
 */
 
-const GROUP_ORDER = ["tech-art", "programming", "craft"];
+const GROUP_ORDER = ["tech-art", "beyond"];
+const GROUP_NAMES = {
+  "tech-art": "Tech art",
+  "beyond": "Beyond tech art",
+};
 
 const PROJECTS = [
   {
@@ -57,7 +67,7 @@ const PROJECTS = [
     tile: "Blender tools",
     image: "blender-tools.jpg",
     meta: "Tools · Blender, Python · 2026",
-    group: "programming",
+    group: "tech-art",
     scale: 2,
     year: 2026,
     status: "draft",
@@ -68,7 +78,7 @@ const PROJECTS = [
     tile: "Home server",
     image: "home-server.jpg",
     meta: "Infrastructure · Docker, Python · 2026",
-    group: "programming",
+    group: "beyond",
     scale: 3,
     year: 2026,
     status: "draft",
@@ -79,7 +89,7 @@ const PROJECTS = [
     tile: "Behind the site",
     image: "behind-the-site.jpg",
     meta: "Web · Blender, Python, HTML, CSS, JavaScript · 2026",
-    group: "programming",
+    group: "beyond",
     scale: 1,
     year: 2026,
     status: "draft",
@@ -90,7 +100,7 @@ const PROJECTS = [
     tile: "Editing",
     image: "video-editing.jpg",
     meta: "DaVinci Resolve · 5+ years",
-    group: "craft",
+    group: "beyond",
     scale: 2,
     year: 2026,
     status: "draft",

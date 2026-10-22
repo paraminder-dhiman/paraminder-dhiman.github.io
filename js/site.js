@@ -17,8 +17,8 @@
 
   function byOrder(a, b) {
     return (
-      (a.pin || Infinity) - (b.pin || Infinity) ||
       GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group) ||
+      (a.pin || Infinity) - (b.pin || Infinity) ||
       b.scale - a.scale ||
       b.year - a.year ||
       a.title.localeCompare(b.title)
@@ -78,10 +78,20 @@
   // ----- Tile rail: About first, then the projects in order.
   var rail = document.getElementById("tiles");
   if (rail) {
+    // The "Me" group: About and Contact.
+    rail.appendChild(el("li", "rail-group", "Me"));
     rail.appendChild(
       makeTile({ id: "about", tile: "About", href: "index.html", status: "live", image: "about.jpg" })
     );
+    rail.appendChild(
+      makeTile({ id: "contact", tile: "Contact", href: "contact.html", status: "live", image: "contact.jpg" })
+    );
+    var railGroup = null;
     projects.forEach(function (p) {
+      if (p.group !== railGroup) {                   // a heading where a new group starts
+        railGroup = p.group;
+        rail.appendChild(el("li", "rail-group", GROUP_NAMES[p.group] || p.group));
+      }
       rail.appendChild(
         makeTile({
           id: p.id,
@@ -98,7 +108,12 @@
   // ----- Work list (only on pages that have one).
   var list = document.getElementById("work-list");
   if (list) {
+    var listGroup = null;
     projects.forEach(function (p) {
+      if (p.group !== listGroup) {
+        listGroup = p.group;
+        list.appendChild(el("li", "work-group", GROUP_NAMES[p.group] || p.group));
+      }
       var planned = p.status === "planned";
       var row = el(planned ? "span" : "a", planned ? "row" : "");
       if (!planned) row.href = p.id + ".html";
@@ -120,6 +135,127 @@
       var section = document.getElementById("work");
       if (section) section.hidden = true;
     }
+  }
+
+  // ----- Line art that draws itself in.
+  // "load"  · the lines trace themselves once when the page first opens (once per visit, not on every page)
+  // "hover" · the lines retrace each time a tile is hovered, then the render fades in
+  // "off"   · no drawing
+  // The browser can only animate the lines if it can read the SVG files, which works on the live site
+  // and on a local server, but not when a page is opened straight from disk. Then the tiles stay still.
+  var LINE_DRAW = "load";
+  var DRAW_TIME = 900;      // milliseconds for one tile's lines to draw
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function inlineSvg(img) {
+    return fetch(img.src).then(function (r) { return r.text(); }).then(function (text) {
+      var holder = document.createElement("div");
+      holder.innerHTML = text;
+      var svg = holder.querySelector("svg");
+      if (!svg) return null;
+      svg.setAttribute("class", "tile-line");
+      svg.setAttribute("aria-hidden", "true");
+      img.parentNode.replaceChild(svg, img);
+      return svg;
+    });
+  }
+
+  // Set every line to "not drawn yet", then let the CSS transition draw it.
+  function draw(svg, duration, startDelay) {
+    startDelay = startDelay || 0;
+    var shapes = svg.querySelectorAll("path, circle, line, polyline, polygon, rect, ellipse");
+    Array.prototype.forEach.call(shapes, function (s, i) {
+      var len = s.getTotalLength ? s.getTotalLength() : 0;
+      if (!len) return;
+      s.style.transition = "none";
+      s.style.strokeDasharray = len + " " + (len + 8);
+      s.style.strokeDashoffset = len + 4;
+      s.getBoundingClientRect();                      // apply the starting state before animating
+      var delay = startDelay + (i / shapes.length) * duration * 0.35;   // later lines start a little later
+      s.style.transition = "stroke-dashoffset " + duration * 0.65 + "ms ease-out " + delay + "ms";
+      s.style.strokeDashoffset = 0;
+    });
+  }
+
+  // The reverse: each line pulls back to its start, last lines first.
+  function undraw(svg, duration) {
+    var shapes = svg.querySelectorAll("path, circle, line, polyline, polygon, rect, ellipse");
+    var n = shapes.length;
+    Array.prototype.forEach.call(shapes, function (s, i) {
+      var len = s.getTotalLength ? s.getTotalLength() : 0;
+      if (!len) return;
+      s.style.transition = "none";
+      s.style.strokeDasharray = len + " " + (len + 8);
+      s.style.strokeDashoffset = 0;
+      s.getBoundingClientRect();
+      var delay = ((n - 1 - i) / n) * duration * 0.35;
+      s.style.transition = "stroke-dashoffset " + duration * 0.65 + "ms ease-in " + delay + "ms";
+      s.style.strokeDashoffset = len + 4;
+    });
+  }
+
+  if (LINE_DRAW !== "off" && !reduceMotion && location.protocol !== "file:" && rail) {
+    var firstVisit = true;
+    try { firstVisit = !sessionStorage.getItem("lines-drawn"); sessionStorage.setItem("lines-drawn", "1"); } catch (e) {}
+    var lineImgs = rail.querySelectorAll("img.tile-line");
+    Array.prototype.forEach.call(lineImgs, function (img, n) {
+      if (LINE_DRAW === "load" && !firstVisit) return;
+      if (LINE_DRAW === "load") img.style.visibility = "hidden";   // no flash of finished lines before drawing
+      inlineSvg(img).then(function (svg) {
+        if (!svg) return;
+        var tile = svg.closest(".tile");
+        tile._lines = svg;
+        if (LINE_DRAW === "load") {
+          draw(svg, DRAW_TIME, 150 + n * 90);   // tiles start one after another
+        } else {
+          tile.classList.add("draws-on-hover");
+          tile.addEventListener("mouseenter", function () { draw(svg, DRAW_TIME * 0.6); });
+        }
+      }).catch(function () { img.style.visibility = ""; });
+    });
+  }
+
+  // ----- Hovering a tile: the lines pull back off the render as it fades in, and when the cursor
+  // leaves, they draw themselves back over it while it fades out.
+  // "lines" · that effect
+  // "fade"  · the plain fade, no line movement
+  var LEAVE_EFFECT = "lines";
+  var LEAVE_TIME = 650;
+  if (rail && LEAVE_EFFECT !== "fade" && !reduceMotion) {
+    document.documentElement.classList.add("leave-" + LEAVE_EFFECT);
+    Array.prototype.forEach.call(rail.querySelectorAll("a.tile"), function (tile) {
+      if (!tile.querySelector(".tile-img")) return;
+      var timer = null;
+      tile.addEventListener("mouseleave", function () {
+        tile.classList.remove("is-leaving");
+        void tile.offsetWidth;
+        tile.classList.remove("is-entering");
+        tile.classList.add("is-leaving");
+        if (LEAVE_EFFECT === "lines" && tile._lines) draw(tile._lines, 520);
+        clearTimeout(timer);
+        timer = setTimeout(function () { tile.classList.remove("is-leaving"); }, LEAVE_TIME);
+      });
+      tile.addEventListener("mouseenter", function () {
+        clearTimeout(timer);
+        tile.classList.remove("is-leaving");
+        if (LEAVE_EFFECT === "lines" && tile._lines) {
+          tile.classList.add("is-entering");                 // lines stay on top while they pull back
+          undraw(tile._lines, 420);
+          timer = setTimeout(function () { tile.classList.remove("is-entering"); }, 420);
+        }
+      });
+    });
+  }
+
+  // ----- A short contact line at the end of every page except Contact itself.
+  var mainEl = document.querySelector("main");
+  if (mainEl && currentPage !== "contact") {
+    var note = el("p", "contact-note");
+    note.appendChild(document.createTextNode("Like my work? "));
+    var go = el("a", null, "Get in touch");
+    go.href = "contact.html";
+    note.appendChild(go);
+    mainEl.appendChild(note);
   }
 
   // ----- Keep the render showing on the tile that was just clicked.

@@ -116,6 +116,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   opacity: 0;
   transition: opacity 0.18s ease;
 }
+/* With line drawing on hover, the render waits for the lines before fading in. */
+.draws-on-hover:hover .tile-img { transition-delay: 0.45s; transition-duration: 0.3s; }
+
 .tile:hover .tile-img,
 .tile:focus-visible .tile-img,
 .tile.is-hovered .tile-img,
@@ -135,6 +138,32 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* With the switch on, the current page's tile gets a thicker border instead. */
 .hover-only .tile[aria-current] .tile-box { border-width: 2px; }
+
+/* Group headings in the rail: a small label with a line, spanning both columns. */
+.rail-group {
+  grid-column: 1 / -1;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 6px 0 -6px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.rail-group:not(:first-child) { margin-top: 10px; }
+.rail-group::after { content: ""; flex: 1; border-top: 1px solid var(--hair); }
+
+/* Hovering and leaving a tile (the effect is picked in js/site.js). */
+.tile.is-leaving .tile-img { opacity: 1; transition: none; }
+@media (hover: hover) { .hover-only .tile.is-leaving[aria-current] .tile-img { opacity: 1; } }
+
+/* lines · the line art draws on top while the render fades underneath */
+.leave-lines .tile.is-leaving .tile-line,
+.leave-lines .tile.is-entering .tile-line { z-index: 1; opacity: 1; }
+.leave-lines .tile.is-leaving .tile-img { animation: tile-fade 0.6s ease-in 0.05s forwards; }
+@keyframes tile-fade { from { opacity: 1; } to { opacity: 0; } }
 
 /* Draft and planned projects only ever appear in a local preview. */
 .tile.is-planned { opacity: 0.55; cursor: default; }
@@ -173,6 +202,45 @@ h2 { margin: 48px 0 10px; font-size: 25px; font-weight: 500; line-height: 1.3; }
 .work .w-title { font-size: 20px; }
 .work .w-meta { font-size: 16px; color: var(--muted); }
 .work .row { color: var(--muted); }
+.work .work-group {
+  padding: 22px 0 8px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.work .work-group:first-child { padding-top: 12px; }
+
+/* Tools used in a role: highlighted as small tags under the role line. */
+.tools { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.tools li {
+  padding: 3px 11px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--accent-hi);
+  background: rgba(99, 197, 206, 0.08);
+  border: 1px solid rgba(99, 197, 206, 0.35);
+}
+
+/* The short contact line at the end of every page. */
+.contact-note { margin: 64px 0 0; padding-top: 22px; border-top: 1px solid var(--hair); max-width: var(--column); color: var(--soft); }
+
+/* The Contact page. */
+.contact-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin: 28px 0 0; }
+.contact-button {
+  display: inline-block;
+  padding: 5px 14px;
+  font-size: 16px;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  text-decoration: none;
+}
+.contact-button:hover { background: var(--accent); color: var(--ground); }
+.contact-address { color: var(--text); user-select: all; }
+.contact-hint { font-size: 15px; color: var(--muted); }
+.contact-actions + .contact-actions { margin-top: 14px; }
+.entries.contact-list { margin-top: 36px; max-width: var(--column); }
+.contact-list a { text-decoration: none; }
 
 .empty { color: var(--muted); }
 
@@ -194,7 +262,7 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 
 .role-block { margin-top: 30px; }
 .role-block h3 { margin: 0; font-size: 21px; font-weight: 600; line-height: 1.35; }
-.role-block .meta { margin: 3px 0 12px; font-size: 16px; color: var(--muted); }
+.role-block .meta { margin: 3px 0 10px; font-size: 16px; color: var(--muted); }
 
 /* A two-column list: a short label on the left, the detail on the right. */
 .entries { margin: 0; border-top: 1px solid var(--hair); }
@@ -268,6 +336,8 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 .foot-links a { display: inline-block; padding: 11px 0; text-decoration: none; }
 .foot-links .dot { color: var(--rule); }
 
+main:focus { outline: none; }   /* the content is focused quietly on load for keyboard scrolling; no ring for that */
+
 /* ---------- Fixed frame on larger screens ----------
    The frame fills the window and stays put. Only the content scrolls, and the tile rail
    scrolls on its own once there are more tiles than fit. The header and footer always show.
@@ -287,7 +357,7 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
     scrollbar-width: thin;
     scrollbar-color: var(--hair) transparent;
   }
-  main:focus { outline: none; }
+
 }
 
 /* ---------- Small screens ----------
