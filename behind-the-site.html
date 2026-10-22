@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Behind the site · Paraminder Dhiman</title>
-  <meta name="description" content="How this portfolio is built: the look and the decisions behind it, the fixed frame and scrolling, one project list, and a scripted Blender pipeline that renders every tile and draws its line art.">
+  <meta name="description" content="How this portfolio is built: the look and the decisions behind it, the fixed frame and scrolling, one project list, a scripted Blender pipeline that renders every tile and draws its line art, and the motion that brings the line art in and out.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="css/site.css">
 </head>
@@ -32,19 +32,19 @@
   <main>
     <div class="prose">
       <p class="lead">How this site is made. Every tile is a small 3D scene built by a script, shown as line art until you hover over it, when it turns into the render.</p>
-      <p>The site itself is plain HTML, CSS and a little JavaScript, with no framework and no build step. This page covers the look, the layout, how the project list works, and the pipeline behind the tiles.</p>
+      <p>The site itself is plain HTML, CSS and a little JavaScript, with no framework and no build step. This page covers the look, the layout, how the project list works, the pipeline behind the tiles, and how the line art moves.</p>
     </div>
 
     <figure>
-      <img src="images/behind-the-site/tiles-grid.jpg" width="1600" height="641" alt="Every tile on the site twice: its white line art on the left and its 3D render on the right. About, Unravel, Home server, Blender tools, Behind the site and Editing.">
-      <figcaption>Every tile as line art and as the render you see on hover.</figcaption>
+      <img src="images/behind-the-site/tiles-grid.jpg" width="1600" height="1101" alt="Every tile on the site twice, its white line art beside its 3D render, in the order of the tile rail. Me: About and Contact. Tech art: Black hole, Unravel and Blender tools. Beyond tech art: Home server, Editing and Behind the site.">
+      <figcaption>Every tile as line art and as the render you see on hover, in the same order as the rail.</figcaption>
     </figure>
 
     <h2>The look</h2>
     <dl class="entries">
       <div>
         <dt>Quiet on purpose</dt>
-        <dd>The work should be the loudest thing on the page, so the site stays out of the way: one font, one background colour, one accent, and no animation beyond the tiles.</dd>
+        <dd>The work should be the loudest thing on the page, so the site stays out of the way: one font, one background colour, one accent, and motion only where it explains something: the line art drawing in and out, the phone menu, and one small secret in the footer.</dd>
       </div>
       <div>
         <dt>The frame</dt>
@@ -79,8 +79,16 @@
         <dd>With only the content scrolling, the arrow keys, Page Down and Space need somewhere to go. The content area is focused quietly on load, so they work straight away.</dd>
       </div>
       <div>
-        <dt>Phones and short windows</dt>
-        <dd>On a phone a fixed frame would leave a sliver of screen for reading, so the layout becomes one column that scrolls normally: name, tiles, title, content, footer. Very short desktop windows fall back the same way.</dd>
+        <dt>Phones</dt>
+        <dd>A fixed frame would leave a sliver of a phone screen for reading, and stacking the tiles above the content meant a long scroll before reaching it. So on phones the page is just the header, the title and the content, and the tiles move into a menu behind a Projects button at the top left. The header stays pinned while reading, so the menu is always one tap away.</dd>
+      </div>
+      <div>
+        <dt>Tiles like live tiles</dt>
+        <dd>The menu borrows from Windows Phone: big lowercase group names, two columns of square tiles, and a few twice as wide. Pinned projects go wide, and so does the last tile of a group that would otherwise sit alone in its row, so every group closes as a full block. When the menu opens, the tiles turn in one after another as renders, then each one flips over to its line art. The current page's tile keeps its render and stays still, which marks where you are the same way the rest of the site does: renders for what you're looking at, line art for everything else.</dd>
+      </div>
+      <div>
+        <dt>Short windows</dt>
+        <dd>Desktop windows too short for the fixed frame fall back to a normal scrolling page, with the rail kept in place.</dd>
       </div>
       <div>
         <dt>Sizes that breathe</dt>
@@ -95,12 +103,20 @@
         <dd>Every project is one entry in a single list. The tile rail and the list of work on the About page are both built from it, so adding a project is one edit.</dd>
       </div>
       <div>
+        <dt>Groups</dt>
+        <dd>The rail opens with a Me group, About and Contact, then the projects in two groups: tech art, and work beyond it. The same group names head the rail, the work list and the phone menu.</dd>
+      </div>
+      <div>
         <dt>Sorted by itself</dt>
-        <dd>Projects sort by group, then by size, then by year, so a new one lands in the right place without moving anything.</dd>
+        <dd>Inside a group, pinned projects come first, then bigger projects, then newer ones, so a new one lands in the right place without moving anything.</dd>
       </div>
       <div>
         <dt>Drafts stay private</dt>
         <dd>Each project is live, draft or planned. Visitors only see live ones. Opened on my own computer, the site also shows drafts and planned projects, so I can preview pages before they're published.</dd>
+      </div>
+      <div>
+        <dt>A way to get in touch</dt>
+        <dd>Every page except Contact ends with a short "Like my work? Get in touch" line, added by the same script, so no page needs it written in by hand.</dd>
       </div>
     </dl>
 
@@ -166,8 +182,59 @@
         <dd>The line art hooks into rendering, so every F12 saves it next to the images. It always matches the camera and the objects as they are at that moment, and moving something can never leave the two out of step.</dd>
       </div>
       <div>
+        <dt>More than lines</dt>
+        <dd>Each line art entry has a kind: an outline, an open line, a dot, a filled shape, or a soft fog ring. Fills carry the paper plane's shadow on Contact, and the black hole tile layers fog rings for its disk and drops the grid lines that pass behind the hole, so the drawing reads the same way the render does.</dd>
+      </div>
+      <div>
+        <dt>Lensing on a tile</dt>
+        <dd>Real lensing would need a custom renderer, so the black hole tile fakes it in the geometry. The far half of the disk folds up behind the hole and is pulled in toward it, the shape lensing gives the real thing. Because it's geometry rather than a post effect, the line art follows it for free.</dd>
+      </div>
+      <div>
         <dt>On the page</dt>
-        <dd>Each tile stacks its line art and its render, and hovering crossfades between them. The current page's tile gets a thicker border instead of staying lit. On touch screens, which can't hover, the current tile keeps its render. After clicking a tile, it stays lit on the new page until the cursor moves, because browsers don't know what's under a still cursor until then.</dd>
+        <dd>Each tile stacks its line art and its render. The current page's tile gets a thicker border instead of staying lit. On touch screens, which can't hover, the current tile keeps its render. After clicking a tile, it stays lit on the new page until the cursor moves, because browsers don't know what's under a still cursor until then.</dd>
+      </div>
+    </dl>
+
+    <h2>Line art in motion</h2>
+    <div class="prose">
+      <p>Because the line art is real SVG lines rather than a picture, the browser can draw each line along its length. Everything that moves on the tiles is built on that one idea.</p>
+    </div>
+    <dl class="entries">
+      <div>
+        <dt>Drawing in on arrival</dt>
+        <dd>When the site opens, every tile traces itself in, one after another, top to bottom. It happens once per visit, so moving between pages stays calm, and a reload counts as a fresh visit and plays it again. It shows from the first second that the tiles are drawn from 3D scenes, not icons.</dd>
+      </div>
+      <div>
+        <dt>Hovering</dt>
+        <dd>As the cursor arrives, the lines pull back off the tile while the render fades in underneath. When it leaves, the lines draw themselves back over the render as it fades out. The same lines that drew the tile also undo it, so the whole site speaks one visual language.</dd>
+      </div>
+      <div>
+        <dt>What I tried first</dt>
+        <dd>The first leave effect was a scan line wiping the render away. It looked good on its own, but it was louder than the work it framed, so it went. A plain crossfade was too flat, and the line draw sat in between: noticeable, quick, and about the tile itself.</dd>
+      </div>
+      <div>
+        <dt>Timing</dt>
+        <dd>Each line starts a little after the one before it, so a tile draws as a sweep rather than all at once. Drawing in eases out and pulling back eases in, which makes both feel like one motion played forward and back. The hover version is faster than the arrival, so it never feels like waiting.</dd>
+      </div>
+      <div>
+        <dt>No stray dots</dt>
+        <dd>Lines have round ends, and a round end on a line of zero length still paints a dot. Every line is pushed a few pixels past its own end before it starts, so an undrawn tile is truly empty.</dd>
+      </div>
+      <div>
+        <dt>A small black hole</dt>
+        <dd>The dot in the footer is a tiny black hole: black, with a teal rim and glow. Click it and it swells and trembles, smoke starts swirling in, and the letters on both sides fall into it, nearest first, each curling round the rim as it vanishes. The hole grows fatter with every letter, throbs for a moment once it's full, lets out a single ring of light, then gives the letters back in the order it took them, each shooting out and slowing into place. A nod to the black hole project, kept small enough that the footer still reads as a footer.</dd>
+      </div>
+      <div>
+        <dt>Finding the moment</dt>
+        <dd>The first versions pulled the letters into orbit and let them go again. They moved well but felt unfinished, because nothing actually happened at the hole. I tried whole words orbiting, a spinning disk of text with Doppler colour, and letters pulled in as threads. Swallowing won because it has a beginning, a middle and an end: the hole takes the footer, holds it, and gives it back. Lightning and a hard shake made it look busy, so they went, leaving a gentle tremble and the smoke.</dd>
+      </div>
+      <div>
+        <dt>Why it's scripted</dt>
+        <dd>The tiles' motion is all CSS transitions, which suit movement from one state to another. Here every letter's path, size and timing changes each frame, and the smoke is a small particle system, so the footer works it out frame by frame in JavaScript and draws the smoke and the ring on two small canvases. Timing comes from the clock rather than the frame count, so it plays at the same speed on any screen. Each letter is lifted out of the text into its own element so it can move alone, and the original line stays readable to screen readers.</dd>
+      </div>
+      <div>
+        <dt>Fallbacks</dt>
+        <dd>Drawing needs the SVG inside the page, so the script fetches each file and swaps it in. Opened straight from disk the browser refuses, and the tiles simply stay still. Anyone who has asked their system for reduced motion gets still tiles, no menu animation, and a black hole that only glows.</dd>
       </div>
     </dl>
 
@@ -177,14 +244,12 @@
     </div>
   </main>
 
-  <div class="foot-place">Pune, India</div>
+  <div class="foot-place">© 2026 Paraminder Dhiman</div>
 
-  <footer class="foot-links">
-    <a href="mailto:paramindersd@gmail.com">Email</a>
-    <span class="dot" aria-hidden="true">·</span>
-    <a href="https://www.linkedin.com/in/paraminder-dhiman">LinkedIn</a>
-    <span class="dot" aria-hidden="true">·</span>
-    <a href="https://github.com/paraminder-dhiman">GitHub</a>
+  <footer class="foot-note">
+    <span class="egg-side">Made with <span class="heart">♥</span> in Pune, India</span>
+    <button class="egg-dot" type="button" aria-label="A very small black hole"></button>
+    <span class="egg-side">No polygons were harmed</span>
   </footer>
 
 </div>

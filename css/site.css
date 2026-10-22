@@ -165,6 +165,9 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .leave-lines .tile.is-leaving .tile-img { animation: tile-fade 0.6s ease-in 0.05s forwards; }
 @keyframes tile-fade { from { opacity: 1; } to { opacity: 0; } }
 
+/* The phone menu's button and header only show on small screens (see the end of this file). */
+.menu-button, .menu-head { display: none; }
+
 /* Draft and planned projects only ever appear in a local preview. */
 .tile.is-planned { opacity: 0.55; cursor: default; }
 .tile.is-planned:hover { color: var(--soft); }
@@ -332,9 +335,36 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 
 .foot-place { padding: 6px 22px; display: flex; align-items: center; font-size: 14px; color: var(--muted); }
 
-.foot-links { padding: 6px var(--side); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0 12px; font-size: 15px; }
-.foot-links a { display: inline-block; padding: 11px 0; text-decoration: none; }
-.foot-links .dot { color: var(--rule); }
+/* The footer line, with a small black hole for a separator. Clicking it is in js/site.js. */
+.foot-note { padding: 14px var(--side); display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 14px; font-size: 15px; color: var(--muted); }
+.foot-note .heart { color: var(--accent); }
+.foot-note { position: relative; isolation: isolate; }   /* the letters, the hole and its effects stack against each other only */
+.egg-side { white-space: nowrap; }
+.egg-ch { display: inline-block; position: relative; z-index: 3; white-space: pre; }
+
+/* The black hole: black, with a teal rim and a soft teal glow. */
+.egg-dot {
+  position: relative;
+  z-index: 2;
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 1px solid var(--accent);
+  border-radius: 50%;
+  background: #05080a;
+  box-shadow: 0 0 5px 1px rgba(99, 197, 206, 0.45);
+  cursor: pointer;
+  transition: box-shadow 0.3s ease;
+}
+.egg-dot::before { content: ""; display: block; width: 28px; height: 28px; margin: -10px; border-radius: 50%; }   /* a bigger target for fingers */
+.egg-dot:hover, .egg-dot:focus-visible, .egg-dot.is-awake { box-shadow: 0 0 8px 2px rgba(99, 197, 206, 0.65); }
+.egg-dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.is-swallowing .egg-dot { transition: none; }
+
+/* Its effects: smoke behind the hole, the ring of light in front. Drawn in js/site.js. */
+.egg-fx { position: absolute; pointer-events: none; }
+.egg-smoke { z-index: 1; }
+.egg-ring { z-index: 4; }
 
 main:focus { outline: none; }   /* the content is focused quietly on load for keyboard scrolling; no ring for that */
 
@@ -361,28 +391,120 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
 }
 
 /* ---------- Small screens ----------
-   One column: name, tiles, page title, content, footer. */
+   One column: name, page title, content, footer. The tiles move into a full-screen menu
+   behind the Projects button, laid out like Windows Phone's live tiles. */
 
 @media (max-width: 760px) {
   :root { --edge: 10px; }
   .sheet { grid-template-columns: minmax(0, 1fr); grid-template-rows: none; }
-  .masthead { order: 1; padding: 14px 18px 16px; }
-  .rail { order: 2; padding: 16px 18px; }
   .pagehead { order: 3; padding: 14px 18px 16px; }
   main { order: 4; padding: 26px 18px 40px; }
-  .foot-place { order: 5; padding: 12px 18px; }
-  .foot-links { order: 6; padding: 4px 18px; }
-  .tiles { grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 14px 12px; }
+  .foot-place { order: 5; padding: 12px 18px; justify-content: center; }
+  .foot-note { order: 6; flex-direction: column; padding: 12px 18px 18px; font-size: 14px; gap: 6px; }
   .masthead .role, .pagehead h1 { font-size: 24px; }
   body { font-size: 17px; }
   .lead { font-size: 20px; }
   h2 { font-size: 22px; }
   .role-block h3 { font-size: 19px; }
   .entries > div { grid-template-columns: minmax(0, 1fr); }
+
+  /* The header stays at the top while reading, with the menu button on its left. */
+  .masthead {
+    order: 1;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 0 var(--rule);
+  }
+  .masthead .role { font-size: 21px; }
+  .menu-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    flex: none;
+    padding: 9px 10px 6px;
+    border: 1px solid var(--rule);
+    background: none;
+    color: var(--text);
+    font: inherit;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+  .menu-icon { display: flex; flex-direction: column; gap: 4px; width: 22px; }
+  .menu-icon i { display: block; height: 1.5px; background: currentColor; }
+  .menu-button:active { color: var(--accent); border-color: var(--accent); }
+
+  /* The menu itself: hidden until opened, then it covers the screen. */
+  .rail { order: 2; display: none; }
+  html.menu-open, html.menu-open body { overflow: hidden; }
+  html.menu-open .rail {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 0 16px 36px;
+    background: var(--ground);
+  }
+  .menu-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin: 0 -16px 6px;
+    padding: 12px 16px;
+    background: var(--ground);
+    box-shadow: 0 1px 0 var(--rule);
+  }
+  .menu-title { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .menu-close { display: flex; padding: 9px; border: 1px solid var(--rule); background: none; color: var(--text); cursor: pointer; }
+
+  /* Tiles: two square columns, with some tiles twice as wide. */
+  .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; perspective: 1200px; }
+  .tiles > li.is-wide { grid-column: span 2; }
+  .is-wide .tile-box { aspect-ratio: 2 / 1; }
+  .is-wide .tile-img, .is-wide img.tile-line { object-fit: contain; }   /* the renders sit on the page colour, so the sides blend in */
+  .tile { position: relative; }
+  .tile-box { border-color: var(--hair); }
+  .tile[aria-current] .tile-box { border-color: var(--accent); background: none; }
+  .tile-name { position: absolute; left: 10px; bottom: 7px; margin: 0; font-size: 14px; color: var(--text); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
+  .tile[aria-current] .tile-name { color: var(--accent-hi); }
+
+  /* Group names as big lowercase words, the Windows Phone way. */
+  .rail-group { margin: 18px 0 2px; font-size: 26px; font-weight: 300; letter-spacing: 0; text-transform: lowercase; color: var(--soft); }
+  .rail-group:not(:first-child) { margin-top: 22px; }
+  .rail-group:first-child { margin-top: 8px; }
+  .rail-group::after { display: none; }
+
+  /* Opening: everything turns in from the left edge, one after another. */
+  html.menu-open .tiles > li { animation: menu-turn 0.42s cubic-bezier(0.1, 0.9, 0.2, 1) backwards; animation-delay: calc(var(--i) * 32ms); transform-origin: 0 50%; }
+  @keyframes menu-turn { from { opacity: 0; transform: rotateY(-70deg) translateX(-12px); } to { opacity: 1; transform: none; } }
+
+  /* The menu opens on the renders. Then each tile flips over to its line art, like a live tile.
+     The current page's tile keeps its render and doesn't flip. */
+  .tile-img { transition: none; opacity: 1; }
+  .tile-line, .tile[aria-current] .tile-line { opacity: 0; }
+  .tile.is-flipped .tile-box { animation: tile-flip 0.5s ease-in-out; }
+  .tile.is-flipped .tile-img { opacity: 0; animation: tile-front 0.5s step-end; }
+  .tile.is-flipped .tile-line { opacity: 0.85; animation: tile-back 0.5s step-end; }
+  @keyframes tile-flip { 0% { transform: none; } 50% { transform: rotateX(90deg); } 50.01% { transform: rotateX(-90deg); } 100% { transform: none; } }
+  @keyframes tile-front { 0% { opacity: 1; } 50% { opacity: 0; } }
+  @keyframes tile-back { 0% { opacity: 0; } 50% { opacity: 0.85; } }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tile-img { transition: none; }
+  html.menu-open .tiles > li, .tile.is-flipped .tile-box, .tile.is-flipped .tile-img, .tile.is-flipped .tile-line { animation: none; }
 }
 
 /* Inline code and short formulas. */

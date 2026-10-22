@@ -71,6 +71,7 @@
     tile.appendChild(name);
 
     var li = el("li");
+    if (item.wide) li.className = "is-wide";
     li.appendChild(tile);
     return li;
   }
@@ -100,9 +101,25 @@
           status: p.status,
           image: p.image,
           line: p.line,
+          wide: !!p.pin,
         })
       );
     });
+  }
+
+  // ----- Wide tiles for the phone menu: pinned projects, and the last tile of a group that
+  // would otherwise sit alone in its row. Desktop ignores this.
+  if (rail) {
+    var run = [];
+    var closeRun = function () {
+      var squares = run.filter(function (li) { return !li.classList.contains("is-wide"); });
+      if (squares.length % 2) squares[squares.length - 1].classList.add("is-wide");
+      run = [];
+    };
+    Array.prototype.forEach.call(rail.children, function (li) {
+      if (li.classList.contains("rail-group")) closeRun(); else run.push(li);
+    });
+    closeRun();
   }
 
   // ----- Work list (only on pages that have one).
@@ -194,19 +211,26 @@
     });
   }
 
-  if (LINE_DRAW !== "off" && !reduceMotion && location.protocol !== "file:" && rail) {
+  // On phones the rail lives in the menu, so there's nothing on screen to draw.
+  var phone = window.matchMedia && window.matchMedia("(max-width: 760px)");
+  if (LINE_DRAW !== "off" && !reduceMotion && location.protocol !== "file:" && rail && !(phone && phone.matches)) {
+    // A reload (F5 or Ctrl+Shift+R) counts as a fresh visit, so the lines draw again.
     var firstVisit = true;
-    try { firstVisit = !sessionStorage.getItem("lines-drawn"); sessionStorage.setItem("lines-drawn", "1"); } catch (e) {}
+    var navEntry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
+    var reloaded = navEntry && navEntry.type === "reload";
+    try { firstVisit = reloaded || !sessionStorage.getItem("lines-drawn"); sessionStorage.setItem("lines-drawn", "1"); } catch (e) {}
     var lineImgs = rail.querySelectorAll("img.tile-line");
+    // Every page swaps the line art images for inline SVG, so hovering can move the lines.
+    // Only the first page of a visit (or a reload) also plays the drawing in.
+    var drawIn = LINE_DRAW === "load" && firstVisit;
     Array.prototype.forEach.call(lineImgs, function (img, n) {
-      if (LINE_DRAW === "load" && !firstVisit) return;
-      if (LINE_DRAW === "load") img.style.visibility = "hidden";   // no flash of finished lines before drawing
+      if (drawIn) img.style.visibility = "hidden";   // no flash of finished lines before drawing
       inlineSvg(img).then(function (svg) {
         if (!svg) return;
         var tile = svg.closest(".tile");
         tile._lines = svg;
         if (LINE_DRAW === "load") {
-          draw(svg, DRAW_TIME, 150 + n * 90);   // tiles start one after another
+          if (drawIn) draw(svg, DRAW_TIME, 150 + n * 90);   // tiles start one after another
         } else {
           tile.classList.add("draws-on-hover");
           tile.addEventListener("mouseenter", function () { draw(svg, DRAW_TIME * 0.6); });
@@ -247,9 +271,259 @@
     });
   }
 
+  // ----- Phone menu.
+  // On small screens the tile rail is hidden behind a Projects button at the top left. Opening it
+  // shows the tiles full screen as renders: they turn in one after another, then flip over to their
+  // line art, the way live tiles did on Windows Phone. The current page's tile keeps its render and
+  // stays still. Larger screens never see any of this.
+  var masthead = document.querySelector(".masthead");
+  var railNav = rail ? rail.closest(".rail") : null;
+  if (rail && railNav && masthead) {
+    var root = document.documentElement;
+    var button = el("button", "menu-button");
+    button.type = "button";
+    button.setAttribute("aria-expanded", "false");
+    button.setAttribute("aria-controls", "tiles");
+    var icon = el("span", "menu-icon");
+    icon.setAttribute("aria-hidden", "true");
+    icon.appendChild(el("i")); icon.appendChild(el("i")); icon.appendChild(el("i"));
+    button.appendChild(icon);
+    button.appendChild(el("span", "menu-label", "Projects"));
+    masthead.insertBefore(button, masthead.firstChild);
+
+    var head = el("div", "menu-head");
+    head.appendChild(el("span", "menu-title", "Projects"));
+    var closeButton = el("button", "menu-close");
+    closeButton.type = "button";
+    closeButton.setAttribute("aria-label", "Close the menu");
+    closeButton.innerHTML = '<svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true"><path d="M4 4 L16 16 M16 4 L4 16" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>';
+    head.appendChild(closeButton);
+    railNav.insertBefore(head, railNav.firstChild);
+
+    var items = rail.querySelectorAll(".tiles > li");
+    Array.prototype.forEach.call(items, function (li, i) { li.style.setProperty("--i", i); });
+    var flips = [];
+
+    function openMenu() {
+      root.classList.add("menu-open");
+      button.setAttribute("aria-expanded", "true");
+      railNav.scrollTop = 0;
+      try { closeButton.focus({ preventScroll: true }); } catch (e) {}
+      // Each tile flips to its line art a moment after it has turned in.
+      var n = 0;
+      Array.prototype.forEach.call(rail.querySelectorAll(".tiles > li:not(.rail-group)"), function (li) {
+        var tile = li.querySelector(".tile");
+        if (!tile || !tile.querySelector(".tile-img") || tile.hasAttribute("aria-current")) return;
+        if (reduceMotion) { tile.classList.add("is-flipped"); return; }
+        var delay = 650 + n++ * 90;
+        flips.push(setTimeout(function () { tile.classList.add("is-flipped"); }, delay));
+      });
+    }
+
+    function closeMenu() {
+      root.classList.remove("menu-open");
+      button.setAttribute("aria-expanded", "false");
+      flips.forEach(clearTimeout);
+      flips = [];
+      Array.prototype.forEach.call(rail.querySelectorAll(".tile.is-flipped"), function (t) { t.classList.remove("is-flipped"); });
+    }
+
+    button.addEventListener("click", openMenu);
+    closeButton.addEventListener("click", function () { closeMenu(); button.focus(); });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && root.classList.contains("menu-open")) { closeMenu(); button.focus(); }
+    });
+    // Turning a phone sideways or widening the window past the phone layout closes the menu.
+    if (phone && phone.addEventListener) {
+      phone.addEventListener("change", function () { if (!phone.matches) closeMenu(); });
+    }
+    // Coming back to a page with the Back button shouldn't find the menu still open.
+    window.addEventListener("pageshow", closeMenu);
+  }
+
+  // ----- The footer's little black hole.
+  // Clicking the dot wakes it up. It swells and trembles, smoke swirls in, and the letters on
+  // both sides fall in, nearest first, each curling round the rim as it disappears. The hole
+  // fattens with every letter, throbs for a moment, lets out a ring of light, then gives the
+  // letters back in the order it took them, each shooting out and slowing into place.
+  var egg = document.querySelector(".foot-note");
+  if (egg) {
+    var dot = egg.querySelector(".egg-dot");
+    var letters = [];
+    Array.prototype.forEach.call(egg.querySelectorAll(".egg-side"), function (side) {
+      side.setAttribute("aria-label", side.textContent.replace(/\s+/g, " ").trim());
+      var walker = document.createTreeWalker(side, NodeFilter.SHOW_TEXT);
+      var nodes = [];
+      while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach(function (node) {
+        var frag = document.createDocumentFragment();
+        node.textContent.split(/(\s+)/).forEach(function (part) {
+          if (!part) return;
+          if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }   // spaces stay put
+          Array.prototype.forEach.call(part, function (ch) {
+            var span = el("span", "egg-ch", ch);
+            span.setAttribute("aria-hidden", "true");
+            frag.appendChild(span);
+            letters.push(span);
+          });
+        });
+        node.parentNode.replaceChild(frag, node);
+      });
+    });
+
+    var PULL = 1700;      // letters falling in
+    var HOLD = 700;       // the hole on its own, throbbing
+    var EMIT = 1600;      // letters coming back out
+    var TRAVEL = 700;     // how long one letter takes to fall in or fly out
+    var GROW = 1.6;       // how much fatter the hole gets once it has swallowed everything
+    var SHAKE = 0.45;     // pixels of tremble at full power
+
+    // Two small canvases centred on the hole: smoke behind it, the ring of light in front.
+    var FX_W = 240, FX_H = 150, ratio = window.devicePixelRatio || 1;
+    function fxCanvas(cls) {
+      var c = el("canvas", "egg-fx " + cls);
+      c.width = FX_W * ratio; c.height = FX_H * ratio;
+      c.style.width = FX_W + "px"; c.style.height = FX_H + "px";
+      egg.appendChild(c);
+      return c;
+    }
+    var smokeCanvas = fxCanvas("egg-smoke"), ringCanvas = fxCanvas("egg-ring");
+    var sctx = smokeCanvas.getContext("2d"), rctx = ringCanvas.getContext("2d");
+
+    function clamp(t) { return t < 0 ? 0 : t > 1 ? 1 : t; }
+    function easeIn(t) { return t * t * t; }
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+    function smooth(t) { return t * t * (3 - 2 * t); }
+    function mix(a, b, t) { return a + (b - a) * t; }
+    function range(a, b) { return a + (b - a) * Math.random(); }
+
+    // Smoke: soft teal and grey wisps on a tilted disk, spiralling inward.
+    function newWisp(anywhere) {
+      return { r: anywhere ? range(10, 62) : range(48, 64), a: range(0, 6.283), w: range(1.6, 3.2), size: range(5, 13), alpha: range(0.05, 0.13), teal: Math.random() < 0.6 };
+    }
+    function drawSmoke(wisps, power, holeR, dt) {
+      var step = dt / 33.3;                                   // the same speed on any screen refresh rate
+      sctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      sctx.clearRect(0, 0, FX_W, FX_H);
+      sctx.globalCompositeOperation = "lighter";
+      wisps.forEach(function (s, i) {
+        s.a += s.w / 30 * (1 + 2.5 * power) * step;
+        s.r -= (0.25 + 0.9 * power) * (40 / (s.r + 8)) * step;
+        if (s.r < holeR * 0.9) wisps[i] = s = newWisp(false);
+        var px = FX_W / 2 + Math.cos(s.a) * s.r, py = FX_H / 2 + Math.sin(s.a) * s.r * 0.38;
+        var alpha = s.alpha * power * clamp((s.r - holeR) / 6);
+        var g = sctx.createRadialGradient(px, py, 0, px, py, s.size);
+        var col = s.teal ? "99,197,206" : "170,185,190";
+        g.addColorStop(0, "rgba(" + col + "," + alpha + ")");
+        g.addColorStop(1, "rgba(" + col + ",0)");
+        sctx.fillStyle = g;
+        sctx.beginPath(); sctx.arc(px, py, s.size, 0, 6.283); sctx.fill();
+      });
+    }
+
+    // The hole itself: size, glow and a low, uneven tremble. Returns its radius in pixels.
+    function drawHole(t, power, scale) {
+      var shx = (Math.sin(t * 0.083) + 0.6 * Math.sin(t * 0.051 + 1.3)) / 1.6 * SHAKE * power;
+      var shy = (Math.sin(t * 0.071 + 2.1) + 0.6 * Math.sin(t * 0.047)) / 1.6 * SHAKE * power;
+      dot.style.transform = "translate(" + shx.toFixed(2) + "px," + shy.toFixed(2) + "px) scale(" + scale.toFixed(3) + ")";
+      dot.style.boxShadow = "0 0 " + (5 + 4 * power) + "px " + (1 + power) + "px rgba(155,224,230," + (0.45 + 0.4 * power) + "), 0 0 " + (16 * power) + "px " + (5 * power) + "px rgba(99,197,206," + (0.45 * power) + ")";
+      var e = egg.getBoundingClientRect(), d = dot.getBoundingClientRect();
+      var x = d.left + d.width / 2 - e.left - FX_W / 2, y = d.top + d.height / 2 - e.top - FX_H / 2;
+      smokeCanvas.style.left = ringCanvas.style.left = x + "px";
+      smokeCanvas.style.top = ringCanvas.style.top = y + "px";
+      return d.width / 2;
+    }
+
+    function place(u, x, y, extra, opacity) {
+      u.span.style.transform = "translate(" + (x - u.hx).toFixed(1) + "px," + (y - u.hy).toFixed(1) + "px) " + extra;
+      u.span.style.opacity = opacity;
+    }
+    // Stretched along its path toward the hole.
+    function stretch(u, amount) {
+      var deg = (Math.atan2(-u.hy, -u.hx) * 180 / Math.PI).toFixed(1);
+      return "rotate(" + deg + "deg) scaleX(" + (1 + amount).toFixed(2) + ") scaleY(" + (1 - amount * 0.35).toFixed(2) + ") rotate(" + (-deg) + "deg) ";
+    }
+
+    var busy = false;
+    dot.addEventListener("click", function () {
+      if (busy) return;
+      if (reduceMotion) { dot.classList.add("is-awake"); setTimeout(function () { dot.classList.remove("is-awake"); }, 900); return; }
+      busy = true;
+
+      var d = dot.getBoundingClientRect(), cx = d.left + d.width / 2, cy = d.top + d.height / 2;
+      var units = letters.map(function (span) {
+        var r = span.getBoundingClientRect();
+        var hx = r.left + r.width / 2 - cx, hy = r.top + r.height / 2 - cy;
+        return { span: span, hx: hx, hy: hy, dist: Math.hypot(hx, hy) };
+      });
+      var far = Math.max.apply(null, units.map(function (u) { return u.dist; }));
+      units.forEach(function (u) {
+        var k = u.dist / far;                             // 0 next to the hole, 1 at the far ends
+        u.inAt = k * (PULL - TRAVEL);                     // nearest go in first
+        u.outAt = k * (EMIT - TRAVEL);                    // and come out first
+        u.curl = (u.hx < 0 ? 1 : -1) * range(0.6, 1.2);   // a short curl round the rim as it goes in
+      });
+      var wisps = [];
+      for (var i = 0; i < 90; i++) wisps.push(newWisp(true));
+      var emitAt = PULL + HOLD, total = emitAt + EMIT + 300;
+      egg.classList.add("is-swallowing");
+      var start = null, last = null;
+
+      function frame(now) {
+        if (start === null) start = last = now;
+        var t = now - start, dt = Math.min(50, now - last);
+        last = now;
+        var eaten = 0;
+        var power = t < 600 ? smooth(t / 600) : t < emitAt ? 1 : 1 - smooth(clamp((t - emitAt - 300) / 1200));
+
+        units.forEach(function (u) {
+          if (t < emitAt) {
+            // Falling in: straight along the line, speeding up, then curling and shrinking into the hole.
+            var pi = clamp((t - u.inAt) / TRAVEL), p = easeIn(pi);
+            if (pi >= 1) eaten++;
+            var r = mix(u.dist, 0, p), a = Math.atan2(u.hy, u.hx) + u.curl * Math.pow(p, 4);
+            var size = Math.max(0.001, 1 - smooth(clamp((p - 0.55) / 0.45)));
+            place(u, r * Math.cos(a), r * Math.sin(a) * mix(1, 0.6, p), stretch(u, Math.sin(Math.PI * pi) * 0.9) + "scale(" + size.toFixed(3) + ")", pi >= 1 ? 0 : 1);
+          } else {
+            // Coming out: shooting from the centre and slowing into place, growing back to full size.
+            var q = clamp((t - emitAt - u.outAt) / TRAVEL), e = easeOut(q);
+            place(u, mix(0, u.hx, e), mix(0, u.hy, e), stretch(u, Math.sin(Math.PI * q) * 0.6) + "scale(" + Math.max(0.001, smooth(clamp(q * 1.6))).toFixed(3) + ")", q > 0 ? 1 : 0);
+          }
+        });
+
+        // The hole fattens with every letter it swallows, throbs while full, then gives it all back.
+        var full = t < emitAt ? eaten / units.length : 1 - easeOut(clamp((t - emitAt) / EMIT));
+        var throb = t > PULL && t < emitAt ? 0.12 * Math.sin((t - PULL) / HOLD * Math.PI * 3) : 0;
+        var holeR = drawHole(t, power, 1 + 0.6 * smooth(clamp(t / 500)) + GROW * full + throb);
+        drawSmoke(wisps, power, holeR, dt);
+
+        // One soft ring of light the moment it lets go.
+        var ring = (t - emitAt) / 500;
+        rctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        rctx.clearRect(0, 0, FX_W, FX_H);
+        if (ring > 0 && ring < 1) {
+          var rr = mix(holeR, 70, easeOut(ring));
+          rctx.strokeStyle = "rgba(155,224,230," + (0.7 * (1 - ring)).toFixed(3) + ")";
+          rctx.lineWidth = mix(3, 0.5, ring);
+          rctx.shadowColor = "rgba(99,197,206,0.9)"; rctx.shadowBlur = 8;
+          rctx.beginPath(); rctx.ellipse(FX_W / 2, FX_H / 2, rr, rr * 0.45, 0, 0, 6.283); rctx.stroke();
+        }
+
+        if (t < total) { requestAnimationFrame(frame); return; }
+        letters.forEach(function (span) { span.style.transform = span.style.opacity = ""; });
+        dot.style.transform = dot.style.boxShadow = "";
+        sctx.clearRect(0, 0, smokeCanvas.width, smokeCanvas.height);
+        rctx.clearRect(0, 0, ringCanvas.width, ringCanvas.height);
+        egg.classList.remove("is-swallowing");
+        busy = false;
+      }
+      requestAnimationFrame(frame);
+    });
+  }
+
   // ----- A short contact line at the end of every page except Contact itself.
   var mainEl = document.querySelector("main");
-  if (mainEl && currentPage !== "contact") {
+  if (mainEl && currentPage !== "contact" && currentPage !== "404") {
     var note = el("p", "contact-note");
     note.appendChild(document.createTextNode("Like my work? "));
     var go = el("a", null, "Get in touch");
