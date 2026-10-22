@@ -6,6 +6,17 @@
   <title>Behind the site · Paraminder Dhiman</title>
   <meta name="description" content="How this portfolio is built: the look and the decisions behind it, the fixed frame and scrolling, one project list, a scripted Blender pipeline that renders every tile and draws its line art, and the motion that brings the line art in and out.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    /* Light or dark, set before the page draws so it never flashes the wrong colours.
+       A choice made with the switch wins; otherwise follow the device; otherwise dark. */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
   <link rel="stylesheet" href="css/site.css">
 </head>
 <body data-page="behind-the-site">
@@ -36,7 +47,7 @@
     </div>
 
     <figure>
-      <img src="images/behind-the-site/tiles-grid.jpg" width="1600" height="1101" alt="Every tile on the site twice, its white line art beside its 3D render, in the order of the tile rail. Me: About and Contact. Tech art: Black hole, Unravel and Blender tools. Beyond tech art: Home server, Editing and Behind the site.">
+      <img src="images/behind-the-site/tiles-grid-dark.jpg" data-themed width="1600" height="1100" alt="Every tile on the site twice, its white line art beside its 3D render, in the order of the tile rail. Me: About and Contact. Tech art: Black hole, Unravel and Blender tools. Beyond tech art: Home server, Editing and Behind the site.">
       <figcaption>Every tile as line art and as the render you see on hover, in the same order as the rail.</figcaption>
     </figure>
 
@@ -53,6 +64,10 @@
       <div>
         <dt>Colour</dt>
         <dd>A slate background, #212f3a, with soft off-white text and a single teal accent for links and the current page. Every colour lives as a variable at the top of one stylesheet, so a change happens in one place.</dd>
+      </div>
+      <div>
+        <dt>Light and dark</dt>
+        <dd>The switch in the header flips between a dark and a light theme. The light theme is a second set of the same colour variables: a soft off-white instead of stark white, deep slate text, and a darker teal, because the dark theme's teal is too pale to read on a light page. Each colour was checked so text reads as easily in one theme as in the other. The site opens in whatever the visitor's device is set to, dark if it doesn't say, and remembers a choice made with the switch on every page after it. A tiny script at the top of each page applies the theme before anything is drawn, so a page never flashes the wrong colours.</dd>
       </div>
       <div>
         <dt>Type</dt>
@@ -171,7 +186,7 @@
       </div>
       <div>
         <dt>Rendered clear</dt>
-        <dd>Each tile renders with a transparent background and a shadow catcher. The compositor then lays it onto the site's exact background colour, so the shadows sit on the page and there's no visible edge around the image.</dd>
+        <dd>Each tile renders with a transparent background and a shadow catcher. The compositor then lays that one render onto each theme's exact background colour, so the shadows sit on the page in both themes, there's no visible edge around the image, and a single F12 makes the dark and the light tile together.</dd>
       </div>
       <div>
         <dt>Bloom only where it glows</dt>
@@ -179,7 +194,7 @@
       </div>
       <div>
         <dt>Line art from the geometry</dt>
-        <dd>The line art isn't edge detection on the image. Each tile lists what to draw by object name: outlines, edges, dots. Those real 3D points are projected through the render camera and written as a clean SVG, plus a smooth PNG drawn the same way. That's why the lines are crisp and never noisy.</dd>
+        <dd>The line art isn't edge detection on the image. Each tile lists what to draw by object name: outlines, edges, dots. Those real 3D points are projected through the render camera and written as a clean SVG, saved twice: white lines for the dark theme and dark lines for the light one. That's why the lines are crisp and never noisy.</dd>
       </div>
       <div>
         <dt>The grid on this page</dt>
@@ -214,7 +229,7 @@
       </div>
       <div>
         <dt>Hovering</dt>
-        <dd>As the cursor arrives, the lines pull back off the tile while the render fades in underneath. When it leaves, the lines draw themselves back over the render as it fades out. The same lines that drew the tile also undo it, so the whole site speaks one visual language.</dd>
+        <dd>As the cursor arrives, the lines pull back off the tile while the render fades in underneath. When it leaves, the lines draw themselves back over the render as it fades out. The same lines that drew the tile also undo it, so the whole site speaks one visual language. In the light theme, dark lines would vanish against the render, so they turn white while it shows and ease back to their own colour as it fades, on exactly the same timing.</dd>
       </div>
       <div>
         <dt>What I tried first</dt>

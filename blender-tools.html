@@ -6,6 +6,17 @@
   <title>Blender tools · Paraminder Dhiman</title>
   <meta name="description" content="Two Blender add-ons: Positive Mirror, which mirrors objects with a live link and no negative scale, and UV Island Colorizer, which colours every UV island and bakes a colour ID map.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    /* Light or dark, set before the page draws so it never flashes the wrong colours.
+       A choice made with the switch wins; otherwise follow the device; otherwise dark. */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
   <link rel="stylesheet" href="css/site.css">
 </head>
 <body data-page="blender-tools">

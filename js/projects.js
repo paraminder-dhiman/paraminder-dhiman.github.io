@@ -27,8 +27,10 @@
      tile   short name under the tile
      meta   the line shown next to the title, separated with dots
      group  which group it sits in · one of the names in GROUP_ORDER
-     image  optional. A square picture in /tiles, shown when the tile is hovered
-     line   optional. The line drawing's file name in /tiles, if it isn't id.svg
+     image  optional. The render shown when the tile is hovered, named without its theme:
+            "unravel.jpg" loads tiles/unravel-dark.jpg or tiles/unravel-light.jpg
+     line   optional. The line drawing's name, if it isn't id.svg · also without its theme
+            (the site loads id-dark.svg or id-light.svg)
      pin    optional. A number that puts the project ahead of the normal order
 */
 

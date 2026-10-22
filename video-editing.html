@@ -6,6 +6,17 @@
   <title>Video editing · Paraminder Dhiman</title>
   <meta name="description" content="More than five years of video editing in DaVinci Resolve: music-synced gaming highlights, Fusion effects, grading and freelance edits.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    /* Light or dark, set before the page draws so it never flashes the wrong colours.
+       A choice made with the switch wins; otherwise follow the device; otherwise dark. */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
   <link rel="stylesheet" href="css/site.css">
 </head>
 <body data-page="video-editing">

@@ -15,7 +15,7 @@ Plain HTML, CSS and a little JavaScript. No framework and no build step. How it'
 | `css/site.css` | All styling · colours and sizes are at the top |
 | `js/projects.js` | The project list · the only file to edit when adding a project |
 | `js/site.js` | Builds the tile rail, the work list and the phone menu, and runs the line art motion |
-| `tiles/` | Each tile's line art (`.svg`) and render (`.jpg`) |
+| `tiles/` | Each tile's line art (`.svg`) and render (`.jpg`), as `-dark` and `-light` versions |
 | `images/` | Images for the project pages, one folder per page |
 | `files/` | The resume PDF |
 | `tools/tile-grid.html` | Builds the tile grid image on the Behind the site page · instructions inside |
@@ -37,7 +37,7 @@ A local preview also shows projects marked `draft` or `planned`. The live site o
 
 1. Copy an existing project page and rename it, for example `my-project.html`.
 2. Set `<body data-page="my-project">` in that page so its tile is highlighted.
-3. Put the tile's line art and render in `tiles/` as `my-project.svg` and `my-project.jpg`.
+3. Put the tile's line art and render in `tiles/`: `my-project-dark.svg`, `my-project-light.svg`, `my-project-dark.jpg` and `my-project-light.jpg`. The tile scripts save all four from one render.
 4. Add one entry to `js/projects.js` with the same `id`.
 
 The order is worked out automatically: group, then pinned projects, then size, then year. The notes at the top of `js/projects.js` explain each field.

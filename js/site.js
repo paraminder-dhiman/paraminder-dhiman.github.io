@@ -12,6 +12,12 @@
     location.protocol === "file:" ||
     ["localhost", "127.0.0.1", ""].indexOf(location.hostname) !== -1;
 
+  // Light or dark. The page sets it on <html data-theme="..."> before it draws (see each page's <head>).
+  // Images that come in two versions are named name-dark.jpg and name-light.jpg.
+  var root = document.documentElement;
+  function theme() { return root.getAttribute("data-theme") === "light" ? "light" : "dark"; }
+  function themed(file) { return file.replace(/(-dark|-light)?(\.\w+)$/, "-" + theme() + "$2"); }
+
   // The page tells us which tile is "current" through <body data-page="...">.
   var currentPage = document.body.getAttribute("data-page") || "";
 
@@ -51,13 +57,13 @@
     var box = el("span", "tile-box");
     // The line drawing. A plain image, so it also shows when the page is opened from disk.
     var line = el("img", "tile-line");
-    line.src = "tiles/" + (item.line || item.id + ".svg");
+    line.src = "tiles/" + themed(item.line || item.id + ".svg");
     line.alt = "";
     box.appendChild(line);
 
     if (item.image) {
       var img = el("img", "tile-img");
-      img.src = "tiles/" + item.image;
+      img.src = "tiles/" + themed(item.image);
       img.alt = "";
       img.loading = "lazy";
       box.appendChild(img);
@@ -271,6 +277,77 @@
     });
   }
 
+  // ----- Light and dark switch, in the header.
+  // One button that swaps to the other theme. A choice is remembered; until one is made, the site follows
+  // the device. The swap is a single crossfade of the whole page, so everything changes at once.
+  var themedImages = "img.tile-img, img.tile-line, img[data-themed]";
+  function swapImages() {
+    var waits = [];
+    Array.prototype.forEach.call(document.querySelectorAll(themedImages), function (img) {
+      var src = img.getAttribute("src");
+      if (!src) return;
+      var next = themed(src);
+      if (next === src) return;
+      img.setAttribute("src", next);
+      if (img.decode) waits.push(img.decode().catch(function () {}));
+    });
+    return waits;
+  }
+  function setTheme(t, remember) {
+    if (remember) { try { localStorage.setItem("theme", t); } catch (e) {} }
+    if (t === theme()) return;
+    function apply() {
+      root.setAttribute("data-theme", t);
+      var waits = swapImages();
+      // wait (briefly) for the swapped images, so they're part of the new picture rather than popping in after
+      return Promise.race([Promise.all(waits), new Promise(function (r) { setTimeout(r, 250); })]);
+    }
+    if (document.startViewTransition && !reduceMotion) document.startViewTransition(apply);
+    else apply();
+  }
+  // Images written into the page itself start as -dark; bring them in line with the theme.
+  swapImages();
+  // Fetch the other theme's images once the page has settled, so a swap never has to wait for them.
+  window.addEventListener("load", function () {
+    setTimeout(function () {
+      var other = theme() === "light" ? "dark" : "light";
+      Array.prototype.forEach.call(document.querySelectorAll(themedImages), function (img) {
+        var src = img.getAttribute("src");
+        if (src) new Image().src = src.replace(/-(dark|light)(\.\w+)$/, "-" + other + "$2");
+      });
+    }, 1500);
+  });
+  var updateLabel = function () {};
+  var head = document.querySelector(".masthead");
+  if (head) {
+    var toggle = el("button", "theme-toggle");
+    toggle.type = "button";
+    toggle.innerHTML =
+      '<svg class="icon-sun" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10" cy="10" r="3.6"/><path d="M10 1.8v2.2M10 16v2.2M1.8 10H4M16 10h2.2M4.2 4.2l1.6 1.6M14.2 14.2l1.6 1.6M4.2 15.8l1.6-1.6M14.2 5.8l1.6-1.6"/></svg>' +
+      '<svg class="icon-moon" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M15.8 12.6A6.6 6.6 0 0 1 7.4 4.2a6.6 6.6 0 1 0 8.4 8.4z"/></svg>';
+    updateLabel = function (current) {
+      var to = (current || theme()) === "light" ? "dark" : "light";
+      toggle.setAttribute("aria-label", "Switch to " + to + " mode");
+      toggle.title = "Switch to " + to + " mode";
+    };
+    updateLabel();
+    toggle.addEventListener("click", function () {
+      var next = theme() === "light" ? "dark" : "light";
+      setTheme(next, true);
+      updateLabel(next);
+    });
+    head.appendChild(toggle);
+  }
+  // Until a choice is made, follow the device if its setting changes while the page is open.
+  var systemLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)");
+  if (systemLight && systemLight.addEventListener) {
+    systemLight.addEventListener("change", function () {
+      var saved = null;
+      try { saved = localStorage.getItem("theme"); } catch (e) {}
+      if (saved !== "light" && saved !== "dark") { var t = systemLight.matches ? "light" : "dark"; setTheme(t, false); updateLabel(t); }
+    });
+  }
+
   // ----- Phone menu.
   // On small screens the tile rail is hidden behind a Projects button at the top left. Opening it
   // shows the tiles full screen as renders: they turn in one after another, then flip over to their
@@ -279,7 +356,6 @@
   var masthead = document.querySelector(".masthead");
   var railNav = rail ? rail.closest(".rail") : null;
   if (rail && railNav && masthead) {
-    var root = document.documentElement;
     var button = el("button", "menu-button");
     button.type = "button";
     button.setAttribute("aria-expanded", "false");
@@ -408,9 +484,10 @@
     }
     function drawSmoke(wisps, power, holeR, dt, push) {
       var step = dt / 33.3;                                   // the same speed on any screen refresh rate
+      var light = theme() === "light";
       sctx.setTransform(ratio, 0, 0, ratio, 0, 0);
       sctx.clearRect(0, 0, FX_W, FX_H);
-      sctx.globalCompositeOperation = "lighter";
+      sctx.globalCompositeOperation = light ? "source-over" : "lighter";   // glowing light on dark, soft ink on light
       wisps.forEach(function (s, i) {
         s.a += s.w / 30 * (1 + 2.5 * power) * step;
         if (push > 0) s.r += push * 5 * step;                 // blown outward by the burst
@@ -420,7 +497,7 @@
         var px = FX_W / 2 + Math.cos(s.a) * s.r, py = FX_H / 2 + Math.sin(s.a) * s.r * 0.38;
         var alpha = s.alpha * power * clamp((s.r - holeR) / 6);
         var g = sctx.createRadialGradient(px, py, 0, px, py, s.size);
-        var col = s.teal ? "99,197,206" : "170,185,190";
+        var col = light ? (s.teal ? "20,91,99" : "90,104,110") : (s.teal ? "99,197,206" : "170,185,190");
         g.addColorStop(0, "rgba(" + col + "," + alpha + ")");
         g.addColorStop(1, "rgba(" + col + ",0)");
         sctx.fillStyle = g;
@@ -535,7 +612,7 @@
           var rt = (t - blast - lag) / 450;
           if (rt <= 0 || rt >= 1) return;
           var rr = mix(holeR, j ? 95 : 75, easeOut(rt));
-          rctx.strokeStyle = "rgba(155,224,230," + ((j ? 0.45 : 0.85) * (1 - rt)).toFixed(3) + ")";
+          rctx.strokeStyle = (theme() === "light" ? "rgba(20,91,99," : "rgba(155,224,230,") + ((j ? 0.45 : 0.85) * (1 - rt)).toFixed(3) + ")";
           rctx.lineWidth = mix(j ? 2 : 3.5, 0.4, rt);
           rctx.shadowColor = "rgba(99,197,206,0.9)"; rctx.shadowBlur = 10;
           rctx.beginPath(); rctx.ellipse(FX_W / 2, FX_H / 2, rr, rr * 0.45, 0, 0, 6.283); rctx.stroke();

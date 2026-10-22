@@ -19,7 +19,39 @@
   --column: 1200px;       /* widest the text column gets */
   --side: clamp(28px, 3vw, 48px);      /* space on each side of the text column */
   --edge: 20px;           /* space between the frame and the window */
+  --tint: rgba(99, 197, 206, 0.08);        /* the accent as a faint wash, behind tags and the current tile */
+  --tint-line: rgba(99, 197, 206, 0.35);   /* the accent as a soft border */
+  --line-art: #fff;                        /* the tiles' line art */
+  --video-bg: #10181e;                     /* behind a video before it loads */
+  --play-bg: rgba(33, 47, 58, 0.82);       /* the play button over a video poster */
+  --name-shadow: rgba(0, 0, 0, 0.7);       /* behind tile names that sit on a render */
+  color-scheme: dark;
 }
+
+/* The light theme · the same roles in light colours, picked so text reads as easily as it does in dark.
+   Switched by the button in the header, remembered by the browser, set on <html data-theme="..."> */
+:root[data-theme="light"] {
+  --ground: #eef0ec;
+  --rule: #76838a;
+  --hair: #d3d9d8;
+  --text: #1c2830;
+  --soft: #34434d;
+  --muted: #4a575e;
+  --accent: #145b63;
+  --accent-hi: #0e434a;
+  --tint: rgba(20, 91, 99, 0.08);
+  --tint-line: rgba(20, 91, 99, 0.35);
+  --line-art: #1c2830;
+  --video-bg: #dde2df;
+  --play-bg: rgba(238, 240, 236, 0.88);
+  --name-shadow: rgba(238, 240, 236, 0.9);
+  color-scheme: light;
+}
+
+/* Changing theme: the browser crossfades the whole page from the old colours to the new ones in one
+   piece (a view transition, started in js/site.js), so the frame and the content change together. */
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: 0.4s; animation-timing-function: ease; }
 
 * { box-sizing: border-box; }
 
@@ -58,7 +90,27 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* ---------- Header ---------- */
 
-.masthead { padding: 16px 22px 18px; }
+.masthead { padding: 16px 22px 18px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+
+/* The light and dark switch: one small square button. It shows the sun in dark mode and the moon in
+   light mode, the theme a click switches to, and the icon turns as it swaps. Built in js/site.js. */
+.theme-toggle {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--rule);
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+.theme-toggle:hover { color: var(--accent); background: var(--tint); }
+.theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme-toggle svg { position: absolute; left: 50%; top: 50%; margin: -8px 0 0 -8px; transition: opacity 0.3s ease, transform 0.4s ease; }
+.theme-toggle .icon-moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+[data-theme="light"] .theme-toggle .icon-sun { opacity: 0; transform: rotate(90deg) scale(0.6); }
+[data-theme="light"] .theme-toggle .icon-moon { opacity: 1; transform: none; }
 .masthead a { display: block; color: var(--text); text-decoration: none; }
 .masthead .name { display: block; font-size: 19px; font-weight: 600; line-height: 1.3; }
 .masthead .role { display: block; font-size: 27px; font-weight: 300; line-height: 1.15; color: var(--soft); }
@@ -101,6 +153,10 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   height: 100%;
   opacity: 0.8;
 }
+/* Inlined line art takes the theme's line colour, so switching themes doesn't have to reload it. */
+svg.tile-line { stroke: var(--line-art); }
+svg.tile-line [fill]:not([fill="none"]) { fill: var(--line-art); }
+
 .tile:hover .tile-line,
 .tile:focus-visible .tile-line,
 .tile.is-hovered .tile-line,
@@ -127,7 +183,7 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .tile-name { display: block; margin-top: 7px; font-size: clamp(13px, 0.95vw, 15px); line-height: 1.3; }
 
 .tile[aria-current] { color: var(--accent); }
-.tile[aria-current] .tile-box { background: rgba(99, 197, 206, 0.09); }
+.tile[aria-current] .tile-box { background: var(--tint); }
 
 /* Optional · show the render only while hovering, also on the current page's tile.
    Switched on in js/site.js (RENDER_ON_HOVER_ONLY). Touch screens keep the current page's render,
@@ -164,6 +220,18 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .leave-lines .tile.is-entering .tile-line { z-index: 1; opacity: 1; }
 .leave-lines .tile.is-leaving .tile-img { animation: tile-fade 0.6s ease-in 0.05s forwards; }
 @keyframes tile-fade { from { opacity: 1; } to { opacity: 0; } }
+
+/* Light theme: the lines would be lost against a render, so while it shows they turn white.
+   Hovering: they whiten as the render fades in. Leaving: they start white over the render and
+   ease back to their own colour as it fades out, on the same timing as the fade. */
+:root[data-theme="light"].leave-lines .tile.is-entering svg.tile-line { animation: lines-to-white 0.2s ease-out forwards; }
+:root[data-theme="light"].leave-lines .tile.is-entering svg.tile-line [fill]:not([fill="none"]) { animation: dots-to-white 0.2s ease-out forwards; }
+:root[data-theme="light"].leave-lines .tile.is-leaving svg.tile-line { animation: lines-from-white 0.6s ease-in 0.05s backwards; }
+:root[data-theme="light"].leave-lines .tile.is-leaving svg.tile-line [fill]:not([fill="none"]) { animation: dots-from-white 0.6s ease-in 0.05s backwards; }
+@keyframes lines-to-white { from { stroke: var(--line-art); } to { stroke: #fff; } }
+@keyframes dots-to-white { from { fill: var(--line-art); } to { fill: #fff; } }
+@keyframes lines-from-white { from { stroke: #fff; } to { stroke: var(--line-art); } }
+@keyframes dots-from-white { from { fill: #fff; } to { fill: var(--line-art); } }
 
 /* The phone menu's button and header only show on small screens (see the end of this file). */
 .menu-button, .menu-head { display: none; }
@@ -221,8 +289,8 @@ h2 { margin: 48px 0 10px; font-size: 25px; font-weight: 500; line-height: 1.3; }
   font-size: 15px;
   line-height: 1.5;
   color: var(--accent-hi);
-  background: rgba(99, 197, 206, 0.08);
-  border: 1px solid rgba(99, 197, 206, 0.35);
+  background: var(--tint);
+  border: 1px solid var(--tint-line);
 }
 
 /* The short contact line at the end of every page. */
@@ -284,7 +352,7 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 .diagram { margin: 20px 0 8px; overflow-x: auto; }
 .diagram svg { display: block; width: 100%; min-width: 640px; height: auto; font-family: inherit; }
 .diagram .box { fill: none; stroke: var(--rule); stroke-width: 1; }
-.diagram .chip { fill: rgba(99, 197, 206, 0.07); stroke: var(--hair); stroke-width: 1; }
+.diagram .chip { fill: var(--tint); stroke: var(--hair); stroke-width: 1; }
 .diagram .wire { fill: none; stroke: var(--muted); stroke-width: 1; }
 .diagram .head { fill: var(--muted); }
 .diagram text { fill: var(--text); font-size: 13px; }
@@ -301,7 +369,7 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: #10181e;
+  background: var(--video-bg);
   border: 1px solid var(--hair);
   overflow: hidden;
 }
@@ -317,7 +385,7 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
   align-items: center;
   justify-content: center;
   border: 1px solid var(--text);
-  background: rgba(33, 47, 58, 0.82);
+  background: var(--play-bg);
   color: var(--text);
 }
 .video-link:hover .video-play, .video-link:focus-visible .video-play { border-color: var(--accent); color: var(--accent); }
@@ -421,6 +489,8 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
     box-shadow: 0 1px 0 var(--rule);
   }
   .masthead .role { font-size: 21px; }
+  .masthead { justify-content: flex-start; gap: 12px; }
+  .theme-toggle { margin-left: auto; }
   .menu-button {
     display: flex;
     flex-direction: column;
@@ -477,7 +547,7 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
   .tile { position: relative; }
   .tile-box { border-color: var(--hair); }
   .tile[aria-current] .tile-box { border-color: var(--accent); background: none; }
-  .tile-name { position: absolute; left: 10px; bottom: 7px; margin: 0; font-size: 14px; color: var(--text); text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7); }
+  .tile-name { position: absolute; left: 10px; bottom: 7px; margin: 0; font-size: 14px; color: var(--text); text-shadow: 0 1px 3px var(--name-shadow); }
   .tile[aria-current] .tile-name { color: var(--accent-hi); }
 
   /* Group names as big lowercase words, the Windows Phone way. */
@@ -504,8 +574,9 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
 
 @media (prefers-reduced-motion: reduce) {
   .tile-img { transition: none; }
+  .theme-toggle svg { transition: none; }
   html.menu-open .tiles > li, .tile.is-flipped .tile-box, .tile.is-flipped .tile-img, .tile.is-flipped .tile-line { animation: none; }
 }
 
 /* Inline code and short formulas. */
-code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.92em; color: var(--accent-hi); background: rgba(99, 197, 206, 0.08); padding: 2px 7px; }
+code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.92em; color: var(--accent-hi); background: var(--tint); padding: 2px 7px; }
