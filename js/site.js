@@ -167,7 +167,9 @@
   // The browser can only animate the lines if it can read the SVG files, which works on the live site
   // and on a local server, but not when a page is opened straight from disk. Then the tiles stay still.
   var LINE_DRAW = "load";
-  var DRAW_TIME = 900;      // milliseconds for one tile's lines to draw
+  var DRAW_TIME = 1500;     // milliseconds for one tile's lines to draw in (page load, and the phone menu)
+  var PULL_TIME = 600;      // hovering a tile: the lines pull back as the render fades in
+  var REDRAW_TIME = 900;    // leaving a tile: the lines draw back over the render as it fades out
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function inlineSvg(img) {
@@ -183,10 +185,18 @@
     });
   }
 
+  // The lines that trace themselves along their length · everything except a bubble's own lines.
+  function tracedShapes(svg) {
+    var all = svg.querySelectorAll("path, circle, line, polyline, polygon, rect, ellipse");
+    return Array.prototype.filter.call(all, function (s) {
+      return !s.closest("defs") && !/(^| )bubble(-live)?( |$)/.test(s.getAttribute("class") || "");
+    });
+  }
+
   // Set every line to "not drawn yet", then let the CSS transition draw it.
   function draw(svg, duration, startDelay) {
     startDelay = startDelay || 0;
-    var shapes = svg.querySelectorAll("path, circle, line, polyline, polygon, rect, ellipse");
+    var shapes = tracedShapes(svg);
     Array.prototype.forEach.call(shapes, function (s, i) {
       var len = s.getTotalLength ? s.getTotalLength() : 0;
       if (!len) return;
@@ -198,11 +208,12 @@
       s.style.transition = "stroke-dashoffset " + duration * 0.65 + "ms ease-out " + delay + "ms";
       s.style.strokeDashoffset = 0;
     });
+    if (svg.hasAttribute("data-bubble")) bubble(svg, { duration: duration, delay: startDelay });
   }
 
   // The reverse: each line pulls back to its start, last lines first.
   function undraw(svg, duration) {
-    var shapes = svg.querySelectorAll("path, circle, line, polyline, polygon, rect, ellipse");
+    var shapes = tracedShapes(svg);
     var n = shapes.length;
     Array.prototype.forEach.call(shapes, function (s, i) {
       var len = s.getTotalLength ? s.getTotalLength() : 0;
@@ -215,20 +226,115 @@
       s.style.transition = "stroke-dashoffset " + duration * 0.65 + "ms ease-in " + delay + "ms";
       s.style.strokeDashoffset = len + 4;
     });
+    if (svg.hasAttribute("data-bubble")) bubble(svg, { duration: duration, reverse: true });
   }
 
-  // On phones the rail lives in the menu, so there's nothing on screen to draw.
+  // ----- The Black Hole Studio tile's lens sphere grows out of the hole like an air bubble: it swells
+  // from the hole's centre while its outline traces round, its rings sweep in, and two pole-to-pole
+  // lines spin once and fade. It's worked out in 3D from the numbers the tile script saves on the SVG.
+  function bubble(svg, opts) {
+    var B;
+    try { B = JSON.parse(svg.getAttribute("data-bubble")); } catch (e) { return; }
+    var NS = "http://www.w3.org/2000/svg";
+    var reverse = !!opts.reverse, total = opts.duration, wait = opts.delay || 0;
+    var run = (svg._bubbleRun || 0) + 1;              // a newer run takes over from an older one
+    svg._bubbleRun = run;
+    var old = svg.querySelector("g.bubble-layer");
+    if (old) old.remove();
+    var statics = svg.querySelectorAll(".bubble");
+    var layer = document.createElementNS(NS, "g");
+    layer.setAttribute("class", "bubble-layer");
+    svg.insertBefore(layer, statics[0] || null);
+    function add(op) {
+      var e = document.createElementNS(NS, "path");
+      e.setAttribute("class", "bubble-live");
+      e.setAttribute("stroke-width", "0.9");
+      e.setAttribute("opacity", op);
+      layer.appendChild(e);
+      return e;
+    }
+    var outline = add(B.ops.outline), floor = add(B.ops.floor);
+    var rings = B.lats.map(function () { return add(B.ops.ring); });
+    var meridians = [add(0), add(0)];
+    Array.prototype.forEach.call(statics, function (s) { s.style.visibility = "hidden"; });
+
+    function proj(p) {
+      var m = B.m, o = B.o;
+      return [o[0] + m[0] * p[0] + m[2] * p[1] + m[4] * p[2], o[1] + m[1] * p[0] + m[3] * p[1] + m[5] * p[2]];
+    }
+    // A path through 3D points, leaving out what's sunk into the plate (below height 0).
+    function path(points) {
+      var d = "", pen = false;
+      points.forEach(function (p) {
+        if (p[2] < 0) { pen = false; return; }
+        var q = proj(p);
+        d += (pen ? " L" : "M") + q[0].toFixed(2) + " " + q[1].toFixed(2);
+        pen = true;
+      });
+      return d;
+    }
+    function arc(fn, from, frac, steps) {
+      if (frac < 0.001) return "";
+      var pts = [], n = Math.max(2, Math.ceil(steps * frac));
+      for (var i = 0; i <= n; i++) pts.push(fn(from + Math.PI * 2 * frac * i / n));
+      return path(pts);
+    }
+    function clamp(t) { return t < 0 ? 0 : t > 1 ? 1 : t; }
+    function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+    function easeInOut(t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; }
+    function part(t, a, b) { return clamp((t - a) / (b - a)); }
+    var RINGS = [[0, 0.62], [0.08, 0.7], [0.14, 0.76]];
+
+    function frame(t) {                                // t runs 0 to 1 over the whole bubble
+      var c = B.c, s = easeOut(part(t, 0, 0.7)), R = B.r * Math.max(s, 0.02);
+      outline.setAttribute("d", arc(function (a) {
+        var x = Math.cos(a), y = Math.sin(a);
+        return [c[0] + (B.u[0] * x + B.v[0] * y) * R, c[1] + (B.u[1] * x + B.v[1] * y) * R, c[2] + (B.u[2] * x + B.v[2] * y) * R];
+      }, -Math.PI / 2, s, 120));
+      if (R > c[2]) {                                  // where the sphere meets the plate, once it's big enough
+        var fr = Math.sqrt(R * R - c[2] * c[2]);
+        floor.setAttribute("d", arc(function (a) { return [fr * Math.cos(a), fr * Math.sin(a), 0.001]; }, 0, 1, 120));
+      } else floor.setAttribute("d", "");
+      B.lats.forEach(function (lat, i) {
+        var p = easeInOut(part(t, RINGS[i][0], RINGS[i][1])), rr = R * Math.sqrt(1 - lat * lat), z = c[2] + R * lat;
+        rings[i].setAttribute("d", arc(function (a) { return [c[0] + rr * Math.cos(a), c[1] + rr * Math.sin(a), z]; }, Math.PI * 0.75, p, 96));
+      });
+      var spin = easeOut(part(t, 0, 0.95)) * Math.PI * 1.5, fade = (1 - part(t, 0.6, 0.95)) * clamp(t / 0.15);
+      meridians.forEach(function (m, k) {
+        var th = spin + k * Math.PI / 2, dx = Math.cos(th), dy = Math.sin(th);
+        m.setAttribute("opacity", (0.22 * fade).toFixed(3));
+        m.setAttribute("d", arc(function (a) {
+          return [c[0] + R * Math.cos(a) * dx, c[1] + R * Math.cos(a) * dy, c[2] + R * Math.sin(a)];
+        }, 0, 1, 96));
+      });
+    }
+
+    frame(reverse ? 1 : 0);
+    var t0 = null;
+    requestAnimationFrame(function step(now) {
+      if (svg._bubbleRun !== run) return;              // a newer run has started
+      if (t0 === null) t0 = now;
+      var t = clamp((now - t0 - wait) / total);
+      frame(reverse ? 1 - t : t);
+      if (t < 1) { requestAnimationFrame(step); return; }
+      layer.remove();
+      Array.prototype.forEach.call(statics, function (s) { s.style.visibility = reverse ? "hidden" : ""; });
+    });
+  }
+
   var phone = window.matchMedia && window.matchMedia("(max-width: 760px)");
-  if (LINE_DRAW !== "off" && !reduceMotion && location.protocol !== "file:" && rail && !(phone && phone.matches)) {
+  if (LINE_DRAW !== "off" && !reduceMotion && location.protocol !== "file:" && rail) {
     // A reload (F5 or Ctrl+Shift+R) counts as a fresh visit, so the lines draw again.
     var firstVisit = true;
     var navEntry = performance.getEntriesByType ? performance.getEntriesByType("navigation")[0] : null;
     var reloaded = navEntry && navEntry.type === "reload";
     try { firstVisit = reloaded || !sessionStorage.getItem("lines-drawn"); sessionStorage.setItem("lines-drawn", "1"); } catch (e) {}
     var lineImgs = rail.querySelectorAll("img.tile-line");
-    // Every page swaps the line art images for inline SVG, so hovering can move the lines.
-    // Only the first page of a visit (or a reload) also plays the drawing in.
-    var drawIn = LINE_DRAW === "load" && firstVisit;
+    // Every page swaps the line art images for inline SVG, so hovering (and the phone menu) can move the lines.
+    // Only the first page of a visit (or a reload) also plays the drawing in. On phones the rail lives in
+    // the menu, so the drawing waits for the menu to open instead.
+    var onPhone = phone && phone.matches;
+    var drawIn = LINE_DRAW === "load" && firstVisit && !onPhone;
     Array.prototype.forEach.call(lineImgs, function (img, n) {
       if (drawIn) img.style.visibility = "hidden";   // no flash of finished lines before drawing
       inlineSvg(img).then(function (svg) {
@@ -250,7 +356,7 @@
   // "lines" · that effect
   // "fade"  · the plain fade, no line movement
   var LEAVE_EFFECT = "lines";
-  var LEAVE_TIME = 650;
+  var LEAVE_TIME = 950;
   if (rail && LEAVE_EFFECT !== "fade" && !reduceMotion) {
     document.documentElement.classList.add("leave-" + LEAVE_EFFECT);
     Array.prototype.forEach.call(rail.querySelectorAll("a.tile"), function (tile) {
@@ -261,7 +367,7 @@
         void tile.offsetWidth;
         tile.classList.remove("is-entering");
         tile.classList.add("is-leaving");
-        if (LEAVE_EFFECT === "lines" && tile._lines) draw(tile._lines, 520);
+        if (LEAVE_EFFECT === "lines" && tile._lines) draw(tile._lines, REDRAW_TIME);
         clearTimeout(timer);
         timer = setTimeout(function () { tile.classList.remove("is-leaving"); }, LEAVE_TIME);
       });
@@ -270,8 +376,8 @@
         tile.classList.remove("is-leaving");
         if (LEAVE_EFFECT === "lines" && tile._lines) {
           tile.classList.add("is-entering");                 // lines stay on top while they pull back
-          undraw(tile._lines, 420);
-          timer = setTimeout(function () { tile.classList.remove("is-entering"); }, 420);
+          undraw(tile._lines, PULL_TIME);
+          timer = setTimeout(function () { tile.classList.remove("is-entering"); }, PULL_TIME);
         }
       });
     });
@@ -392,7 +498,11 @@
         if (!tile || !tile.querySelector(".tile-img") || tile.hasAttribute("aria-current")) return;
         if (reduceMotion) { tile.classList.add("is-flipped"); return; }
         var delay = 650 + n++ * 90;
-        flips.push(setTimeout(function () { tile.classList.add("is-flipped"); }, delay));
+        flips.push(setTimeout(function () {
+          tile.classList.add("is-flipped");
+          // The lines draw in from the moment the tile is edge on, so the flip and the drawing are one movement.
+          if (tile._lines) draw(tile._lines, DRAW_TIME, 250);
+        }, delay));
       });
     }
 

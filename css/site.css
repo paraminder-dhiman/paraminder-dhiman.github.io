@@ -218,16 +218,16 @@ svg.tile-line [fill]:not([fill="none"]) { fill: var(--line-art); }
 /* lines · the line art draws on top while the render fades underneath */
 .leave-lines .tile.is-leaving .tile-line,
 .leave-lines .tile.is-entering .tile-line { z-index: 1; opacity: 1; }
-.leave-lines .tile.is-leaving .tile-img { animation: tile-fade 0.6s ease-in 0.05s forwards; }
+.leave-lines .tile.is-leaving .tile-img { animation: tile-fade 0.85s ease-in 0.05s forwards; }
 @keyframes tile-fade { from { opacity: 1; } to { opacity: 0; } }
 
 /* Light theme: the lines would be lost against a render, so while it shows they turn white.
    Hovering: they whiten as the render fades in. Leaving: they start white over the render and
    ease back to their own colour as it fades out, on the same timing as the fade. */
-:root[data-theme="light"].leave-lines .tile.is-entering svg.tile-line { animation: lines-to-white 0.2s ease-out forwards; }
-:root[data-theme="light"].leave-lines .tile.is-entering svg.tile-line [fill]:not([fill="none"]) { animation: dots-to-white 0.2s ease-out forwards; }
-:root[data-theme="light"].leave-lines .tile.is-leaving svg.tile-line { animation: lines-from-white 0.6s ease-in 0.05s backwards; }
-:root[data-theme="light"].leave-lines .tile.is-leaving svg.tile-line [fill]:not([fill="none"]) { animation: dots-from-white 0.6s ease-in 0.05s backwards; }
+:root[data-theme="light"].leave-lines .tile.is-entering svg.tile-line { animation: lines-to-white 0.3s ease-out forwards; }
+:root[data-theme="light"].leave-lines .tile.is-entering svg.tile-line [fill]:not([fill="none"]) { animation: dots-to-white 0.3s ease-out forwards; }
+:root[data-theme="light"].leave-lines .tile.is-leaving svg.tile-line { animation: lines-from-white 0.85s ease-in 0.05s backwards; }
+:root[data-theme="light"].leave-lines .tile.is-leaving svg.tile-line [fill]:not([fill="none"]) { animation: dots-from-white 0.85s ease-in 0.05s backwards; }
 @keyframes lines-to-white { from { stroke: var(--line-art); } to { stroke: #fff; } }
 @keyframes dots-to-white { from { fill: var(--line-art); } to { fill: #fff; } }
 @keyframes lines-from-white { from { stroke: #fff; } to { stroke: var(--line-art); } }
@@ -346,6 +346,28 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
 }
 .entries dt { font-weight: 500; }
 .entries dd { margin: 0; color: var(--soft); }
+
+/* A quiet line linking a project to its sibling on another engine. */
+.prose .sibling { font-size: 16px; color: var(--muted); }
+
+/* Two images side by side, stacking on phones. */
+.figure-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 18px; margin: 28px 0; }
+.figure-grid figure { margin: 0 0 14px; }
+@media (max-width: 760px) { .figure-grid { grid-template-columns: minmax(0, 1fr); } }
+
+/* ---------- Charts ----------
+   Drawn as inline SVG from the same formulas as the project, coloured from the theme. */
+
+.chart svg { display: block; width: 100%; height: auto; font-family: inherit; overflow: visible; }
+.chart .grid { stroke: var(--hair); stroke-width: 1; }
+.chart .axis { stroke: var(--rule); stroke-width: 1; }
+.chart .mark { stroke: var(--rule); stroke-width: 1; stroke-dasharray: 3 4; }
+.chart .band { fill: var(--tint); }
+.chart .dot { fill: var(--accent); }
+.chart .curve { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-linejoin: round; }
+.chart .curve-2 { fill: none; stroke: var(--muted); stroke-width: 1.5; stroke-dasharray: 6 5; }
+.chart .tick, .chart .note, .chart .key { fill: var(--muted); font-size: 12px; }
+.chart .label { fill: var(--soft); font-size: 13px; }
 
 /* ---------- Diagrams ---------- */
 

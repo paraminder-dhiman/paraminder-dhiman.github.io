@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Black Hole Studio · Paraminder Dhiman</title>
+  <meta name="description" content="Black Hole Studio, a Blender extension that adds a physically based black hole in one click: exact light bending, a blackbody disk with Doppler beaming and redshift, fog, jets and presets, with a fast GPU mode and an exact ray-traced mode.">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    /* Light or dark, set before the page draws so it never flashes the wrong colours.
+       A choice made with the switch wins; otherwise follow the device; otherwise dark. */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="black-hole-studio">
+
+<div class="sheet">
+
+  <header class="masthead">
+    <a href="index.html">
+      <span class="name">Paraminder Dhiman</span>
+      <span class="role">Technical artist</span>
+    </a>
+  </header>
+
+  <div class="pagehead">
+    <h1>Black Hole Studio</h1>
+    <p class="meta">Extension · Blender, Python, OSL · 2026</p>
+  </div>
+
+  <nav class="rail" aria-label="Pages">
+    <ul class="tiles" id="tiles"></ul>
+    <noscript><p><a href="index.html">About</a></p></noscript>
+  </nav>
+
+  <main>
+    <div class="prose">
+      <p class="lead">A Blender extension that adds a physically based black hole in one click. Light is bent the way general relativity says it bends, the disk glows with real blackbody colours, and the side of it rushing toward you shines brighter and bluer than the side moving away.</p>
+      <p>Every setting starts at real physics, and every one can be pushed into a stylised look. It renders in two ways: a fast mode that runs on the GPU in Cycles and Eevee, and an exact mode that traces every ray. The code and the latest version are on <a href="https://github.com/paraminder-dhiman/black-hole-studio" target="_blank" rel="noopener">GitHub</a>, with the install file on its <a href="https://github.com/paraminder-dhiman/black-hole-studio/releases" target="_blank" rel="noopener">releases page</a>.</p>
+      <p class="sibling">Also in Unreal: <a href="black-hole-shader.html">Black Hole Shader</a></p>
+    </div>
+
+    <figure>
+      <img src="images/black-hole-studio/01-hero.jpg" width="1600" height="900" alt="The Physical Default preset: a black hole with a glowing accretion disk, its far side bent up over the black shadow, against the Milky Way.">
+    </figure>
+
+    <h2>How it fits together</h2>
+    <div class="prose">
+      <p>Adding a black hole does the heavy work once. Python traces every possible light path and bakes them into a lookup table, then writes the shader node trees. From then on, each frame renders in one of two modes. Both hand their results to the same disk shading, so a black hole looks the same in either.</p>
+    </div>
+    <figure class="diagram" role="img" aria-label="Diagram. Adding a black hole runs Python, which bakes the light paths into a table and writes the node trees. Rendering then goes one of two ways: Fast, a lookup table read by nodes on GPU or CPU in Cycles and Eevee, or Exact, every ray traced in OSL on the CPU in Cycles. Both feed the same disk shading: temperature, Doppler, redshift and fog.">
+      <svg viewBox="0 0 780 270" xmlns="http://www.w3.org/2000/svg">
+        <rect class="box" x="20" y="100" width="120" height="70"></rect>
+        <text class="t-title" x="34" y="128">Add a</text>
+        <text class="t-title" x="34" y="148">black hole</text>
+
+        <rect class="box" x="175" y="78" width="160" height="114"></rect>
+        <text class="t-title" x="189" y="102">Python builds it</text>
+        <rect class="chip" x="189" y="114" width="132" height="30"></rect>
+        <text x="255" y="134" text-anchor="middle">Bake the light paths</text>
+        <rect class="chip" x="189" y="150" width="132" height="30"></rect>
+        <text x="255" y="170" text-anchor="middle">Write the node trees</text>
+
+        <rect class="box" x="375" y="30" width="185" height="80"></rect>
+        <text class="t-title" x="389" y="54">Fast</text>
+        <text class="t-soft" x="389" y="76">A lookup table read by nodes</text>
+        <text class="t-soft" x="389" y="96">GPU or CPU · Cycles, Eevee</text>
+
+        <rect class="box" x="375" y="160" width="185" height="80"></rect>
+        <text class="t-title" x="389" y="184">Exact</text>
+        <text class="t-soft" x="389" y="206">Every ray traced in OSL</text>
+        <text class="t-soft" x="389" y="226">CPU · Cycles</text>
+
+        <rect class="box" x="600" y="95" width="160" height="80"></rect>
+        <text class="t-title" x="614" y="119">Shared disk shading</text>
+        <text class="t-soft" x="614" y="141">Temperature, Doppler,</text>
+        <text class="t-soft" x="614" y="160">redshift, fog</text>
+
+        <path class="wire" d="M140 135 H168 M335 135 H355 M355 70 V200 M355 70 H368 M355 200 H368 M560 70 H580 M560 200 H580 M580 70 V200 M580 135 H593"></path>
+        <path class="head" d="M175 135 l-7 -3.5 v7 z M375 70 l-7 -3.5 v7 z M375 200 l-7 -3.5 v7 z M600 135 l-7 -3.5 v7 z"></path>
+      </svg>
+    </figure>
+
+    <h2>Bending the light</h2>
+    <div class="prose">
+      <p>Around a non-spinning black hole, a ray of light always stays in one flat plane, and its whole path depends on a single number: the impact parameter <em>b</em>, how far from the centre it would pass if there were no gravity. Far out the bending is gentle, close in it climbs steeply, and below about 2.6 times the horizon's radius the ray falls in. Those captured rays are the black shadow. The add-on never draws it; it only traces rays, and the shadow, the thin photon ring at its edge and the copy of the disk bent over the top all appear by themselves.</p>
+    </div>
+    <figure class="chart">
+      <svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chart: how much a light ray bends against how far it passes from the hole. Far out the bending follows the weak-field rule, about 2 over b. Close in it climbs steeply, and below about 2.6 Schwarzschild radii the ray is captured.">
+<line class="grid" x1="62" x2="736" y1="278.0" y2="278.0"/>
+<text class="tick" x="54" y="282.0" text-anchor="end">0</text>
+<line class="grid" x1="62" x2="736" y1="214.0" y2="214.0"/>
+<text class="tick" x="54" y="218.0" text-anchor="end">90</text>
+<line class="grid" x1="62" x2="736" y1="150.0" y2="150.0"/>
+<text class="tick" x="54" y="154.0" text-anchor="end">180</text>
+<line class="grid" x1="62" x2="736" y1="86.0" y2="86.0"/>
+<text class="tick" x="54" y="90.0" text-anchor="end">270</text>
+<line class="grid" x1="62" x2="736" y1="22.0" y2="22.0"/>
+<text class="tick" x="54" y="26.0" text-anchor="end">360</text>
+<text class="tick" x="62.0" y="296" text-anchor="middle">0</text>
+<text class="tick" x="174.3" y="296" text-anchor="middle">5</text>
+<text class="tick" x="286.7" y="296" text-anchor="middle">10</text>
+<text class="tick" x="399.0" y="296" text-anchor="middle">15</text>
+<text class="tick" x="511.3" y="296" text-anchor="middle">20</text>
+<text class="tick" x="623.7" y="296" text-anchor="middle">25</text>
+<text class="tick" x="736.0" y="296" text-anchor="middle">30</text>
+<line class="axis" x1="62" x2="736" y1="278" y2="278"/>
+<line class="axis" x1="62" x2="62" y1="22" y2="278"/>
+<text class="label" x="399" y="320" text-anchor="middle">impact parameter b (horizon radii)</text>
+<text class="label" x="16" y="150" text-anchor="middle" transform="rotate(-90 16 150)">bending (degrees)</text>
+<line class="mark" x1="120.4" x2="120.4" y1="22" y2="278"/>
+<text class="note" x="126.4" y="36">captured below b ≈ 2.6</text>
+<path class="curve-2" d="M129.4 250.8 L131.6 251.7 L133.9 252.5 L136.1 253.3 L138.4 254.0 L140.6 254.7 L142.9 255.4 L145.1 256.0 L147.4 256.6 L149.6 257.1 L151.9 257.6 L154.1 258.1 L156.4 258.6 L158.6 259.0 L160.9 259.5 L163.1 259.9 L165.3 260.3 L167.6 260.7 L169.8 261.0 L172.1 261.4 L174.3 261.7 L176.6 262.0 L178.8 262.3 L181.1 262.6 L183.3 262.9 L185.6 263.2 L187.8 263.4 L190.1 263.7 L192.3 264.0 L194.6 264.2 L196.8 264.4 L199.0 264.6 L201.3 264.9 L203.5 265.1 L205.8 265.3 L208.0 265.5 L210.3 265.7 L212.5 265.8 L214.8 266.0 L217.0 266.2 L219.3 266.4 L221.5 266.5 L223.8 266.7 L226.0 266.8 L228.3 267.0 L230.5 267.1 L232.7 267.3 L235.0 267.4 L237.2 267.6 L239.5 267.7 L241.7 267.8 L244.0 267.9 L246.2 268.1 L248.5 268.2 L250.7 268.3 L253.0 268.4 L255.2 268.5 L257.5 268.6 L259.7 268.7 L262.0 268.8 L264.2 268.9 L266.4 269.0 L268.7 269.1 L270.9 269.2 L273.2 269.3 L275.4 269.4 L277.7 269.5 L279.9 269.6 L282.2 269.7 L284.4 269.8 L286.7 269.9 L288.9 269.9 L291.2 270.0 L293.4 270.1 L295.7 270.2 L297.9 270.2 L300.1 270.3 L302.4 270.4 L304.6 270.5 L306.9 270.5 L309.1 270.6 L311.4 270.7 L313.6 270.7 L315.9 270.8 L318.1 270.9 L320.4 270.9 L322.6 271.0 L324.9 271.0 L327.1 271.1 L329.4 271.2 L331.6 271.2 L333.8 271.3 L336.1 271.3 L338.3 271.4 L340.6 271.4 L342.8 271.5 L345.1 271.5 L347.3 271.6 L349.6 271.6 L351.8 271.7 L354.1 271.7 L356.3 271.8 L358.6 271.8 L360.8 271.9 L363.1 271.9 L365.3 272.0 L367.5 272.0 L369.8 272.1 L372.0 272.1 L374.3 272.1 L376.5 272.2 L378.8 272.2 L381.0 272.3 L383.3 272.3 L385.5 272.3 L387.8 272.4 L390.0 272.4 L392.3 272.5 L394.5 272.5 L396.8 272.5 L399.0 272.6 L401.2 272.6 L403.5 272.6 L405.7 272.7 L408.0 272.7 L410.2 272.7 L412.5 272.8 L414.7 272.8 L417.0 272.8 L419.2 272.9 L421.5 272.9 L423.7 272.9 L426.0 273.0 L428.2 273.0 L430.5 273.0 L432.7 273.1 L434.9 273.1 L437.2 273.1 L439.4 273.1 L441.7 273.2 L443.9 273.2 L446.2 273.2 L448.4 273.3 L450.7 273.3 L452.9 273.3 L455.2 273.3 L457.4 273.4 L459.7 273.4 L461.9 273.4 L464.2 273.4 L466.4 273.5 L468.6 273.5 L470.9 273.5 L473.1 273.5 L475.4 273.6 L477.6 273.6 L479.9 273.6 L482.1 273.6 L484.4 273.7 L486.6 273.7 L488.9 273.7 L491.1 273.7 L493.4 273.8 L495.6 273.8 L497.9 273.8 L500.1 273.8 L502.3 273.8 L504.6 273.9 L506.8 273.9 L509.1 273.9 L511.3 273.9 L513.6 273.9 L515.8 274.0 L518.1 274.0 L520.3 274.0 L522.6 274.0 L524.8 274.0 L527.1 274.1 L529.3 274.1 L531.6 274.1 L533.8 274.1 L536.0 274.1 L538.3 274.2 L540.5 274.2 L542.8 274.2 L545.0 274.2 L547.3 274.2 L549.5 274.2 L551.8 274.3 L554.0 274.3 L556.3 274.3 L558.5 274.3 L560.8 274.3 L563.0 274.3 L565.3 274.4 L567.5 274.4 L569.7 274.4 L572.0 274.4 L574.2 274.4 L576.5 274.4 L578.7 274.5 L581.0 274.5 L583.2 274.5 L585.5 274.5 L587.7 274.5 L590.0 274.5 L592.2 274.5 L594.5 274.6 L596.7 274.6 L599.0 274.6 L601.2 274.6 L603.4 274.6 L605.7 274.6 L607.9 274.6 L610.2 274.7 L612.4 274.7 L614.7 274.7 L616.9 274.7 L619.2 274.7 L621.4 274.7 L623.7 274.7 L625.9 274.8 L628.2 274.8 L630.4 274.8 L632.7 274.8 L634.9 274.8 L637.1 274.8 L639.4 274.8 L641.6 274.8 L643.9 274.9 L646.1 274.9 L648.4 274.9 L650.6 274.9 L652.9 274.9 L655.1 274.9 L657.4 274.9 L659.6 274.9 L661.9 274.9 L664.1 275.0 L666.4 275.0 L668.6 275.0 L670.8 275.0 L673.1 275.0 L675.3 275.0 L677.6 275.0 L679.8 275.0 L682.1 275.0 L684.3 275.1 L686.6 275.1 L688.8 275.1 L691.1 275.1 L693.3 275.1 L695.6 275.1 L697.8 275.1 L700.1 275.1 L702.3 275.1 L704.5 275.2 L706.8 275.2 L709.0 275.2 L711.3 275.2 L713.5 275.2 L715.8 275.2 L718.0 275.2 L720.3 275.2 L722.5 275.2 L724.8 275.2 L727.0 275.2 L729.3 275.3 L731.5 275.3 L733.8 275.3 L736.0 275.3"/>
+<path class="curve" d="M120.4 2.1 L120.4 21.2 L120.5 40.3 L120.6 59.3 L120.7 78.3 L120.8 97.1 L121.1 115.8 L121.6 134.3 L122.3 152.5 L123.5 170.3 L125.3 187.4 L128.3 203.6 L133.0 218.6 L140.6 232.0 L152.7 243.6 L172.2 253.2 L203.3 260.7 L253.0 266.3 L332.6 270.3 L459.9 273.0 L663.6 274.8 L736.0 275.1"/>
+<line class="curve" x1="470" x2="496" y1="60" y2="60"/>
+<text class="key" x="504" y="64">exact, general relativity</text>
+<line class="curve-2" x1="470" x2="496" y1="80" y2="80"/>
+<text class="key" x="504" y="84">weak field, about 2 / b</text>
+</svg>
+      <figcaption>How much a ray bends against how far from the hole it passes, in multiples of the horizon's radius.</figcaption>
+    </figure>
+
+    <h2>Two ways to render it</h2>
+    <dl class="entries">
+      <div>
+        <dt>Fast</dt>
+        <dd>Because every path depends on one number, all of them can be traced once and saved in an image: a 1024 × 512 lookup table, one column per ray. Rendering becomes reading the right pixel, done with ordinary shader nodes, so it runs on the GPU and in Eevee as well as Cycles.</dd>
+      </div>
+      <div>
+        <dt>Exact</dt>
+        <dd>Every camera ray is traced step by step in an Open Shading Language shader, in Cycles on the CPU. It's slower, but it can do what a table can't: frame dragging that twists the light around a spinning hole, and jets that glow along the curved path instead of a straight line.</dd>
+      </div>
+      <div>
+        <dt>Switching</dt>
+        <dd>Changing mode sets the render settings that mode needs, and puts yours back when you switch away again.</dd>
+      </div>
+    </dl>
+
+    <h2>The disk</h2>
+    <div class="prose">
+      <p>The disk ends where real ones do: at the innermost stable circular orbit, the ISCO, 3 horizon radii out for a non-spinning hole and closer or further for a spinning one. Gas heats up as it falls inward, but right at the inner edge it stops rubbing and simply falls in, so the hottest ring sits a little way outside the edge. That one temperature curve sets both the colour, through Blender's blackbody conversion, and the brightness.</p>
+      <p>On top of it, the gas near the middle orbits at around half the speed of light. The side coming toward you is shifted bluer and much brighter, the side moving away redder and dimmer, and light climbing out of the hole's gravity loses energy on the way. Each effect has its own slider, where 1 is real physics and 0 switches it off.</p>
+    </div>
+    <figure class="chart">
+      <svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chart: the disk's temperature against distance from the centre. It is zero at the inner edge, the innermost stable orbit at 3 Schwarzschild radii, rises to its peak just outside it at about 4.1, then falls off slowly.">
+<line class="grid" x1="62" x2="736" y1="278.0" y2="278.0"/>
+<text class="tick" x="54" y="282.0" text-anchor="end">0</text>
+<line class="grid" x1="62" x2="736" y1="214.0" y2="214.0"/>
+<text class="tick" x="54" y="218.0" text-anchor="end">0.25</text>
+<line class="grid" x1="62" x2="736" y1="150.0" y2="150.0"/>
+<text class="tick" x="54" y="154.0" text-anchor="end">0.5</text>
+<line class="grid" x1="62" x2="736" y1="86.0" y2="86.0"/>
+<text class="tick" x="54" y="90.0" text-anchor="end">0.75</text>
+<line class="grid" x1="62" x2="736" y1="22.0" y2="22.0"/>
+<text class="tick" x="54" y="26.0" text-anchor="end">1</text>
+<text class="tick" x="62.0" y="296" text-anchor="middle">0</text>
+<text class="tick" x="163.1" y="296" text-anchor="middle">3</text>
+<text class="tick" x="230.5" y="296" text-anchor="middle">5</text>
+<text class="tick" x="399.0" y="296" text-anchor="middle">10</text>
+<text class="tick" x="567.5" y="296" text-anchor="middle">15</text>
+<text class="tick" x="736.0" y="296" text-anchor="middle">20</text>
+<line class="axis" x1="62" x2="736" y1="278" y2="278"/>
+<line class="axis" x1="62" x2="62" y1="22" y2="278"/>
+<text class="label" x="399" y="320" text-anchor="middle">distance from the centre (horizon radii)</text>
+<text class="label" x="16" y="150" text-anchor="middle" transform="rotate(-90 16 150)">temperature (share of the peak)</text>
+<line class="mark" x1="163.1" x2="163.1" y1="22" y2="278"/>
+<text class="note" x="169.1" y="268">inner edge (ISCO)</text>
+<path class="curve" d="M163.1 278.0 L164.8 121.9 L166.5 95.2 L168.2 78.7 L169.8 67.0 L171.5 58.1 L173.2 51.1 L174.9 45.5 L176.6 40.9 L178.3 37.2 L179.9 34.1 L181.6 31.5 L183.3 29.3 L185.0 27.6 L186.7 26.2 L188.4 25.0 L190.1 24.1 L191.7 23.3 L193.4 22.8 L195.1 22.4 L196.8 22.1 L198.5 22.0 L200.2 22.0 L201.9 22.1 L203.5 22.3 L205.2 22.5 L206.9 22.8 L208.6 23.2 L210.3 23.6 L212.0 24.1 L213.7 24.6 L215.3 25.2 L217.0 25.8 L218.7 26.4 L220.4 27.1 L222.1 27.8 L223.8 28.5 L225.4 29.2 L227.1 30.0 L228.8 30.7 L230.5 31.5 L232.2 32.3 L233.9 33.1 L235.6 33.9 L237.2 34.8 L238.9 35.6 L240.6 36.4 L242.3 37.3 L244.0 38.1 L245.7 39.0 L247.4 39.8 L249.0 40.7 L250.7 41.6 L252.4 42.4 L254.1 43.3 L255.8 44.2 L257.5 45.0 L259.1 45.9 L260.8 46.8 L262.5 47.6 L264.2 48.5 L265.9 49.3 L267.6 50.2 L269.3 51.0 L270.9 51.9 L272.6 52.7 L274.3 53.6 L276.0 54.4 L277.7 55.2 L279.4 56.1 L281.1 56.9 L282.7 57.7 L284.4 58.5 L286.1 59.4 L287.8 60.2 L289.5 61.0 L291.2 61.8 L292.8 62.6 L294.5 63.4 L296.2 64.2 L297.9 64.9 L299.6 65.7 L301.3 66.5 L303.0 67.3 L304.6 68.0 L306.3 68.8 L308.0 69.5 L309.7 70.3 L311.4 71.0 L313.1 71.8 L314.8 72.5 L316.4 73.2 L318.1 74.0 L319.8 74.7 L321.5 75.4 L323.2 76.1 L324.9 76.8 L326.5 77.5 L328.2 78.2 L329.9 78.9 L331.6 79.6 L333.3 80.3 L335.0 81.0 L336.7 81.6 L338.3 82.3 L340.0 83.0 L341.7 83.6 L343.4 84.3 L345.1 84.9 L346.8 85.6 L348.4 86.2 L350.1 86.9 L351.8 87.5 L353.5 88.1 L355.2 88.7 L356.9 89.4 L358.6 90.0 L360.2 90.6 L361.9 91.2 L363.6 91.8 L365.3 92.4 L367.0 93.0 L368.7 93.6 L370.4 94.2 L372.0 94.8 L373.7 95.3 L375.4 95.9 L377.1 96.5 L378.8 97.0 L380.5 97.6 L382.1 98.2 L383.8 98.7 L385.5 99.3 L387.2 99.8 L388.9 100.4 L390.6 100.9 L392.3 101.5 L393.9 102.0 L395.6 102.5 L397.3 103.0 L399.0 103.6 L400.7 104.1 L402.4 104.6 L404.1 105.1 L405.7 105.6 L407.4 106.1 L409.1 106.6 L410.8 107.1 L412.5 107.6 L414.2 108.1 L415.9 108.6 L417.5 109.1 L419.2 109.6 L420.9 110.1 L422.6 110.6 L424.3 111.0 L426.0 111.5 L427.6 112.0 L429.3 112.4 L431.0 112.9 L432.7 113.4 L434.4 113.8 L436.1 114.3 L437.8 114.7 L439.4 115.2 L441.1 115.6 L442.8 116.1 L444.5 116.5 L446.2 116.9 L447.9 117.4 L449.5 117.8 L451.2 118.2 L452.9 118.7 L454.6 119.1 L456.3 119.5 L458.0 119.9 L459.7 120.4 L461.3 120.8 L463.0 121.2 L464.7 121.6 L466.4 122.0 L468.1 122.4 L469.8 122.8 L471.5 123.2 L473.1 123.6 L474.8 124.0 L476.5 124.4 L478.2 124.8 L479.9 125.2 L481.6 125.6 L483.2 125.9 L484.9 126.3 L486.6 126.7 L488.3 127.1 L490.0 127.5 L491.7 127.8 L493.4 128.2 L495.0 128.6 L496.7 128.9 L498.4 129.3 L500.1 129.7 L501.8 130.0 L503.5 130.4 L505.2 130.7 L506.8 131.1 L508.5 131.5 L510.2 131.8 L511.9 132.2 L513.6 132.5 L515.3 132.8 L517.0 133.2 L518.6 133.5 L520.3 133.9 L522.0 134.2 L523.7 134.5 L525.4 134.9 L527.1 135.2 L528.7 135.5 L530.4 135.9 L532.1 136.2 L533.8 136.5 L535.5 136.8 L537.2 137.2 L538.9 137.5 L540.5 137.8 L542.2 138.1 L543.9 138.4 L545.6 138.8 L547.3 139.1 L549.0 139.4 L550.6 139.7 L552.3 140.0 L554.0 140.3 L555.7 140.6 L557.4 140.9 L559.1 141.2 L560.8 141.5 L562.4 141.8 L564.1 142.1 L565.8 142.4 L567.5 142.7 L569.2 143.0 L570.9 143.3 L572.6 143.6 L574.2 143.8 L575.9 144.1 L577.6 144.4 L579.3 144.7 L581.0 145.0 L582.7 145.3 L584.4 145.5 L586.0 145.8 L587.7 146.1 L589.4 146.4 L591.1 146.6 L592.8 146.9 L594.5 147.2 L596.1 147.5 L597.8 147.7 L599.5 148.0 L601.2 148.3 L602.9 148.5 L604.6 148.8 L606.3 149.0 L607.9 149.3 L609.6 149.6 L611.3 149.8 L613.0 150.1 L614.7 150.3 L616.4 150.6 L618.0 150.9 L619.7 151.1 L621.4 151.4 L623.1 151.6 L624.8 151.9 L626.5 152.1 L628.2 152.3 L629.8 152.6 L631.5 152.8 L633.2 153.1 L634.9 153.3 L636.6 153.6 L638.3 153.8 L640.0 154.0 L641.6 154.3 L643.3 154.5 L645.0 154.8 L646.7 155.0 L648.4 155.2 L650.1 155.5 L651.8 155.7 L653.4 155.9 L655.1 156.1 L656.8 156.4 L658.5 156.6 L660.2 156.8 L661.9 157.1 L663.5 157.3 L665.2 157.5 L666.9 157.7 L668.6 158.0 L670.3 158.2 L672.0 158.4 L673.7 158.6 L675.3 158.8 L677.0 159.0 L678.7 159.3 L680.4 159.5 L682.1 159.7 L683.8 159.9 L685.5 160.1 L687.1 160.3 L688.8 160.5 L690.5 160.8 L692.2 161.0 L693.9 161.2 L695.6 161.4 L697.2 161.6 L698.9 161.8 L700.6 162.0 L702.3 162.2 L704.0 162.4 L705.7 162.6 L707.4 162.8 L709.0 163.0 L710.7 163.2 L712.4 163.4 L714.1 163.6 L715.8 163.8 L717.5 164.0 L719.1 164.2 L720.8 164.4 L722.5 164.6 L724.2 164.8 L725.9 165.0 L727.6 165.2 L729.3 165.3 L730.9 165.5 L732.6 165.7 L734.3 165.9 L736.0 166.1"/>
+<circle class="dot" cx="199.6" cy="22.0" r="3.5"/>
+<text class="note" x="209.6" y="26.0">hottest, just outside the edge</text>
+</svg>
+      <figcaption>The disk's temperature against distance from the centre: zero at the inner edge, hottest just outside it, then fading slowly.</figcaption>
+    </figure>
+    <figure>
+      <img src="images/black-hole-studio/02-disk-edge-on.jpg" width="1600" height="900" alt="A thin disk seen edge-on. Its far side is bent by the hole into arcs over and under the black shadow." loading="lazy">
+      <figcaption>A thin disk seen edge-on. The arcs above and below the shadow are the far side of the disk, bent around the hole.</figcaption>
+    </figure>
+
+    <h2>Fog and thick disks</h2>
+    <div class="prose">
+      <p>A thin disk is a surface: a ray hits it or misses it. Fog and a thick disk are volumes, where a ray picks up a little glow and loses a little light all the way through. The add-on walks along the curved light path in short pieces and adds up what each one contributes, so the fog is bent by the hole like everything else.</p>
+    </div>
+    <figure>
+      <img src="images/black-hole-studio/03-fog.jpg" width="1600" height="448" alt="Two renders side by side: the black hole without fog, and with a soft glowing fog around the disk that is also bent around the shadow." loading="lazy">
+      <figcaption>Fog off, and fog on.</figcaption>
+    </figure>
+    <figure>
+      <img src="images/black-hole-studio/04-thick-disk.jpg" width="1600" height="448" alt="Two edge-on renders side by side: a thin disk, and a thick, puffy disk whose lensed far side is also thick." loading="lazy">
+      <figcaption>A thin disk, and a thick one, edge-on.</figcaption>
+    </figure>
+
+    <h2>Physics first, style on top</h2>
+    <div class="split">
+      <div class="prose">
+        <p>Everything lives in one Black Hole tab in the sidebar. Every slider starts at real physics, and every one can be pushed past it: a gradient blend for colour, glow, turbulence, dust lanes and a disk texture that orbits at the right speed for its radius.</p>
+        <p>The Realism panel keeps that honest. It lists every setting that has moved away from real physics, and Make Physically Accurate puts them all back while keeping the texture, fog, sky and camera. Six presets cover the range, from the physical default to a film look and a stylised neon one.</p>
+      </div>
+      <figure>
+        <img src="images/black-hole-studio/10-sidebar.png" width="252" height="771" alt="The Black Hole tab in Blender's sidebar, with the main panel and the Realism panel open." loading="lazy">
+      </figure>
+    </div>
+    <div class="figure-grid">
+      <figure>
+        <img src="images/black-hole-studio/05-gargantua.jpg" width="800" height="450" alt="The Gargantua preset: a thin golden disk seen edge-on, its far side arched over the shadow, in the style of the film Interstellar." loading="lazy">
+        <figcaption>Gargantua</figcaption>
+      </figure>
+      <figure>
+        <img src="images/black-hole-studio/06-eht.jpg" width="800" height="450" alt="The Event Horizon Telescope preset: the hole seen from above as a soft golden ring around the shadow." loading="lazy">
+        <figcaption>Event Horizon Telescope</figcaption>
+      </figure>
+      <figure>
+        <img src="images/black-hole-studio/07-quasar.jpg" width="800" height="450" alt="The Quasar preset: a blue-white disk with bright jets shooting out of both poles." loading="lazy">
+        <figcaption>Quasar</figcaption>
+      </figure>
+      <figure>
+        <img src="images/black-hole-studio/08-neon.jpg" width="800" height="450" alt="The Neon Stylized preset: a cyan and white disk with a glowing cyan ring around a deep purple shadow." loading="lazy">
+        <figcaption>Neon Stylized</figcaption>
+      </figure>
+    </div>
+
+    <h2>Bending real objects</h2>
+    <div class="prose">
+      <p>By default the hole bends the sky image. With Lens Scene Objects on, it bends the scene itself in Cycles: the lens sphere becomes a refracting surface whose normal is worked out backwards from Snell's law, so each ray leaves in exactly the direction general relativity says it should, and Cycles traces it on into the scene. A planet or a ship behind the hole shows up bent around it.</p>
+    </div>
+    <figure>
+      <img src="images/black-hole-studio/09-lens-objects.jpg" width="1600" height="900" alt="A striped planet behind the black hole, bent by it into two curved arcs on either side of the shadow." loading="lazy">
+      <figcaption>A striped planet behind the hole, bent into two arcs.</figcaption>
+    </figure>
+
+    <h2>Technical breakdown</h2>
+    <div class="prose">
+      <p>The main decisions behind the tool, and why I made them.</p>
+    </div>
+    <dl class="entries">
+      <div>
+        <dt>One unit for everything</dt>
+        <dd>Every length inside the tool is measured in the hole's own radius. Measured that way, every non-spinning black hole looks identical, so one set of light paths serves them all. A scale setting turns that radius into Blender units at the edge, and the mass only feeds a line that tells you the real size in kilometres.</dd>
+      </div>
+      <div>
+        <dt>A table instead of tracing</dt>
+        <dd>Since a ray's whole path depends on one number, Fast mode traces every possible ray once, when the black hole is added, and stores them in one image. The columns crowd together near the edge of the shadow, where paths change fastest, so the detail goes where it matters. The table is only rebuilt when the sphere's size or the lensing strength changes, which takes about a second; every other slider just sets a value.</dd>
+      </div>
+      <div>
+        <dt>The camera can go anywhere</dt>
+        <dd>A table of rays coming in from far away isn't enough once the camera flies close to the hole. A second table answers the reverse question: at what angle along its path does a ray reach a given distance? Stored directly it would be badly wrong near a ray's closest approach, so it's stored in a changed variable in which the curve becomes a straight line, and stays accurate right up to the turning point.</dd>
+      </div>
+      <div>
+        <dt>Three disk hits, not one</dt>
+        <dd>A ray's plane always cuts the disk's plane along a line through the centre, so a ray can only meet the disk every half turn. The shader checks three crossings: the disk seen directly, the copy bent over the top, and the thin photon ring. They're composited front to back, and the later two get their own brightness control.</dd>
+      </div>
+      <div>
+        <dt>A fade, not a seam</dt>
+        <dd>A real black hole bends light a little even billions of kilometres away, but a renderer can't shade the whole universe, so the bending lives inside a sphere. Cutting it off at the sphere's surface would leave a circular seam in the stars, so it fades out smoothly over the outer part instead, while rays through the middle keep the full, exact bending. A render with the sphere four times larger came out identical.</dd>
+      </div>
+    </dl>
+    <figure class="chart">
+      <svg viewBox="0 0 760 330" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Chart: real bending against the bending used, inside a 30 Schwarzschild radius sphere. They match for rays through the middle, then the used bending eases smoothly down to zero over the outer half, so there is no visible seam at the sphere's edge.">
+<line class="grid" x1="62" x2="736" y1="278.0" y2="278.0"/>
+<text class="tick" x="54" y="282.0" text-anchor="end">0</text>
+<line class="grid" x1="62" x2="736" y1="214.0" y2="214.0"/>
+<text class="tick" x="54" y="218.0" text-anchor="end">10</text>
+<line class="grid" x1="62" x2="736" y1="150.0" y2="150.0"/>
+<text class="tick" x="54" y="154.0" text-anchor="end">20</text>
+<line class="grid" x1="62" x2="736" y1="86.0" y2="86.0"/>
+<text class="tick" x="54" y="90.0" text-anchor="end">30</text>
+<line class="grid" x1="62" x2="736" y1="22.0" y2="22.0"/>
+<text class="tick" x="54" y="26.0" text-anchor="end">40</text>
+<text class="tick" x="62.0" y="296" text-anchor="middle">0</text>
+<text class="tick" x="164.1" y="296" text-anchor="middle">5</text>
+<text class="tick" x="266.2" y="296" text-anchor="middle">10</text>
+<text class="tick" x="368.4" y="296" text-anchor="middle">15</text>
+<text class="tick" x="470.5" y="296" text-anchor="middle">20</text>
+<text class="tick" x="572.6" y="296" text-anchor="middle">25</text>
+<text class="tick" x="674.7" y="296" text-anchor="middle">30</text>
+<line class="axis" x1="62" x2="736" y1="278" y2="278"/>
+<line class="axis" x1="62" x2="62" y1="22" y2="278"/>
+<text class="label" x="399" y="320" text-anchor="middle">impact parameter b (horizon radii)</text>
+<text class="label" x="16" y="150" text-anchor="middle" transform="rotate(-90 16 150)">bending (degrees)</text>
+<rect class="band" x="368.4" y="22" width="306.4" height="256"/>
+<text class="note" x="521.5" y="36" text-anchor="middle">fade</text>
+<line class="mark" x1="674.7" x2="674.7" y1="22" y2="278"/>
+<text class="note" x="668.7" y="52" text-anchor="end">sphere edge</text>
+<path class="curve-2" d="M159.0 43.4 L164.1 61.5 L169.2 76.9 L174.3 90.2 L179.4 101.8 L184.5 112.0 L189.7 121.1 L194.8 129.2 L199.9 136.5 L205.0 143.2 L210.1 149.2 L215.2 154.7 L220.3 159.7 L225.4 164.3 L230.5 168.6 L235.6 172.6 L240.7 176.3 L245.8 179.7 L250.9 182.9 L256.0 185.9 L261.1 188.8 L266.2 191.4 L271.3 193.9 L276.5 196.3 L281.6 198.5 L286.7 200.6 L291.8 202.6 L296.9 204.5 L302.0 206.3 L307.1 208.0 L312.2 209.7 L317.3 211.2 L322.4 212.7 L327.5 214.1 L332.6 215.5 L337.7 216.8 L342.8 218.1 L347.9 219.3 L353.0 220.4 L358.2 221.5 L363.3 222.6 L368.4 223.6 L373.5 224.6 L378.6 225.6 L383.7 226.5 L388.8 227.4 L393.9 228.3 L399.0 229.1 L404.1 229.9 L409.2 230.7 L414.3 231.4 L419.4 232.2 L424.5 232.9 L429.6 233.5 L434.7 234.2 L439.8 234.9 L445.0 235.5 L450.1 236.1 L455.2 236.7 L460.3 237.3 L465.4 237.8 L470.5 238.4 L475.6 238.9 L480.7 239.4 L485.8 239.9 L490.9 240.4 L496.0 240.9 L501.1 241.3 L506.2 241.8 L511.3 242.2 L516.4 242.7 L521.5 243.1 L526.7 243.5 L531.8 243.9 L536.9 244.3 L542.0 244.7 L547.1 245.0 L552.2 245.4 L557.3 245.8 L562.4 246.1 L567.5 246.5 L572.6 246.8 L577.7 247.1 L582.8 247.5 L587.9 247.8 L593.0 248.1 L598.1 248.4 L603.2 248.7 L608.3 249.0 L613.5 249.2 L618.6 249.5 L623.7 249.8 L628.8 250.1 L633.9 250.3 L639.0 250.6 L644.1 250.8 L649.2 251.1 L654.3 251.3 L659.4 251.6 L664.5 251.8 L669.6 252.0 L674.7 252.3 L679.8 252.5 L684.9 252.7 L690.0 252.9 L695.2 253.1 L700.3 253.4 L705.4 253.6 L710.5 253.8 L715.6 254.0 L720.7 254.2 L725.8 254.4 L730.9 254.5 L736.0 254.7"/>
+<path class="curve" d="M159.0 43.4 L164.1 61.5 L169.2 76.9 L174.3 90.2 L179.4 101.8 L184.5 112.0 L189.7 121.1 L194.8 129.2 L199.9 136.5 L205.0 143.2 L210.1 149.2 L215.2 154.7 L220.3 159.7 L225.4 164.3 L230.5 168.6 L235.6 172.6 L240.7 176.3 L245.8 179.7 L250.9 182.9 L256.0 185.9 L261.1 188.8 L266.2 191.4 L271.3 193.9 L276.5 196.3 L281.6 198.5 L286.7 200.6 L291.8 202.6 L296.9 204.5 L302.0 206.3 L307.1 208.0 L312.2 209.7 L317.3 211.2 L322.4 212.7 L327.5 214.1 L332.6 215.5 L337.7 216.8 L342.8 218.1 L347.9 219.3 L353.0 220.4 L358.2 221.5 L363.3 222.6 L368.4 223.6 L373.5 224.7 L378.6 225.8 L383.7 226.9 L388.8 228.0 L393.9 229.2 L399.0 230.5 L404.1 231.7 L409.2 233.0 L414.3 234.3 L419.4 235.5 L424.5 236.9 L429.6 238.2 L434.7 239.5 L439.8 240.8 L445.0 242.1 L450.1 243.4 L455.2 244.8 L460.3 246.1 L465.4 247.4 L470.5 248.6 L475.6 249.9 L480.7 251.2 L485.8 252.4 L490.9 253.6 L496.0 254.8 L501.1 256.0 L506.2 257.2 L511.3 258.3 L516.4 259.4 L521.5 260.5 L526.7 261.6 L531.8 262.7 L536.9 263.7 L542.0 264.6 L547.1 265.6 L552.2 266.5 L557.3 267.4 L562.4 268.3 L567.5 269.1 L572.6 269.9 L577.7 270.7 L582.8 271.4 L587.9 272.1 L593.0 272.8 L598.1 273.4 L603.2 274.0 L608.3 274.5 L613.5 275.0 L618.6 275.5 L623.7 275.9 L628.8 276.3 L633.9 276.7 L639.0 277.0 L644.1 277.2 L649.2 277.5 L654.3 277.7 L659.4 277.8 L664.5 277.9 L669.6 278.0 L674.7 278.0 L679.8 278.0 L684.9 278.0 L690.0 278.0 L695.2 278.0 L700.3 278.0 L705.4 278.0 L710.5 278.0 L715.6 278.0 L720.7 278.0 L725.8 278.0 L730.9 278.0 L736.0 278.0"/>
+<line class="curve-2" x1="180" x2="206" y1="222" y2="222"/>
+<text class="key" x="214" y="226">real bending</text>
+<line class="curve" x1="180" x2="206" y1="242" y2="242"/>
+<text class="key" x="214" y="246">bending used</text>
+</svg>
+      <figcaption>Real bending against the bending used, inside a sphere with a radius of 30 horizon radii: identical through the middle, easing to zero at the edge.</figcaption>
+    </figure>
+    <dl class="entries">
+      <div>
+        <dt>Shaders written as Python</dt>
+        <dd>Fast mode's shader runs to hundreds of nodes, far too many to wire by hand. So the maths is written as ordinary Python, and a small library, nodemath, turns each operation into the matching Blender node and connects it. The result is a real node tree you can open and inspect, with no Python running at render time. Long volume chains then overflowed the fixed stack that Cycles compiles shaders into; tying every step to the one before it by a vanishingly small amount forced them to be evaluated in order, and they fit.</dd>
+      </div>
+      <div>
+        <dt>Behaving like a Blender tool</dt>
+        <dd>The physics is only half the job. Settings save with the file, most sliders update instantly by writing a single value into the node tree, presets reset everything before applying their own values in one update, and animation is driven by a simple expression Blender evaluates without Python, so it works on a render farm with scripts turned off.</dd>
+      </div>
+      <div>
+        <dt>Tested against an independent tracer</dt>
+        <dd>A slightly wrong number in a shader just looks like a slightly different picture, so the maths is checked outside Blender against a separate ray tracer written in NumPy, including a NumPy copy of the whole Fast mode node graph. A second script builds real scenes inside Blender, applies every preset, switches modes and renders, checking that nothing breaks.</dd>
+      </div>
+      <div>
+        <dt>The bug the tests missed</dt>
+        <dd>In Eevee, the disk was cut off beyond a fixed circle around the hole. A glow meant only for inside the shadow was switched off elsewhere by multiplying it by zero, but outside the shadow its exponent grew until it overflowed to infinity, and zero times infinity is not a number, which blanked the pixel. Cycles happened to cope; Eevee didn't. Clamping the exponent fixed it. On a GPU, multiplying by zero only switches something off if the other side stays finite.</dd>
+      </div>
+      <div>
+        <dt>Not a port of the Unreal shader</dt>
+        <dd>The <a href="black-hole-shader.html">Unreal version</a> raymarches every pixel in real time and leans on temporal anti-aliasing to clean up the noise. Blender renders offline, so this one can afford exact light paths, a full ray tracer, and volumes traced along the bent path, and it has to fit into an artist's scene as a tool rather than a single material. The same physics, solved twice for two very different jobs.</dd>
+      </div>
+    </dl>
+
+    <h2>Further reading</h2>
+    <div class="prose">
+      <p>The full maths, section by section, is in the <a href="https://github.com/paraminder-dhiman/black-hole-studio/blob/main/docs/technical_breakdown.md" target="_blank" rel="noopener">Technical Breakdown</a>, and every panel and setting is explained in the <a href="https://github.com/paraminder-dhiman/black-hole-studio/blob/main/docs/quick_start.md" target="_blank" rel="noopener">Quick Start</a>. Both are also available as PDFs in the repository.</p>
+    </div>
+
+    <h2>Credit</h2>
+    <div class="prose">
+      <p>The direction, the physics approach and the design of the tool are mine, and I wrote a large part of the code myself. Other parts were developed with AI assistance, then reviewed, tested and tuned by me in Blender.</p>
+    </div>
+  </main>
+
+  <div class="foot-place">© 2026 Paraminder Dhiman</div>
+
+  <footer class="foot-note">
+    <span class="egg-side">Made with <span class="heart">♥</span> in Pune, India</span>
+    <button class="egg-dot" type="button" aria-label="A very small black hole"></button>
+    <span class="egg-side">No polygons were harmed</span>
+  </footer>
+
+</div>
+
+<script src="js/projects.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>

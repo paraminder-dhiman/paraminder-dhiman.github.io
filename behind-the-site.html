@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Behind the site · Paraminder Dhiman</title>
+  <title>Behind the Site · Paraminder Dhiman</title>
   <meta name="description" content="How this portfolio is built: the look and the decisions behind it, the fixed frame and scrolling, one project list, a scripted Blender pipeline that renders every tile and draws its line art, and the motion that brings the line art in and out.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <meta name="color-scheme" content="dark light">
@@ -31,7 +31,7 @@
   </header>
 
   <div class="pagehead">
-    <h1>Behind the site</h1>
+    <h1>Behind the Site</h1>
     <p class="meta">Web · Blender, Python, HTML, CSS, JavaScript · 2026</p>
   </div>
 
@@ -47,7 +47,7 @@
     </div>
 
     <figure>
-      <img src="images/behind-the-site/tiles-grid-dark.jpg" data-themed width="1600" height="1100" alt="Every tile on the site twice, its white line art beside its 3D render, in the order of the tile rail. Me: About and Contact. Tech art: Black hole, Unravel and Blender tools. Beyond tech art: Home server, Editing and Behind the site.">
+      <img src="images/behind-the-site/tiles-grid-dark.jpg" data-themed width="1600" height="1404" alt="Every tile on the site twice, its white line art beside its 3D render, in the order of the tile rail. Me: About and Contact. Tech art: Black Hole · Blender, Black Hole · UE, Unravel and Blender Tools. Beyond tech art: Home Server, Video Editing and Behind the Site.">
       <figcaption>Every tile as line art and as the render you see on hover, in the same order as the rail.</figcaption>
     </figure>
 
@@ -99,7 +99,7 @@
       </div>
       <div>
         <dt>Tiles like live tiles</dt>
-        <dd>The menu borrows from Windows Phone: big lowercase group names, two columns of square tiles, and a few twice as wide. Pinned projects go wide, and so does the last tile of a group that would otherwise sit alone in its row, so every group closes as a full block. When the menu opens, the tiles turn in one after another as renders, then each one flips over to its line art. The current page's tile keeps its render and stays still, which marks where you are the same way the rest of the site does: renders for what you're looking at, line art for everything else.</dd>
+        <dd>The menu borrows from Windows Phone: big lowercase group names, two columns of square tiles, and a few twice as wide. Pinned projects go wide, and so does the last tile of a group that would otherwise sit alone in its row, so every group closes as a full block. When the menu opens, the tiles turn in one after another as renders, then each one flips over and draws its line art in as it turns, so the flip and the drawing read as one movement. The current page's tile keeps its render and stays still, which marks where you are the same way the rest of the site does: renders for what you're looking at, line art for everything else.</dd>
       </div>
       <div>
         <dt>Short windows</dt>
@@ -242,6 +242,10 @@
       <div>
         <dt>No stray dots</dt>
         <dd>Lines have round ends, and a round end on a line of zero length still paints a dot. Every line is pushed a few pixels past its own end before it starts, so an undrawn tile is truly empty.</dd>
+      </div>
+      <div>
+        <dt>A bubble that grows</dt>
+        <dd>One tile breaks the rule on purpose. The Black Hole · Blender tile's lens sphere doesn't trace along its length, because a sphere drawn that way reads as flat circles. Instead it grows out of the black hole like an air bubble: it swells from the hole's centre while its outline sweeps round, its rings follow, and two pole-to-pole lines spin once and fade. The tile script saves the sphere's size and the camera's projection into the SVG, so the browser works out every frame in 3D, including the part sunk into the plate. Hovering plays it backwards and the bubble shrinks into the hole. The sphere only lives in the line art, like the scene setup you see in Blender's viewport, while the render shows just the finished black hole.</dd>
       </div>
       <div>
         <dt>A small black hole</dt>
