@@ -602,3 +602,33 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
 
 /* Inline code and short formulas. */
 code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 0.92em; color: var(--accent-hi); background: var(--tint); padding: 2px 7px; }
+
+/* Desktop at 90%: every size from above, scaled down a tenth. Phones keep their own sizes. */
+@media (min-width: 761px) {
+  :root {
+    --rail: clamp(288px, 21.6vw, 414px);
+    --side: clamp(25px, 2.7vw, 43px);
+    --edge: 18px;
+  }
+  body { font-size: 17px; }
+  .masthead .name { font-size: 17px; }
+  .masthead .role { font-size: 24px; }
+  .pagehead h1 { font-size: 29px; }
+  .pagehead .meta { font-size: 14.5px; }
+  .theme-toggle { width: 31px; height: 27px; }
+  .rail { padding: clamp(20px, 1.53vw, 25px); }
+  .tiles { gap: clamp(16px, 1.26vw, 22px) clamp(14px, 1.13vw, 20px); }
+  .tile-name { margin-top: 6px; font-size: clamp(12px, 0.86vw, 13.5px); }
+  .rail-group, .work .work-group { font-size: 12px; }
+  .lead { font-size: 21px; }
+  h2 { margin: 43px 0 9px; font-size: 22.5px; }
+  .work .w-title { font-size: 18px; }
+  .work .w-meta, .section-meta, .role-block .meta, .prose .sibling,
+  figcaption, .caption, .contact-button { font-size: 14.5px; }
+  .tools li, .contact-hint, .foot-note { font-size: 13.5px; }
+  .role-block h3 { font-size: 19px; }
+  .entries > div { grid-template-columns: 180px minmax(0, 1fr); gap: 4px 25px; padding: 12px 0; }
+  .split figure img { width: 221px; }
+  .split.wide figure img { width: 342px; }
+  .foot-place { font-size: 12.5px; }
+}
