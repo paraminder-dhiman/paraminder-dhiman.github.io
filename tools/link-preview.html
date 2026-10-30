@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Link preview · card maker</title>
+<!--
+  Builds the 1200 × 630 card shown when a page of the site is shared on LinkedIn, WhatsApp, Discord or Slack.
+
+  A project card shows the project's tile render (tiles/<id>-dark.jpg) beside its title and meta line,
+  read from js/projects.js. The site card, used by the About and Contact pages, shows the tiles' line art.
+
+  How to make a card
+    1. In the portfolio folder run:  python -m http.server 8000
+    2. Open http://localhost:8000/tools/link-preview.html?id=<project id> in Chrome,
+       for example ?id=black-hole-studio, or ?id=site for the site card
+    3. Right-click the card > Inspect, then click the <div class="card"> line in the Elements panel
+    4. Press Ctrl+Shift+P, type "node screenshot" and choose Capture node screenshot
+    5. Save the PNG as a JPEG (quality 9 in Photoshop) at images/og/<project id>.jpg
+    6. For a new project page, copy the "Link previews" lines from the head of another project page
+       and change the title, description, URL and image name
+-->
+<style>
+  @font-face { font-family: "IBM Plex Sans"; font-weight: 300; src: url("../fonts/ibm-plex-sans-latin-300-normal.woff2") format("woff2"); }
+  @font-face { font-family: "IBM Plex Sans"; font-weight: 500; src: url("../fonts/ibm-plex-sans-latin-500-normal.woff2") format("woff2"); }
+  body { margin: 0; background: #212f3a; }
+  .card { position: relative; width: 1200px; height: 630px; overflow: hidden; background: #212f3a;
+          font-family: "IBM Plex Sans", sans-serif; color: #e6eaea; }
+  .who { font-size: 20px; letter-spacing: 0.12em; text-transform: uppercase; color: #a9b4b6; }
+  .url { font-size: 24px; color: #63c5ce; }
+  /* project card */
+  .render { position: absolute; left: -10px; top: 15px; width: 600px; height: 600px; }
+  .text { position: absolute; left: 600px; right: 64px; top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; }
+  .title { margin-top: 22px; font-size: 60px; font-weight: 500; line-height: 1.1; }
+  .title.long { font-size: 50px; }
+  .meta { margin-top: 16px; font-size: 24px; font-weight: 300; line-height: 1.4; color: #c9d0cf; }
+  .text .url { margin-top: 44px; padding-top: 20px; border-top: 1px solid #3d4e59; }
+  /* site card */
+  .strip { position: absolute; left: -60px; right: -60px; top: 56px; display: flex; justify-content: space-between;
+           -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%);
+           mask-image: linear-gradient(90deg, transparent 0, #000 18%, #000 82%, transparent 100%); }
+  .strip div { width: 180px; height: 250px; display: flex; justify-content: center; }
+  .strip img { flex: none; width: 245px; height: 245px; }
+  .name { position: absolute; left: 72px; right: 72px; bottom: 64px; }
+  .name h1 { margin: 0; font-size: 64px; font-weight: 500; line-height: 1.1; }
+  .name .row { display: flex; justify-content: space-between; align-items: baseline; margin-top: 18px; padding-top: 20px; border-top: 1px solid #3d4e59; }
+  .name .role { font-size: 28px; font-weight: 300; }
+  .name .role b { font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="card" id="card"></div>
+<script src="../js/projects.js"></script>
+<script>
+  var id = (location.search.match(/id=([\w-]+)/) || [])[1] || "site";
+  var card = document.getElementById("card");
+  var live = PROJECTS.filter(function (p) { return p.status === "live"; });
+  var project = live.filter(function (p) { return p.id === id; })[0];
+  function themed(file) { return file.replace(/(\.\w+)$/, "-dark$1"); }
+
+  if (project) {
+    card.innerHTML =
+      '<img class="render" src="../tiles/' + themed(project.image || project.id + ".jpg") + '" alt="">' +
+      '<div class="text"><div class="who">Paraminder Dhiman · Technical Artist</div>' +
+      '<div class="title' + (project.title.length >= 20 ? " long" : "") + '">' + project.title + '</div>' +
+      '<div class="meta">' + project.meta + '</div>' +
+      '<div class="url">paraminder-dhiman.github.io</div></div>';
+  } else {
+    // The site card: every project's line art, in the rail's order, above the name.
+    var order = live.slice().sort(function (a, b) {
+      return GROUP_ORDER.indexOf(a.group) - GROUP_ORDER.indexOf(b.group) ||
+        (a.pin || Infinity) - (b.pin || Infinity) || b.scale - a.scale || b.year - a.year;
+    });
+    card.innerHTML =
+      '<div class="strip">' + order.map(function (p) {
+        return '<div><img src="../tiles/' + themed(p.line || p.id + ".svg") + '" alt=""></div>';
+      }).join("") + '</div>' +
+      '<div class="name"><h1>Paraminder Dhiman</h1><div class="row">' +
+      '<div class="role"><b>Technical Artist</b> · Tools, pipelines and shaders</div>' +
+      '<div class="url">paraminder-dhiman.github.io</div></div></div>';
+  }
+</script>
+</body>
+</html>
