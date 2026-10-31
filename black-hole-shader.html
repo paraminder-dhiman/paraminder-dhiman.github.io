@@ -116,7 +116,14 @@
     <h2>Bending the light</h2>
     <div class="prose">
       <p>Light near a black hole follows curved paths. For a non-spinning hole, the bend can be written as a pull toward the centre that a ray picks up as it moves. It grows quickly as the ray gets closer, and it depends on how sideways the ray is travelling. That one line is the core of the shader:</p>
-      <p><code>a = −3M · |p × v|² · p / r⁵</code></p>
+    </div>
+    <pre class="formula" aria-label="Formula">a = −3M · |p × v|² · p ÷ r⁵   <span class="c">the bend, as a pull toward the centre</span>
+p = the ray's position        <span class="c">from the centre of the hole</span>
+v = the ray's direction
+|p × v|                       <span class="c">grows the more sideways the ray travels</span>
+r = |p|                       <span class="c">distance to the centre</span>
+M = the hole's mass</pre>
+    <div class="prose">
       <p>Each step applies half of the bend, moves the ray, then applies the other half. This is the leapfrog method, which keeps paths stable even when they swing tightly around the hole, so the thin ring of light at the shadow's edge stays sharp. Steps are small inside the disk, where detail matters, and grow with distance outside it, but never so large that a ray jumps over the disk.</p>
     </div>
     <figure>
