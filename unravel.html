@@ -131,19 +131,11 @@
     </figure>
 
     <h2>Technical breakdown</h2>
-    <div class="prose">
-      <p>The main decisions behind Unravel, and why I made them the way I did.</p>
-    </div>
-    <dl class="entries">
-      <div>
-        <dt>Nodes first, Python where needed</dt>
-        <dd>All the geometry is built in Geometry Nodes, so everything stays live, non-destructive and open to inspect in the node editor. Python only does what nodes can't: the panel, the presets, and the real mesh edits behind Bake and Apply. Keeping the logic in nodes means an artist can follow or tweak it without reading code.</dd>
-      </div>
-      <div>
-        <dt>Tears are painted</dt>
-        <dd>A tear is a vertex group you weight-paint, because every artist already knows how, and the paint keeps working if the mesh changes. Each face gets a score from its paint plus noise, and faces above a threshold are cut. New open edges are found by comparing against the cloth's original border, so the outer edge of the cloth is never mistaken for a tear.</dd>
-      </div>
-    </dl>
+    <p class="pull">All the geometry is built in Geometry Nodes, so it stays live and open to inspect. Python only does what nodes can't.</p>
+    <p class="sub-text">Python handles the panel, the presets, and the real mesh edits behind Bake and Apply. Keeping the logic in nodes means an artist can follow or tweak it without reading code.</p>
+
+    <h3 class="sub">Painting the tear</h3>
+    <p class="sub-text">A tear is a vertex group you weight-paint, because every artist already knows how, and the paint keeps working if the mesh changes. Each face gets a score from its paint plus noise, and faces above a threshold are cut. New open edges are found by comparing against the cloth's original border, so the outer edge of the cloth is never mistaken for a tear.</p>
     <figure class="diagram" role="img" aria-label="Diagram of the tear pipeline: the painted weights and noise give each face a score, faces above the threshold are cut, the new open edges are found, their outline is smoothed, and the lip and walls are built from the distance to those edges.">
       <svg viewBox="0 0 780 90" xmlns="http://www.w3.org/2000/svg">
         <rect class="chip" x="20" y="28" width="80" height="34"></rect>
@@ -163,43 +155,44 @@
       </svg>
     </figure>
     <p class="caption">The tear pipeline, from paint to a solid torn edge.</p>
-    <dl class="entries">
-      <div>
-        <dt>Lip and walls</dt>
-        <dd>The lip comes from the distance to the hole edges. A smooth falloff over Lip Width pushes the surface out along its normal, and walls join it to a back layer, so the torn edge reads as solid cloth rather than a paper-thin cut.</dd>
-      </div>
-    </dl>
-    <figure>
-      <a href="images/unravel/tears-graph.png" target="_blank" rel="noopener"><img src="images/unravel/tears-graph.jpg" width="1600" height="625" alt="A section of the Tears node group in Blender's Geometry Nodes editor." loading="lazy"></a>
-      <figcaption>Part of the Tears group: the switch between live and baked holes, the rest position block that keeps the lip steady on moving cloth, and the falloff that pushes the lip out along the normal. Click for full size.</figcaption>
-    </figure>
 
-    <dl class="entries">
+    <div class="feature">
+      <div class="feature-text">
+        <h3>Lip and walls</h3>
+        <p>The lip comes from the distance to the hole edges. A smooth falloff over Lip Width pushes the surface out along its normal, and walls join it to a back layer, so the torn edge reads as solid cloth rather than a paper-thin cut.</p>
+      </div>
+      <figure>
+        <a href="images/unravel/tears-graph.png" target="_blank" rel="noopener"><img src="images/unravel/tears-graph.jpg" width="1600" height="625" alt="A section of the Tears node group in Blender's Geometry Nodes editor." loading="lazy"></a>
+        <figcaption>Part of the Tears group: the switch between live and baked holes, the rest position block that keeps the lip steady on moving cloth, and the falloff that pushes the lip out along the normal. Click for full size.</figcaption>
+      </figure>
+    </div>
+
+    <h3 class="sub">Threads</h3>
+    <div class="notes three">
       <div>
-        <dt>Threads follow the weave</dt>
-        <dd>Roots are spaced along the hole outlines. Each thread then takes its direction from the UVs, along the warp or the weft, whichever runs across the tear, which is how real cloth unravels. That's why Unravel asks for UVs.</dd>
+        <h3>Threads follow the weave</h3>
+        <p>Roots are spaced along the hole outlines. Each thread then takes its direction from the UVs, along the warp or the weft, whichever runs across the tear, which is how real cloth unravels. That's why Unravel asks for UVs.</p>
       </div>
       <div>
-        <dt>One system, used twice</dt>
-        <dd>Fray and strays are the same node group on two modifiers with different settings, so there's one system to maintain and every fix lands in both. Clumping pulls threads towards a few random guide threads, curl is a helix around each thread, frizz is noise, and droop grows towards the tip.</dd>
+        <h3>One system, used twice</h3>
+        <p>Fray and strays are the same node group on two modifiers with different settings, so there's one system to maintain and every fix lands in both. Clumping pulls threads towards a few random guide threads, curl is a helix around each thread, frizz is noise, and droop grows towards the tip.</p>
       </div>
       <div>
-        <dt>Bridges</dt>
-        <dd>A share of the threads look across the hole with a raycast. If the far edge is close enough, the thread spans the gap and sags in the middle, the way threads hang across a real tear.</dd>
+        <h3>Bridges</h3>
+        <p>A share of the threads look across the hole with a raycast. If the far edge is close enough, the thread spans the gap and sags in the middle, the way threads hang across a real tear.</p>
       </div>
       <div>
-        <dt>Surface contact</dt>
-        <dd>Threads that would sink into the cloth are lifted back onto its surface, but only within a set depth, so threads hanging behind the cloth on purpose are left alone.</dd>
+        <h3>Surface contact</h3>
+        <p>Threads that would sink into the cloth are lifted back onto its surface, but only within a set depth, so threads hanging behind the cloth on purpose are left alone.</p>
       </div>
       <div>
-        <dt>Drawn strands</dt>
-        <dd>A curve you draw on the cloth becomes a twisted bundle of fibres. It remembers its spot on the rest shape and its height above the surface, so it follows the cloth when it moves.</dd>
+        <h3>Drawn strands</h3>
+        <p>A curve you draw on the cloth becomes a twisted bundle of fibres. It remembers its spot on the rest shape and its height above the surface, so it follows the cloth when it moves.</p>
       </div>
-      <div>
-        <dt>Rest space</dt>
-        <dd>Threads grown on a deforming surface flicker, because their roots move from frame to frame. Roots and the lip are worked out once on the cloth's rest shape, then carried onto the moving surface. The thread count stays steady and the roots stay within half a millimetre of the cloth.</dd>
-      </div>
-    </dl>
+    </div>
+
+    <h3 class="sub">On moving cloth</h3>
+    <p class="sub-text">Threads grown on a deforming surface flicker, because their roots move from frame to frame. Roots and the lip are worked out once on the cloth's rest shape, then carried onto the moving surface. The thread count stays steady and the roots stay within half a millimetre of the cloth.</p>
     <figure class="diagram" role="img" aria-label="Diagram. On the cloth's flat rest shape, thread roots sit at fixed spots. On the moving cloth, each root is placed at the same spot of the deformed surface, so the roots move with the cloth instead of being worked out again every frame.">
       <svg viewBox="0 0 780 190" xmlns="http://www.w3.org/2000/svg">
         <rect class="box" x="20" y="20" width="300" height="150"></rect>
@@ -225,32 +218,35 @@
         <circle class="head" cx="700" cy="98.7" r="4"></circle>
       </svg>
     </figure>
-    <dl class="entries">
+
+    <div class="notes">
       <div>
-        <dt>Baking only the holes</dt>
-        <dd>A cloth simulation can't see holes made by a modifier, but baking everything made the thickness drift up to 40 mm from the cloth as it moved. So Bake Tears cuts only the holes into the mesh and records which edges were hole edges. The thickness is rebuilt live from that record on top of the simulation.</dd>
+        <h3>Baking only the holes</h3>
+        <p>A cloth simulation can't see holes made by a modifier, but baking everything made the thickness drift up to 40 mm from the cloth as it moved. So Bake Tears cuts only the holes into the mesh and records which edges were hole edges. The thickness is rebuilt live from that record on top of the simulation.</p>
       </div>
       <div>
-        <dt>Scale</dt>
-        <dd>Thread sizes only look right at real size, and not every scene is in metres. Each node group shrinks the cloth to real units at the start and grows the result back at the end, with thread radius scaled separately, since moving curves doesn't change their thickness. The value is set from the scene's unit scale automatically.</dd>
+        <h3>Scale</h3>
+        <p>Thread sizes only look right at real size, and not every scene is in metres. Each node group shrinks the cloth to real units at the start and grows the result back at the end, with thread radius scaled separately, since moving curves doesn't change their thickness. The value is set from the scene's unit scale automatically.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Export</h3>
+    <p class="sub-text">Apply swaps the cloth's own mesh for the result instead of making new objects, so names, parenting and rig links stay intact for export. For engines that can't read hair, a small node group turns the threads into tubes with UVs and a choice of sides and points. Thread tubes get the cloth's bone weights through a data transfer from the nearest face. The originals go into a hidden backup collection, which is what makes Restore possible.</p>
+
+    <div class="notes three">
+      <div>
+        <h3>Performance</h3>
+        <p>Viewport Density hides a share of the threads while you work, and renders always show them all. Detail only subdivides the cloth when you ask for finer edges.</p>
       </div>
       <div>
-        <dt>Export in place</dt>
-        <dd>Apply swaps the cloth's own mesh for the result instead of making new objects, so names, parenting and rig links stay intact for export. For engines that can't read hair, a small node group turns the threads into tubes with UVs and a choice of sides and points. Thread tubes get the cloth's bone weights through a data transfer from the nearest face. The originals go into a hidden backup collection, which is what makes Restore possible.</dd>
+        <h3>Black spots</h3>
+        <p>Some presets showed dark spots along the tear edges in renders. I traced them to z-fighting between two surfaces at the outer rim of the lip and fixed it with a small offset.</p>
       </div>
       <div>
-        <dt>Performance</dt>
-        <dd>Viewport Density hides a share of the threads while you work, and renders always show them all. Detail only subdivides the cloth when you ask for finer edges.</dd>
+        <h3>Version stamps</h3>
+        <p>Each node group carries a version stamp. If a file was made with an older Unravel, the panel offers to update its node groups while keeping every setting and the paint.</p>
       </div>
-      <div>
-        <dt>Black spots</dt>
-        <dd>Some presets showed dark spots along the tear edges in renders. I traced them to z-fighting between two surfaces at the outer rim of the lip and fixed it with a small offset.</dd>
-      </div>
-      <div>
-        <dt>Version stamps</dt>
-        <dd>Each node group carries a version stamp. If a file was made with an older Unravel, the panel offers to update its node groups while keeping every setting and the paint.</dd>
-      </div>
-    </dl>
+    </div>
 
     <h2>The panel</h2>
     <div class="split">

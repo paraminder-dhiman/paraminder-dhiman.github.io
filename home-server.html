@@ -57,6 +57,13 @@
       <p>I did all of it myself, from the hardware and the network to the containers and the code. It started as a way to learn how networking works, and it turned into a small service that people use every day.</p>
     </div>
 
+    <ul class="stats" aria-label="The server in numbers">
+      <li><b>4</b> user tiers</li>
+      <li><b>3</b> copies of every backup</li>
+      <li><b>7</b> weeks of backups kept</li>
+      <li><b>0</b> ports open to the internet</li>
+    </ul>
+
     <h2>How it fits together</h2>
     <figure class="diagram" role="img" aria-label="Diagram. Friends and family reach the server through a Cloudflare Tunnel and through Discord. I reach it through Tailscale. The server runs Unraid with Docker containers for media streaming, a password manager, the Discord bot, a housekeeping service, DNS and DHCP, and monitoring. A weekly job backs it up to a flash drive, a second drive and my workstation.">
       <svg viewBox="0 0 780 360" xmlns="http://www.w3.org/2000/svg">
@@ -115,99 +122,110 @@
     <p class="caption">People come in through a Cloudflare Tunnel or through Discord. Admin access is over Tailscale only.</p>
 
     <h2>What runs on it</h2>
-    <dl class="entries">
+    <div class="notes grid">
       <div>
-        <dt>Hardware</dt>
-        <dd>A Ryzen 9 build with an RTX 2070 Super, which handles video encoding in hardware. I moved the server onto it from a small office desktop.</dd>
+        <h3>Hardware</h3>
+        <p>A Ryzen 9 build with an RTX 2070 Super, which handles video encoding in hardware. I moved the server onto it from a small office desktop.</p>
       </div>
       <div>
-        <dt>Platform</dt>
-        <dd><a href="https://unraid.net/" target="_blank" rel="noopener">Unraid</a>, with every service in its own <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> container. App data sits on an NVMe cache and the library on a four-drive array.</dd>
+        <h3>Platform</h3>
+        <p><a href="https://unraid.net/" target="_blank" rel="noopener">Unraid</a>, with every service in its own <a href="https://www.docker.com/" target="_blank" rel="noopener">Docker</a> container. App data sits on an NVMe cache and the library on a four-drive array.</p>
       </div>
       <div>
-        <dt>Media streaming</dt>
-        <dd><a href="https://jellyfin.org/" target="_blank" rel="noopener">Jellyfin</a> with four user tiers. Each tier sets a bitrate cap, a session limit and whether group watching is allowed.</dd>
+        <h3>Media streaming</h3>
+        <p><a href="https://jellyfin.org/" target="_blank" rel="noopener">Jellyfin</a> with four user tiers. Each tier sets a bitrate cap, a session limit and whether group watching is allowed.</p>
       </div>
       <div>
-        <dt>Library preparation</dt>
-        <dd>A <a href="https://tdarr.io/" target="_blank" rel="noopener">Tdarr</a> pipeline runs on the graphics card. It re-encodes the library and health-checks every file, so most devices play files directly and the server rarely has to transcode.</dd>
+        <h3>Library preparation</h3>
+        <p>A <a href="https://tdarr.io/" target="_blank" rel="noopener">Tdarr</a> pipeline runs on the graphics card. It re-encodes the library and health-checks every file, so most devices play files directly and the server rarely has to transcode.</p>
       </div>
       <div>
-        <dt>Network</dt>
-        <dd><a href="https://github.com/AdguardTeam/AdGuardHome" target="_blank" rel="noopener">AdGuard Home</a> filters DNS and is also the network's DHCP server, so every lease lives in one place.</dd>
+        <h3>Network</h3>
+        <p><a href="https://github.com/AdguardTeam/AdGuardHome" target="_blank" rel="noopener">AdGuard Home</a> filters DNS and is also the network's DHCP server, so every lease lives in one place.</p>
       </div>
       <div>
-        <dt>Remote access</dt>
-        <dd>Public services go out through <a href="https://www.cloudflare.com/products/tunnel/" target="_blank" rel="noopener">Cloudflare Tunnels</a>. Anything administrative is reachable over <a href="https://tailscale.com/" target="_blank" rel="noopener">Tailscale</a> only.</dd>
+        <h3>Remote access</h3>
+        <p>Public services go out through <a href="https://www.cloudflare.com/products/tunnel/" target="_blank" rel="noopener">Cloudflare Tunnels</a>. Anything administrative is reachable over <a href="https://tailscale.com/" target="_blank" rel="noopener">Tailscale</a> only.</p>
       </div>
       <div>
-        <dt>Monitoring</dt>
-        <dd><a href="https://github.com/louislam/uptime-kuma" target="_blank" rel="noopener">Uptime Kuma</a> watches the services, and a speed test tracker logs the connection over time.</dd>
+        <h3>Monitoring</h3>
+        <p><a href="https://github.com/louislam/uptime-kuma" target="_blank" rel="noopener">Uptime Kuma</a> watches the services, and a speed test tracker logs the connection over time.</p>
       </div>
       <div>
-        <dt>Power</dt>
-        <dd>My workstation stays off unless it's needed and is woken over the network when it is.</dd>
+        <h3>Power</h3>
+        <p>My workstation stays off unless it's needed and is woken over the network when it is.</p>
       </div>
-    </dl>
+    </div>
 
     <h2>The Discord bot</h2>
     <div class="prose">
       <p>Everyone who uses the server is in one Discord server, so I wrote a bot to run the front desk. It's Python with <a href="https://github.com/Rapptz/discord.py" target="_blank" rel="noopener">discord.py</a> and slash commands. Each feature is its own module, loaded automatically at start, and the bot runs as its own container.</p>
     </div>
-    <dl class="entries">
+
+    <h3 class="sub">Onboarding</h3>
+    <ol class="steps four">
+      <li><b>Request</b>A new member gets a guest role and a Request access button.</li>
+      <li><b>Review</b>The request lands in an admin channel with Approve, Approve as trusted and Decline.</li>
+      <li><b>Account</b>Approving creates the streaming account on the right tier and swaps the member's role.</li>
+      <li><b>Login</b>The login details arrive in a direct message. Declining sends the reason instead.</li>
+    </ol>
+
+    <div class="notes three">
       <div>
-        <dt>Onboarding</dt>
-        <dd>A new member gets a guest role and a Request access button. The request lands in an admin channel with Approve, Approve as trusted and Decline. Approving creates the streaming account on the right tier, swaps the member's role and sends the login details in a direct message. Declining sends the reason.</dd>
+        <h3>Accounts</h3>
+        <p>Creates streaming accounts with the tier's limits applied, and keeps a map between Discord members and their accounts.</p>
       </div>
       <div>
-        <dt>Accounts</dt>
-        <dd>Creates streaming accounts with the tier's limits applied, and keeps a map between Discord members and their accounts.</dd>
+        <h3>Library</h3>
+        <p>Commands for library stats, search and what was added recently.</p>
       </div>
       <div>
-        <dt>Library</dt>
-        <dd>Commands for library stats, search and what was added recently.</dd>
+        <h3>Code</h3>
+        <p>Kept in a private Git repository. Secrets and data files stay out of version control.</p>
       </div>
-      <div>
-        <dt>Code</dt>
-        <dd>Kept in a private Git repository. Secrets and data files stay out of version control.</dd>
-      </div>
-    </dl>
+    </div>
 
     <h2>Housekeeping service</h2>
-    <div class="prose">
-      <p>A second, smaller Python service runs in its own container and looks after jobs between the server and my workstation. Files are handed over with copy, verify, then delete, so nothing is lost if a step fails.</p>
-      <p>Every action it takes is posted as one line to a private Discord channel through a webhook. It also raises a flag if no backup has run in eight days.</p>
-    </div>
+    <p class="sub-text">A second, smaller Python service runs in its own container and looks after jobs between the server and my workstation. Files are handed over in three steps, so nothing is lost if one fails.</p>
+    <ol class="steps">
+      <li><b>Copy</b>The file is copied to the other machine.</li>
+      <li><b>Verify</b>The copy is checked against the original.</li>
+      <li><b>Delete</b>Only then is the original removed.</li>
+    </ol>
+    <p class="sub-text">Every action it takes is posted as one line to a private Discord channel through a webhook. It also raises a flag if no backup has run in eight days.</p>
 
     <h2>Backups</h2>
-    <div class="prose">
-      <p>App data and the boot drive are backed up once a week, at a time when I'm home to fix whatever breaks. The backup goes to a flash drive, then is copied to a second drive and to my workstation. Seven backups are kept, which covers the last 50 days.</p>
-      <p>I chose weekly over daily because only a few people use the server on any given day.</p>
-    </div>
+    <p class="sub-text">App data and the boot drive are backed up once a week, at a time when I'm home to fix whatever breaks. Seven backups are kept, which covers the last 50 days. I chose weekly over daily because only a few people use the server on any given day.</p>
+    <ol class="steps">
+      <li><b>Flash drive</b>The weekly backup is written here first.</li>
+      <li><b>Second drive</b>Then copied to another drive in the server.</li>
+      <li><b>Workstation</b>And copied again to my workstation.</li>
+    </ol>
 
     <h2>Design decisions</h2>
-    <dl class="entries">
+    <p class="pull">Nothing is open to the internet, and everything the server does is written down where I can read it.</p>
+    <div class="notes three">
       <div>
-        <dt>No open ports</dt>
-        <dd>Nothing on the router is opened to the internet. Public pages go out through Cloudflare Tunnels, and admin access is over Tailscale only, so there's nothing to scan or attack from outside.</dd>
+        <h3>No open ports</h3>
+        <p>Nothing on the router is opened to the internet. Public pages go out through Cloudflare Tunnels, and admin access is over Tailscale only, so there's nothing to scan or attack from outside.</p>
       </div>
       <div>
-        <dt>One place for the network</dt>
-        <dd>AdGuard Home is also the DHCP server, so every device's address and every DNS rule live in one place instead of being split with the router.</dd>
+        <h3>One place for the network</h3>
+        <p>AdGuard Home is also the DHCP server, so every device's address and every DNS rule live in one place instead of being split with the router.</p>
       </div>
       <div>
-        <dt>Encode once, direct play everywhere</dt>
-        <dd>The library is re-encoded once to a format almost every device plays directly. That costs a one-off pass on the graphics card, but means the server rarely transcodes while people watch.</dd>
+        <h3>Encode once, direct play everywhere</h3>
+        <p>The library is re-encoded once to a format almost every device plays directly. That costs a one-off pass on the graphics card, but means the server rarely transcodes while people watch.</p>
       </div>
       <div>
-        <dt>Separate services</dt>
-        <dd>The Discord bot and the housekeeping service are separate programs, each in its own container and Git repository. Media-facing jobs go to the bot, and jobs between machines go to the housekeeping service, so one can change without risking the other.</dd>
+        <h3>Separate services</h3>
+        <p>The Discord bot and the housekeeping service are separate programs, each in its own container and Git repository. Media-facing jobs go to the bot, and jobs between machines go to the housekeeping service, so one can change without risking the other.</p>
       </div>
       <div>
-        <dt>Logs you can read</dt>
-        <dd>Every automated action is posted as a single line to a private channel, so I can see what happened without opening a terminal. Noisy events are left out on purpose.</dd>
+        <h3>Logs you can read</h3>
+        <p>Every automated action is posted as a single line to a private channel, so I can see what happened without opening a terminal. Noisy events are left out on purpose.</p>
       </div>
-    </dl>
+    </div>
   </main>
 
   <div class="foot-place">© 2026 Paraminder Dhiman</div>

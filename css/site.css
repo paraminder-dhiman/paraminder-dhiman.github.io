@@ -769,6 +769,27 @@ h3.sub { margin-top: 44px; }
   .compare.two { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* A number strip straight after text. */
+.prose + .stats { margin-top: 28px; }
+
+/* Four steps in a row, and a grid of short notes that runs to several rows. */
+.steps.four { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0 24px; }
+.notes.grid { grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 0; margin-top: 0; }
+.notes.grid > div { border-top: 1px solid var(--hair); padding-bottom: 6px; }
+.notes.three > div:nth-child(n+4) { border-top: 1px solid var(--hair); margin-top: 6px; }
+
+@media (max-width: 760px) {
+  .steps.four { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .notes.grid { grid-template-columns: minmax(0, 1fr); }
+  .notes.three > div:nth-child(n+4) { margin-top: 0; }
+}
+
+/* Two options side by side, each with a short line of what it runs on. */
+.notes.versus { margin: 0 0 18px; border-top: 0; gap: 0 24px; }
+.notes.versus > div { padding: 16px 20px 6px; background: var(--tint); border-top: 2px solid var(--accent); }
+.note-meta { font-size: 15px; color: var(--muted) !important; margin-bottom: 8px !important; }
+@media (max-width: 760px) { .notes.versus { gap: 14px; } }
+
 /* Desktop at 90%, like the rest of the site. */
 @media (min-width: 761px) {
   .pull { font-size: 21px; }

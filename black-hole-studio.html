@@ -139,20 +139,19 @@
     </figure>
 
     <h2>Two ways to render it</h2>
-    <dl class="entries">
+    <div class="notes versus">
       <div>
-        <dt>Fast</dt>
-        <dd>Because every path depends on one number, all of them can be traced once and saved in an image: a 1024 × 512 lookup table, one column per ray. Rendering becomes reading the right pixel, done with ordinary shader nodes, so it runs on the GPU and in Eevee as well as Cycles.</dd>
+        <h3>Fast</h3>
+        <p class="note-meta">GPU · Cycles and Eevee · a lookup table</p>
+        <p>Because every path depends on one number, all of them can be traced once and saved in an image: a 1024 × 512 lookup table, one column per ray. Rendering becomes reading the right pixel, done with ordinary shader nodes.</p>
       </div>
       <div>
-        <dt>Exact</dt>
-        <dd>Every camera ray is traced step by step in an Open Shading Language shader, in Cycles on the CPU. It's slower, but it can do what a table can't: frame dragging that twists the light around a spinning hole, and jets that glow along the curved path instead of a straight line.</dd>
+        <h3>Exact</h3>
+        <p class="note-meta">CPU · Cycles · Open Shading Language</p>
+        <p>Every camera ray is traced step by step in a shader. It's slower, but it can do what a table can't: frame dragging that twists the light around a spinning hole, and jets that glow along the curved path instead of a straight line.</p>
       </div>
-      <div>
-        <dt>Switching</dt>
-        <dd>Changing mode sets the render settings that mode needs, and puts yours back when you switch away again.</dd>
-      </div>
-    </dl>
+    </div>
+    <p class="sub-text">Changing mode sets the render settings that mode needs, and puts yours back when you switch away again.</p>
 
     <h2>The disk</h2>
     <div class="prose">

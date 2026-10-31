@@ -415,8 +415,14 @@ ink    = edge × saturate(W)          <span class="c">lines under a pixel fade i
     </div>
 
     <h2>Performance</h2>
+    <ul class="stats" aria-label="Cost of the whole pass, measured on my machine">
+      <li><b>0.17 ms</b> at about 1.3 million pixels</li>
+      <li><b>~0.5 ms</b> at 1440p</li>
+      <li><b>~1.1 ms</b> at 4K</li>
+      <li><b>16 px</b> longest outline search</li>
+    </ul>
     <div class="prose">
-      <p>The whole pass measured 0.17 ms at about 1.3 million pixels on my machine, roughly 0.5 ms at 1440p and 1.1 ms at 4K. The outline search stops as soon as a pixel is fully inked and is capped at 16 pixels, hatch projections with almost no weight are skipped, and features that are switched off skip their texture reads.</p>
+      <p>The figures are for the whole pass, measured on my machine. The outline search stops as soon as a pixel is fully inked and is capped at 16 pixels, hatch projections with almost no weight are skipped, and features that are switched off skip their texture reads.</p>
     </div>
 
     <h2>Known limits</h2>
