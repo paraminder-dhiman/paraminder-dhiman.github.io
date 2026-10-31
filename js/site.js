@@ -815,4 +815,12 @@
       link.parentNode.replaceChild(frame, link);
     });
   });
+
+  // Screen recordings on a page play silently on a loop. With reduced motion asked for, they stay on their still frame.
+  if (reduceMotion) {
+    Array.prototype.forEach.call(document.querySelectorAll("video[autoplay]"), function (video) {
+      video.removeAttribute("autoplay");
+      video.load();
+    });
+  }
 })();

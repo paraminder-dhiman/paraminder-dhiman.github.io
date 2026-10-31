@@ -646,3 +646,138 @@ code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-siz
   .formula { font-size: 13.5px; }
   h3.why { font-size: 12px; }
 }
+
+/* ---------- Page layouts for longer write-ups ----------
+   Used on Behind the Site: a pull line, a number strip, text beside an image, colour swatches,
+   and short notes side by side. Each one stacks into a single column on phones. */
+
+/* One line that sums up a section, set large with a teal rule. */
+.pull { max-width: 900px; margin: 6px 0 30px; padding-left: 20px; border-left: 2px solid var(--accent); font-size: 23px; font-weight: 300; line-height: 1.45; color: var(--text); }
+
+/* A strip of big numbers, each with a short label. */
+.stats { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: 0 0 40px; padding: 0; max-width: var(--column); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); }
+.stats li { padding: 14px 0 16px; font-size: 16px; color: var(--muted); }
+.stats li + li { padding-left: 24px; border-left: 1px solid var(--hair); }
+.stats b { display: block; font-size: 42px; font-weight: 300; line-height: 1.1; color: var(--text); }
+
+/* Text beside an image or a video. Add "flip" to put the picture on the left. */
+.feature { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; align-items: center; max-width: var(--column); margin: 40px 0; }
+.feature.flip .feature-text { order: 2; }
+.feature figure { margin: 0; }
+.feature figure img, .feature figure video { border: 1px solid var(--hair); }
+.feature h3, .notes h3, h3.sub { margin: 0 0 8px; font-size: 20px; font-weight: 500; line-height: 1.3; }
+.feature p { margin: 0 0 14px; color: var(--soft); }
+.feature p:last-child { margin-bottom: 0; }
+
+/* A smaller heading with a line of text, above something visual. */
+h3.sub { margin-top: 44px; }
+.sub-text { max-width: 900px; margin: 0 0 18px; color: var(--soft); }
+
+/* Colour swatches: a row per theme. */
+.swatches { display: grid; grid-template-columns: 70px repeat(6, minmax(0, 1fr)); gap: 14px 14px; align-items: start; max-width: var(--column); margin: 0 0 40px; }
+.sw-label { padding-top: 12px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.sw { display: block; font-size: 15px; line-height: 1.35; color: var(--soft); }
+.sw i { display: block; height: 46px; margin-bottom: 7px; background: var(--c); border: 1px solid var(--hair); }
+.sw em { display: block; font-style: normal; font-size: 13px; color: var(--muted); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
+
+/* The frame diagram. */
+.frame-fig svg { display: block; width: 100%; height: auto; font-family: inherit; }
+.frame-fig .fr-sheet { fill: var(--rule); }
+.frame-fig .fr-box rect { fill: var(--ground); stroke: var(--muted); stroke-width: 1; }
+.frame-fig .fr-fill rect { fill: var(--ground); }
+.frame-fig text { fill: var(--muted); font-size: 14px; text-anchor: middle; }
+.frame-fig .fr-op { fill: var(--text); font-size: 24px; font-weight: 300; }
+.feature figure.frame-fig figcaption { margin-top: 10px; }
+
+/* Short notes, two side by side. */
+.notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; max-width: var(--column); margin: 40px 0 0; border-top: 1px solid var(--hair); }
+.notes > div { padding-top: 18px; }
+.notes p { margin: 0 0 12px; color: var(--soft); }
+.specimen { display: flex; gap: 22px; font-size: 40px; line-height: 1.1; color: var(--text) !important; }
+
+@media (max-width: 760px) {
+  .pull { font-size: 20px; padding-left: 16px; }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .stats li:nth-child(3) { padding-left: 0; border-left: 0; }
+  .stats li:nth-child(n+3) { border-top: 1px solid var(--hair); }
+  .stats b { font-size: 34px; }
+  .feature, .feature.flip { grid-template-columns: minmax(0, 1fr); gap: 18px; margin: 32px 0; }
+  .feature.flip .feature-text { order: 0; }
+  .swatches { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+  .sw-label { grid-column: 1 / -1; padding-top: 6px; }
+  .notes { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* A phone recording: kept narrow, beside wider text. */
+.feature.phone { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); }
+.feature.phone.flip { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
+.feature.phone figure { justify-self: center; width: 100%; max-width: 300px; }
+.feature video { display: block; width: 100%; height: auto; background: var(--video-bg); border: 1px solid var(--hair); }
+
+/* Three short notes in a row. */
+.notes.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 32px; }
+
+@media (max-width: 760px) {
+  .feature.phone, .feature.phone.flip { grid-template-columns: minmax(0, 1fr); }
+  .feature.phone figure { max-width: 260px; }
+  .notes.three { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* A piece of code beside what it produces. */
+.code-result { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); gap: 32px; align-items: start; max-width: var(--column); margin: 0 0 40px; }
+.code-result .formula { margin: 0; }
+.result { display: grid; gap: 22px; }
+.result figure { margin: 0; }
+.result-label { display: block; margin-bottom: 8px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.tile-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-width: 360px; }
+.tile-pair img { display: block; width: 100%; aspect-ratio: 1; border: 1px solid var(--rule); }
+.result .work { max-width: none; }
+
+/* Numbered steps in a row. */
+.steps { list-style: none; counter-reset: step; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 32px; max-width: var(--column); margin: 0 0 40px; padding: 0; }
+.steps li { counter-increment: step; position: relative; padding: 14px 0 0 52px; color: var(--soft); border-top: 1px solid var(--hair); }
+.steps li::before { content: counter(step); position: absolute; left: 0; top: 12px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--accent); color: var(--accent); font-size: 18px; }
+.steps b { display: block; font-weight: 500; color: var(--text); }
+
+@media (max-width: 760px) {
+  .code-result { grid-template-columns: minmax(0, 1fr); gap: 24px; }
+  .steps { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+}
+
+/* Images compared side by side, each with a small label. */
+.compare { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.compare figure { margin: 0; }
+.compare img, .feature img.square { display: block; width: 100%; height: auto; border: 1px solid var(--hair); }
+.compare.three { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 0 40px; }
+.compare.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.feature figure img.square { max-width: 400px; margin: 0 auto; }
+
+@media (max-width: 760px) {
+  .compare.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+}
+
+/* Screen recordings: narrow ones beside text, two rail clips side by side, wide strips across. */
+.feature figure.narrow { justify-self: center; width: 100%; max-width: 300px; }
+.feature figure.narrow.small { max-width: 220px; }
+.compare.clips { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 460px; justify-self: center; width: 100%; }
+.compare.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: var(--column); margin: 0 0 40px; }
+.compare video, .wide-clip video { display: block; width: 100%; height: auto; background: var(--video-bg); border: 1px solid var(--hair); }
+.wide-clip { max-width: var(--column); margin: 0 0 36px; }
+.feature .note { font-size: 15px; color: var(--muted); }
+
+@media (max-width: 760px) {
+  .compare.two { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Desktop at 90%, like the rest of the site. */
+@media (min-width: 761px) {
+  .pull { font-size: 21px; }
+  .stats li { font-size: 14.5px; }
+  .stats b { font-size: 38px; }
+  .feature h3, .notes h3, h3.sub { font-size: 18px; }
+  .sw { font-size: 13.5px; }
+  .sw em, .sw-label { font-size: 12px; }
+  .specimen { font-size: 36px; }
+  .result-label { font-size: 12px; }
+  .steps li::before { font-size: 16px; }
+}

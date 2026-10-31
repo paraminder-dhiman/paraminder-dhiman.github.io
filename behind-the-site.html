@@ -58,95 +58,167 @@
     </div>
 
     <figure>
-      <img src="images/behind-the-site/tiles-grid-dark.jpg" data-themed width="1600" height="1404" alt="Every tile on the site twice, its white line art beside its 3D render, in the order of the tile rail. Me: About and Contact. Tech art: Black Hole · Blender, Black Hole · UE, Unravel and Blender Tools. Beyond tech art: Home Server, Video Editing and Behind the Site.">
-      <figcaption>Every tile as line art and as the render you see on hover, in the same order as the rail.</figcaption>
+      <img src="images/behind-the-site/tiles-grid-dark.jpg" data-themed width="1600" height="1101" alt="A selection of tiles, each twice, its line art beside its 3D render. Me: About and Contact. Tech art: Black Hole · UE, Toon Shader · UE and Unravel. Beyond tech art: Home Server, Video Editing and Behind the Site.">
+      <figcaption>A few tiles from each group, as line art and as the render you see on hover.</figcaption>
     </figure>
 
     <h2>The look</h2>
-    <dl class="entries">
+    <p class="pull">The work should be the loudest thing on the page, so the site stays out of the way.</p>
+
+    <ul class="stats" aria-label="The site in numbers">
+      <li><b>1</b> font</li>
+      <li><b>1</b> background</li>
+      <li><b>1</b> accent</li>
+      <li><b>2</b> themes</li>
+    </ul>
+
+    <div class="feature">
+      <div class="feature-text">
+        <h3>Light and dark</h3>
+        <p>The switch in the header swaps one set of colours for another. The light theme uses a soft off-white rather than stark white, and a deeper teal, because the dark theme's teal is too pale to read on a light page.</p>
+        <p>The site opens in whatever the device is set to, remembers a choice on every page after it, and sets the theme before anything is drawn, so a page never flashes the wrong colours.</p>
+      </div>
+      <figure>
+        <img src="images/behind-the-site/themes.jpg" width="1600" height="955" alt="The Black Hole Shader page split diagonally: the left part in the dark theme, slate with off-white text, and the right part in the light theme, off-white with deep slate text.">
+      </figure>
+    </div>
+
+    <h3 class="sub">Colour</h3>
+    <p class="sub-text">Every colour is a variable at the top of one stylesheet, so a change happens in one place. Each pair was checked so text reads as easily in one theme as in the other.</p>
+    <div class="swatches" role="img" aria-label="The site's colours in each theme. Background: #212f3a in dark, #eef0ec in light. Text: #e2e5e1 and #1c2830. Secondary text: #a9b4b6 and #4a575e. Frame: #8a979b and #76838a. Accent: #63c5ce and #145b63. Links: #63c5ce and #0f6f7a.">
+      <span class="sw-label">Dark</span>
+      <span class="sw" style="--c:#212f3a"><i></i>Background<em>#212f3a</em></span>
+      <span class="sw" style="--c:#e2e5e1"><i></i>Text<em>#e2e5e1</em></span>
+      <span class="sw" style="--c:#a9b4b6"><i></i>Secondary<em>#a9b4b6</em></span>
+      <span class="sw" style="--c:#8a979b"><i></i>Frame<em>#8a979b</em></span>
+      <span class="sw" style="--c:#63c5ce"><i></i>Accent<em>#63c5ce</em></span>
+      <span class="sw" style="--c:#63c5ce"><i></i>Links<em>#63c5ce</em></span>
+      <span class="sw-label">Light</span>
+      <span class="sw" style="--c:#eef0ec"><i></i>Background<em>#eef0ec</em></span>
+      <span class="sw" style="--c:#1c2830"><i></i>Text<em>#1c2830</em></span>
+      <span class="sw" style="--c:#4a575e"><i></i>Secondary<em>#4a575e</em></span>
+      <span class="sw" style="--c:#76838a"><i></i>Frame<em>#76838a</em></span>
+      <span class="sw" style="--c:#145b63"><i></i>Accent<em>#145b63</em></span>
+      <span class="sw" style="--c:#0f6f7a"><i></i>Links<em>#0f6f7a</em></span>
+    </div>
+
+    <div class="feature flip">
+      <div class="feature-text">
+        <h3>The frame</h3>
+        <p>The page is one grid laid over a sheet of the frame colour, with a 1px gap between its boxes. The lines are that colour showing through the gaps, so every box lines up without a single border drawn by hand.</p>
+      </div>
+      <figure class="frame-fig" role="img" aria-label="Diagram: a sheet in the frame colour, plus the page's boxes laid on top with small gaps, makes the frame. The gaps are drawn wider than they are.">
+        <svg viewBox="0 0 560 180">
+          <rect class="fr-sheet" x="0" y="10" width="150" height="130"/>
+          <text x="75" y="166">The sheet</text>
+          <text class="fr-op" x="173" y="82">+</text>
+          <g class="fr-box"><rect x="196" y="10" width="38" height="18"/><rect x="240" y="10" width="110" height="18"/><rect x="196" y="34" width="38" height="88"/><rect x="240" y="34" width="110" height="88"/><rect x="196" y="128" width="38" height="12"/><rect x="240" y="128" width="110" height="12"/></g>
+          <text x="273" y="166">The boxes</text>
+          <text class="fr-op" x="373" y="82">=</text>
+          <rect class="fr-sheet" x="400" y="10" width="150" height="130"/>
+          <g class="fr-fill"><rect x="401" y="11" width="38" height="17"/><rect x="440" y="11" width="109" height="17"/><rect x="401" y="29" width="38" height="98"/><rect x="440" y="29" width="109" height="98"/><rect x="401" y="128" width="38" height="11"/><rect x="440" y="128" width="109" height="11"/></g>
+          <text x="475" y="166">The frame</text>
+        </svg>
+        <figcaption>The gaps in the middle step are drawn wider than they are, to show them.</figcaption>
+      </figure>
+    </div>
+
+    <div class="notes">
       <div>
-        <dt>Quiet on purpose</dt>
-        <dd>The work should be the loudest thing on the page, so the site stays out of the way: one font, one background colour, one accent, and motion only where it explains something: the line art drawing in and out, the phone menu, and one small secret in the footer.</dd>
+        <h3>Type</h3>
+        <p class="specimen"><span style="font-weight:300">Aa</span><span style="font-weight:400">Aa</span><span style="font-weight:500">Aa</span><span style="font-weight:600">Aa</span></p>
+        <p>IBM Plex Sans in four weights, hosted with the site so nothing loads from elsewhere. Text never runs wider than 1200 pixels, so lines stay easy to read on big screens.</p>
       </div>
       <div>
-        <dt>The frame</dt>
-        <dd>The page is one grid with 1px gaps, and the frame lines are simply the colour showing through those gaps. Every box lines up without drawing a single border by hand.</dd>
+        <h3>Tiles as one family</h3>
+        <p>Every tile shares one camera, one set of lights and one plate, which lands on exactly the same pixels each time. Only the object standing on it changes, so a new project always looks like it belongs.</p>
       </div>
-      <div>
-        <dt>Colour</dt>
-        <dd>A slate background, #212f3a, with soft off-white text and a single teal accent for links and the current page. Every colour lives as a variable at the top of one stylesheet, so a change happens in one place.</dd>
-      </div>
-      <div>
-        <dt>Light and dark</dt>
-        <dd>The switch in the header flips between a dark and a light theme. The light theme is a second set of the same colour variables: a soft off-white instead of stark white, deep slate text, and a darker teal, because the dark theme's teal is too pale to read on a light page. Each colour was checked so text reads as easily in one theme as in the other. The site opens in whatever the visitor's device is set to, dark if it doesn't say, and remembers a choice made with the switch on every page after it. A tiny script at the top of each page applies the theme before anything is drawn, so a page never flashes the wrong colours.</dd>
-      </div>
-      <div>
-        <dt>Type</dt>
-        <dd>IBM Plex Sans in four weights, hosted with the site so nothing loads from elsewhere. Long text sits in a column that never gets wider than 1200 pixels, so lines stay easy to read on large screens.</dd>
-      </div>
-      <div>
-        <dt>Tiles as one family</dt>
-        <dd>Every tile shares the same camera, lighting and plate, and follows the same palette rules, so new projects always look like they belong. The plate lands on exactly the same pixels in every tile, and only the object standing on it changes.</dd>
-      </div>
-    </dl>
+    </div>
 
     <h2>Layout and scrolling</h2>
-    <dl class="entries">
+    <p class="pull">On a desktop the frame stays put and only the content moves. On a phone, the frame gets out of the way.</p>
+
+    <div class="notes">
       <div>
-        <dt>A fixed frame</dt>
-        <dd>On larger screens the frame fills the window and stays put. The header, the tile rail and the footer are always in view, and only the page content scrolls.</dd>
+        <h3>A fixed frame</h3>
+        <p>On larger screens the frame fills the window. The header, the tile rail and the footer stay in view, and only the page content scrolls.</p>
+        <p>When there are more tiles than fit, the rail gets a scroll of its own, held inside the rail so it never drags the page along with it.</p>
       </div>
       <div>
-        <dt>The rail scrolls on its own</dt>
-        <dd>When there are more tiles than fit, the rail gets its own scroll, held inside the rail so it never drags the page along with it.</dd>
+        <h3>Phones</h3>
+        <p>A fixed frame would leave a sliver of a phone for reading, so on phones the page is just the header, the title and the content. The tiles move into a menu behind the Projects button, and the header stays pinned, so the menu is always one tap away.</p>
+        <p>The menu borrows from Windows Phone's live tiles: big lowercase group names and square tiles, with a few twice as wide so every group closes as a full block. The tiles turn in as renders, then flip over and draw their line art as they turn. The current page's tile keeps its render, which marks where you are.</p>
+      </div>
+    </div>
+
+    <div class="notes three">
+      <div>
+        <h3>Keyboard first</h3>
+        <p>With only the content scrolling, the arrow keys, Page Down and Space need somewhere to go. The content is focused quietly on load, so they work straight away.</p>
       </div>
       <div>
-        <dt>Keyboard first</dt>
-        <dd>With only the content scrolling, the arrow keys, Page Down and Space need somewhere to go. The content area is focused quietly on load, so they work straight away.</dd>
+        <h3>Short windows</h3>
+        <p>Desktop windows too short for the fixed frame fall back to a normal scrolling page, with the rail kept in place.</p>
       </div>
       <div>
-        <dt>Phones</dt>
-        <dd>A fixed frame would leave a sliver of a phone screen for reading, and stacking the tiles above the content meant a long scroll before reaching it. So on phones the page is just the header, the title and the content, and the tiles move into a menu behind a Projects button at the top left. The header stays pinned while reading, so the menu is always one tap away.</dd>
+        <h3>Sizes that breathe</h3>
+        <p>The rail, the side spacing and the tile gaps grow with the window between set limits, so one layout holds from a laptop to a wide monitor.</p>
       </div>
-      <div>
-        <dt>Tiles like live tiles</dt>
-        <dd>The menu borrows from Windows Phone: big lowercase group names, two columns of square tiles, and a few twice as wide. Pinned projects go wide, and so does the last tile of a group that would otherwise sit alone in its row, so every group closes as a full block. When the menu opens, the tiles turn in one after another as renders, then each one flips over and draws its line art in as it turns, so the flip and the drawing read as one movement. The current page's tile keeps its render and stays still, which marks where you are the same way the rest of the site does: renders for what you're looking at, line art for everything else.</dd>
-      </div>
-      <div>
-        <dt>Short windows</dt>
-        <dd>Desktop windows too short for the fixed frame fall back to a normal scrolling page, with the rail kept in place.</dd>
-      </div>
-      <div>
-        <dt>Sizes that breathe</dt>
-        <dd>The rail's width, the side spacing and the tile gaps grow with the window between set limits, so the layout holds from a laptop to a wide monitor without breakpoints for each size.</dd>
-      </div>
-    </dl>
+    </div>
 
     <h2>Projects from one list</h2>
-    <dl class="entries">
+    <p class="pull">Every project is one entry in one list, and everything that shows a project is built from it.</p>
+
+    <p class="sub-text">Adding a project is one edit. The entry below is all it takes for the Toon Shader to get its tile in the rail, its place in the phone menu and its row in the work list on the About page, once its status is set to live.</p>
+    <div class="code-result">
+      <pre class="formula" aria-label="The Stylized Toon Shader entry in the project list">{
+  id:     "stylized-toon-shader",   <span class="c">the page, and the tile's files</span>
+  title:  "Stylized Toon Shader",   <span class="c">the work list</span>
+  tile:   "Toon Shader · UE",       <span class="c">under the tile</span>
+  meta:   "Shader · Unreal Engine 5, HLSL · 2026",
+  group:  "tech-art",               <span class="c">which heading it sits under</span>
+  scale:  3,                        <span class="c">used for sorting</span>
+  year:   2026,
+  pin:    3,
+  status: "draft",                  <span class="c">live, draft or planned</span>
+}</pre>
+      <div class="result">
+        <figure class="result-tile">
+          <span class="result-label">In the rail</span>
+          <span class="tile-pair"><img src="tiles/stylized-toon-shader-dark.svg" data-themed alt="The Toon Shader tile's line art"><img src="tiles/stylized-toon-shader-dark.jpg" data-themed alt="The Toon Shader tile's render, shown on hover"></span>
+        </figure>
+        <div class="result-row">
+          <span class="result-label">On the About page</span>
+          <ul class="work"><li><a href="stylized-toon-shader.html"><span class="w-title">Stylized Toon Shader</span><span class="w-meta">Shader · Unreal Engine 5, HLSL · 2026</span></a></li></ul>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="sub">Sorted by itself</h3>
+    <p class="sub-text">Inside a group, projects sort in three passes, so a new one lands in the right place without moving anything.</p>
+    <ol class="steps">
+      <li><b>Pinned first</b>The ones I want seen first, in the order I pin them.</li>
+      <li><b>Then bigger</b>Larger projects ahead of smaller ones.</li>
+      <li><b>Then newer</b>The most recent ahead of older work.</li>
+    </ol>
+
+    <div class="notes three">
       <div>
-        <dt>One file</dt>
-        <dd>Every project is one entry in a single list. The tile rail and the list of work on the About page are both built from it, so adding a project is one edit.</dd>
+        <h3>Groups</h3>
+        <p>The rail opens with Me, About and Contact, then two groups: tech art, and work beyond it. The same names head the rail, the work list and the phone menu.</p>
       </div>
       <div>
-        <dt>Groups</dt>
-        <dd>The rail opens with a Me group, About and Contact, then the projects in two groups: tech art, and work beyond it. The same group names head the rail, the work list and the phone menu.</dd>
+        <h3>Drafts stay private</h3>
+        <p>Each project is live, draft or planned. Visitors only see live ones, but on my own computer the site shows the rest too, so I can preview a page before it's published.</p>
       </div>
       <div>
-        <dt>Sorted by itself</dt>
-        <dd>Inside a group, pinned projects come first, then bigger projects, then newer ones, so a new one lands in the right place without moving anything.</dd>
+        <h3>A way to get in touch</h3>
+        <p>Every page except Contact ends with a short "Like my work? Get in touch" line, added by the same script, so no page needs it written in.</p>
       </div>
-      <div>
-        <dt>Drafts stay private</dt>
-        <dd>Each project is live, draft or planned. Visitors only see live ones. Opened on my own computer, the site also shows drafts and planned projects, so I can preview pages before they're published.</dd>
-      </div>
-      <div>
-        <dt>A way to get in touch</dt>
-        <dd>Every page except Contact ends with a short "Like my work? Get in touch" line, added by the same script, so no page needs it written in by hand.</dd>
-      </div>
-    </dl>
+    </div>
 
     <h2>Tile pipeline</h2>
+    <p class="pull">One script builds the scene, and one render makes everything a tile needs.</p>
     <figure class="diagram" role="img" aria-label="Diagram of the tile pipeline. A build script creates the scene and saves a Blender file. Pressing F12 renders it. The compositor places the render on the site colour, adds bloom and saves three sizes, while the line art step projects the scene's shapes through the camera and saves an SVG and a PNG. The site shows the line art, and the render on hover.">
       <svg viewBox="0 0 780 250" xmlns="http://www.w3.org/2000/svg">
         <rect class="box" x="20" y="95" width="130" height="60"></rect>
@@ -176,105 +248,153 @@
         <path class="head" d="M190 125 l-7 -3.5 v7 z M350 69 l-7 -3.5 v7 z M350 181 l-7 -3.5 v7 z M610 125 l-7 -3.5 v7 z"></path>
       </svg>
     </figure>
-    <p class="caption">One render makes everything a tile needs.</p>
 
-    <dl class="entries">
+
+    <ul class="stats" aria-label="The tile pipeline in numbers">
+      <li><b>1</b> shared template</li>
+      <li><b>35.264°</b> camera angle</li>
+      <li><b>3</b> image sizes</li>
+      <li><b>0</b> lines drawn by hand</li>
+    </ul>
+
+    <div class="feature">
+      <div class="feature-text">
+        <h3>One camera, one frame</h3>
+        <p>Every tile shares a template: the studio, the camera, the compositor, the saving and the line art. Only the part that builds the scene changes. The camera is orthographic at the true isometric angle, with a warm key light and a cool fill.</p>
+        <p>The first tiles were framed one by one, by eye, and side by side some plates sat lower or smaller than others. Now the camera's aim and zoom live in one shared block, and each tile fits its object to the frame instead.</p>
+      </div>
+      <div class="compare">
+        <figure><span class="result-label">Framed by eye</span><img src="images/behind-the-site/framing-before.jpg" width="1200" height="400" alt="The first Home Server, Video Editing and About tiles: the plates sit at slightly different heights and sizes, and the server stack fills most of its tile."></figure>
+        <figure><span class="result-label">Shared framing</span><img src="images/behind-the-site/framing-after.jpg" width="1200" height="400" alt="The same three tiles now: every plate lands in the same place, the server stack is smaller, and the editing tile became a viewer and a timeline laid out on the plate."></figure>
+      </div>
+    </div>
+
+    <h3 class="sub">Rendered clear</h3>
+    <p class="sub-text">Each tile renders with a transparent background and a shadow catcher. The compositor lays that one render onto each theme's exact background colour, so the shadows sit on the page in both themes with no visible edge, and a single F12 makes both tiles.</p>
+    <div class="compare three">
+      <figure><span class="result-label">The render</span><img src="images/behind-the-site/clear-render.jpg" width="600" height="600" alt="The Toon Shader tile on a grey checkerboard, showing its transparent background and the soft shadow under the plate."></figure>
+      <figure><span class="result-label">Dark tile</span><img src="images/behind-the-site/clear-dark.jpg" width="600" height="600" alt="The same render placed on the dark theme's slate background."></figure>
+      <figure><span class="result-label">Light tile</span><img src="images/behind-the-site/clear-light.jpg" width="600" height="600" alt="The same render placed on the light theme's off-white background."></figure>
+    </div>
+
+    <div class="feature flip">
+      <div class="feature-text">
+        <h3>Bloom only where it glows</h3>
+        <p>The glow comes from the emission pass alone, capped so very bright parts don't take over, with three blurs, tight, medium and wide, scaled to the image size.</p>
+        <p>Glass was the exception. On the light background its own glow turned the whole sphere milky, so glass now goes into a separate light group that is taken out of the bloom.</p>
+      </div>
+      <div class="compare cols">
+        <figure><span class="result-label">Before</span><img src="images/behind-the-site/glass-before.jpg" width="400" height="400" alt="The Black Hole Studio tile in the light theme with a milky white glass sphere hiding the black hole."></figure>
+        <figure><span class="result-label">After</span><img src="images/behind-the-site/glass-after.jpg" width="400" height="400" alt="The same tile with clear glass: the black hole, its disk and the grid show through the sphere."></figure>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-text">
+        <h3>Line art from the geometry</h3>
+        <p>The line art isn't edge detection on the image. Each tile lists what to draw by object name, and those real 3D points are projected through the render camera into a clean SVG. Laid over the render, it lands exactly on the shapes.</p>
+        <p>It's saved on every F12, so it always matches the scene as it is, and moving something can never leave the two out of step.</p>
+      </div>
+      <figure><img src="images/behind-the-site/lines-over-render.jpg" width="600" height="600" alt="The Toon Shader tile's render with its white line art drawn on top, every line sitting on the edge it traces." class="square"></figure>
+    </div>
+
+    <div class="feature flip">
+      <div class="feature-text">
+        <h3>From sketch to tile</h3>
+        <p>New tiles start as quick flat sketches in the browser, where layouts and colours are cheap to try. The one I pick becomes the build script, and the render is checked against the sketch.</p>
+      </div>
+      <div class="compare cols">
+        <figure><span class="result-label">Sketch</span><img src="images/behind-the-site/toon-sketch.jpg" width="600" height="600" alt="A flat sketch of the Toon Shader tile: four shapes on a plate split into quarters, with purple outlines."></figure>
+        <figure><span class="result-label">Render</span><img src="images/behind-the-site/toon-final.jpg" width="600" height="600" alt="The final Toon Shader tile: the same layout, rendered, with orange, purple and cyan glowing outlines."></figure>
+      </div>
+    </div>
+
+    <div class="notes">
       <div>
-        <dt>One template</dt>
-        <dd>Every tile has its own build script, but they share the same studio, camera, compositor, saving and line art code. Only the part that builds the scene changes, which is what keeps the tiles consistent.</dd>
+        <h3>Palette rules</h3>
+        <p>Objects are near-black. The accents are Blender's red, green and blue axis colours, and each tile gets its own glow colour, so no two tiles light up the same way.</p>
       </div>
       <div>
-        <dt>The same camera</dt>
-        <dd>An orthographic camera at the true isometric angle, 35.264° down and 45° around, with a warm key light and a cool fill. Every object sits in the same space and catches the same light.</dd>
+        <h3>More than lines</h3>
+        <p>Each line art entry has a kind: an outline, a line, a dot, a filled shape or a soft fog ring. Lines that pass behind an object are hidden, so the drawing reads the way the render does.</p>
       </div>
       <div>
-        <dt>Shared framing</dt>
-        <dd>The first tiles were framed one by one, by eye, and side by side some plates sat a little lower or smaller than others. Now the camera's aim and zoom live in one shared block at the top of every script, and each tile fits its object to the frame instead of the other way round: the paper plane flies a little lower, the server stack is scaled down evenly, and the editing tile became an editor's viewer and timeline laid out on the plate.</dd>
+        <h3>Lensing on a tile</h3>
+        <p>Real lensing would need a custom renderer, so the black hole tile fakes it in the geometry: the far half of the disk folds up behind the hole. The line art follows it for free.</p>
       </div>
       <div>
-        <dt>Palette rules</dt>
-        <dd>Objects are near-black. The accents are Blender's red, green and blue axis colours, and each tile gets its own glow colour, so no two tiles light up the same way.</dd>
+        <h3>On the page</h3>
+        <p>Each tile stacks its line art and its render. On touch screens, which can't hover, the current tile keeps its render.</p>
       </div>
-      <div>
-        <dt>Rendered clear</dt>
-        <dd>Each tile renders with a transparent background and a shadow catcher. The compositor then lays that one render onto each theme's exact background colour, so the shadows sit on the page in both themes, there's no visible edge around the image, and a single F12 makes the dark and the light tile together.</dd>
-      </div>
-      <div>
-        <dt>Bloom only where it glows</dt>
-        <dd>The glow comes from the emission pass alone, capped so very bright parts don't take over. Three blurs, tight, medium and wide, are added on top, and their size scales with the resolution, so all three image sizes glow the same.</dd>
-      </div>
-      <div>
-        <dt>Line art from the geometry</dt>
-        <dd>The line art isn't edge detection on the image. Each tile lists what to draw by object name: outlines, edges, dots. Those real 3D points are projected through the render camera and written as a clean SVG, saved twice: white lines for the dark theme and dark lines for the light one. That's why the lines are crisp and never noisy.</dd>
-      </div>
-      <div>
-        <dt>The grid on this page</dt>
-        <dd>The image of every tile at the top of this page is made by a small page that reads the same project list, so it always shows the tiles in the same groups and order as the rail.</dd>
-      </div>
-      <div>
-        <dt>Saved on F12</dt>
-        <dd>The line art hooks into rendering, so every F12 saves it next to the images. It always matches the camera and the objects as they are at that moment, and moving something can never leave the two out of step.</dd>
-      </div>
-      <div>
-        <dt>More than lines</dt>
-        <dd>Each line art entry has a kind: an outline, an open line, a dot, a filled shape, or a soft fog ring. Fills carry the paper plane's shadow on Contact, and the black hole tile layers fog rings for its disk and drops the grid lines that pass behind the hole, so the drawing reads the same way the render does.</dd>
-      </div>
-      <div>
-        <dt>Lensing on a tile</dt>
-        <dd>Real lensing would need a custom renderer, so the black hole tile fakes it in the geometry. The far half of the disk folds up behind the hole and is pulled in toward it, the shape lensing gives the real thing. Because it's geometry rather than a post effect, the line art follows it for free.</dd>
-      </div>
-      <div>
-        <dt>On the page</dt>
-        <dd>Each tile stacks its line art and its render. The current page's tile gets a thicker border instead of staying lit. On touch screens, which can't hover, the current tile keeps its render. After clicking a tile, it stays lit on the new page until the cursor moves, because browsers don't know what's under a still cursor until then.</dd>
-      </div>
-    </dl>
+    </div>
 
     <h2>Line art in motion</h2>
-    <div class="prose">
-      <p>Because the line art is real SVG lines rather than a picture, the browser can draw each line along its length. Everything that moves on the tiles is built on that one idea.</p>
+    <p class="pull">The line art is real SVG lines, not a picture, so the browser can draw each one along its length. Everything that moves on the tiles is built on that.</p>
+
+    <div class="feature">
+      <div class="feature-text">
+        <h3>Drawing in, pulling back</h3>
+        <p>When the site opens, every tile traces itself in, one after another, top to bottom. It plays once per visit, so moving between pages stays calm.</p>
+        <p>Hovering pulls the lines back off the tile while the render fades in underneath. Leaving draws them back over the render as it fades out. In the light theme, dark lines would vanish against the render, so they turn white while it shows and ease back on the same timing.</p>
+      </div>
+      <div class="compare clips">
+        <figure><span class="result-label">Arriving</span><video src="images/behind-the-site/lines-arrive.mp4" poster="images/behind-the-site/lines-arrive.jpg" width="576" height="1232" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: the tile rail on arrival, every tile tracing its line art in from top to bottom."></video></figure>
+        <figure><span class="result-label">Hovering</span><video src="images/behind-the-site/lines-hover.mp4" poster="images/behind-the-site/lines-hover.jpg" width="576" height="1232" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording: hovering the Unravel and Blender Tools tiles. The lines pull back as the render fades in, then draw back over it when the cursor leaves."></video></figure>
+      </div>
     </div>
-    <dl class="entries">
+
+    <div class="feature flip">
+      <div class="feature-text">
+        <h3>What I tried first</h3>
+        <p>The first leave effect was a soft wipe across the render. It looked good on its own, but it was louder than the work it framed. A dim and fade was too flat. The line draw sat in between: noticeable, quick, and about the tile itself.</p>
+        <p class="note">Recorded on an early version of the site, with older tiles.</p>
+      </div>
+      <figure class="narrow"><video src="images/behind-the-site/leave-tried.mp4" poster="images/behind-the-site/leave-tried.jpg" width="400" height="658" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording of three leave effects tried on an early version of the site: a soft wipe, the lines drawing over the render, and a dim then fade."></video></figure>
+    </div>
+
+    <div class="notes">
       <div>
-        <dt>Drawing in on arrival</dt>
-        <dd>When the site opens, every tile traces itself in, one after another, top to bottom. It happens once per visit, so moving between pages stays calm, and a reload counts as a fresh visit and plays it again. It shows from the first second that the tiles are drawn from 3D scenes, not icons.</dd>
+        <h3>Timing</h3>
+        <p>Each line starts a little after the one before, so a tile draws as a sweep. Drawing in eases out and pulling back eases in, so both read as one motion played forward and back. Hovering is faster than arriving, so it never feels like waiting.</p>
       </div>
       <div>
-        <dt>Hovering</dt>
-        <dd>As the cursor arrives, the lines pull back off the tile while the render fades in underneath. When it leaves, the lines draw themselves back over the render as it fades out. The same lines that drew the tile also undo it, so the whole site speaks one visual language. In the light theme, dark lines would vanish against the render, so they turn white while it shows and ease back to their own colour as it fades, on exactly the same timing.</dd>
+        <h3>No stray dots</h3>
+        <p>Lines have round ends, and a round end on a line of zero length still paints a dot. Every line is pushed a few pixels past its own end before it starts, so an undrawn tile is truly empty.</p>
+      </div>
+    </div>
+
+    <div class="feature">
+      <div class="feature-text">
+        <h3>A bubble that grows</h3>
+        <p>One tile breaks the rule on purpose. A sphere traced along its length reads as flat circles, so the Black Hole · Blender tile's lens sphere grows out of the hole like an air bubble instead: it swells from the centre while its outline sweeps round, its rings follow, and two pole-to-pole lines spin once and fade.</p>
+        <p>The tile script saves the sphere's size and the camera's projection into the SVG, so the browser works out every frame in 3D, including the part sunk into the plate. Hovering plays it backwards.</p>
+      </div>
+      <figure class="narrow small"><video src="images/behind-the-site/lines-bubble.mp4" poster="images/behind-the-site/lines-bubble.jpg" width="240" height="240" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording of the Black Hole · Blender tile: the lens sphere shrinks into the hole as the render appears, then grows back out as the cursor leaves."></video></figure>
+    </div>
+
+    <h3 class="sub">A small black hole</h3>
+    <p class="sub-text">The dot in the footer is a tiny black hole. Click it and it swallows the footer, letter by letter, caves in to a point, then bursts and throws every letter back into place.</p>
+    <figure class="wide-clip"><video src="images/behind-the-site/footer-hole.mp4" poster="images/behind-the-site/footer-hole.jpg" width="1200" height="116" autoplay muted loop playsinline preload="metadata" aria-label="Screen recording of the footer: the black hole swallows the letters on both sides, collapses, then bursts and throws them back out."></video></figure>
+
+    <h3 class="sub">Finding the moment</h3>
+    <p class="sub-text">The first versions pulled the letters into orbit and let them go, but nothing actually happened at the hole. Swallowing won because it has a beginning, a middle and an end. Shrinking to a point before the burst works like a wind-up before a throw.</p>
+    <div class="compare two">
+      <figure><span class="result-label">Orbit and lightning</span><video src="images/behind-the-site/tried-footer-v1.mp4" poster="images/behind-the-site/tried-footer-v1.jpg" width="900" height="190" autoplay muted loop playsinline preload="metadata" aria-label="An early footer version: letters orbiting the hole with lightning."></video></figure>
+      <figure><span class="result-label">Whole words</span><video src="images/behind-the-site/tried-footer-words.mp4" poster="images/behind-the-site/tried-footer-words.jpg" width="900" height="190" autoplay muted loop playsinline preload="metadata" aria-label="An early footer version: whole words orbiting the hole."></video></figure>
+      <figure><span class="result-label">A disk of text</span><video src="images/behind-the-site/tried-footer-disk.mp4" poster="images/behind-the-site/tried-footer-disk.jpg" width="900" height="190" autoplay muted loop playsinline preload="metadata" aria-label="An early footer version: the letters spun into a flat disk around the hole."></video></figure>
+      <figure><span class="result-label">Threads</span><video src="images/behind-the-site/tried-footer-thread.mp4" poster="images/behind-the-site/tried-footer-thread.jpg" width="900" height="190" autoplay muted loop playsinline preload="metadata" aria-label="An early footer version: letters pulled into the hole as threads."></video></figure>
+    </div>
+
+    <div class="notes">
+      <div>
+        <h3>Why it's scripted</h3>
+        <p>The tiles use CSS transitions, which suit moving from one state to another. Here every letter's path, size and timing changes each frame, and the smoke is a small particle system, so the footer is worked out in JavaScript and drawn on two small canvases, timed by the clock so it plays at the same speed on any screen.</p>
       </div>
       <div>
-        <dt>What I tried first</dt>
-        <dd>The first leave effect was a scan line wiping the render away. It looked good on its own, but it was louder than the work it framed, so it went. A plain crossfade was too flat, and the line draw sat in between: noticeable, quick, and about the tile itself.</dd>
+        <h3>Fallbacks</h3>
+        <p>Drawing needs the SVG inside the page, so the script fetches each file and swaps it in. Opened straight from disk, the tiles simply stay still. With reduced motion turned on, tiles stay still, the menu doesn't animate, and the black hole only glows.</p>
       </div>
-      <div>
-        <dt>Timing</dt>
-        <dd>Each line starts a little after the one before it, so a tile draws as a sweep rather than all at once. Drawing in eases out and pulling back eases in, which makes both feel like one motion played forward and back. The hover version is faster than the arrival, so it never feels like waiting.</dd>
-      </div>
-      <div>
-        <dt>No stray dots</dt>
-        <dd>Lines have round ends, and a round end on a line of zero length still paints a dot. Every line is pushed a few pixels past its own end before it starts, so an undrawn tile is truly empty.</dd>
-      </div>
-      <div>
-        <dt>A bubble that grows</dt>
-        <dd>One tile breaks the rule on purpose. The Black Hole · Blender tile's lens sphere doesn't trace along its length, because a sphere drawn that way reads as flat circles. Instead it grows out of the black hole like an air bubble: it swells from the hole's centre while its outline sweeps round, its rings follow, and two pole-to-pole lines spin once and fade. The tile script saves the sphere's size and the camera's projection into the SVG, so the browser works out every frame in 3D, including the part sunk into the plate. Hovering plays it backwards and the bubble shrinks into the hole. The sphere only lives in the line art, like the scene setup you see in Blender's viewport, while the render shows just the finished black hole.</dd>
-      </div>
-      <div>
-        <dt>A small black hole</dt>
-        <dd>The dot in the footer is a tiny black hole: black, with a teal rim and glow. Click it and it swells and trembles, smoke starts swirling in, and the letters on both sides fall into it, nearest first, each curling round the rim as it vanishes. The hole grows fatter with every letter and throbs once it's full. Then it caves in on itself to a tiny point, holds for a beat, and bursts: the rim flashes, two rings of light ripple out, the smoke is blown away, and the letters are thrown back out in the order it took them, lobbed in small arcs, tumbling, landing in place.</dd>
-      </div>
-      <div>
-        <dt>Finding the moment</dt>
-        <dd>The first versions pulled the letters into orbit and let them go again. They moved well but felt unfinished, because nothing actually happened at the hole. I tried whole words orbiting, a spinning disk of text with Doppler colour, and letters pulled in as threads. Swallowing won because it has a beginning, a middle and an end: the hole takes the footer, holds it, and gives it back. Shrinking to a point just before the burst works like a wind-up before a throw, so the release lands harder without needing anything louder. Lightning and a hard shake made it look busy, so they went, leaving a gentle tremble and the smoke.</dd>
-      </div>
-      <div>
-        <dt>Why it's scripted</dt>
-        <dd>The tiles' motion is all CSS transitions, which suit movement from one state to another. Here every letter's path, size and timing changes each frame, and the smoke is a small particle system, so the footer works it out frame by frame in JavaScript and draws the smoke and the ring on two small canvases. Timing comes from the clock rather than the frame count, so it plays at the same speed on any screen. Each letter is lifted out of the text into its own element so it can move alone, and the original line stays readable to screen readers.</dd>
-      </div>
-      <div>
-        <dt>Fallbacks</dt>
-        <dd>Drawing needs the SVG inside the page, so the script fetches each file and swaps it in. Opened straight from disk the browser refuses, and the tiles simply stay still. Anyone who has asked their system for reduced motion gets still tiles, no menu animation, and a black hole that only glows.</dd>
-      </div>
-    </dl>
+    </div>
 
     <h2>Credit</h2>
     <div class="prose">
