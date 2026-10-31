@@ -66,6 +66,18 @@ const PROJECTS = [
     status: "live",
   },
   {
+    id: "stylized-toon-shader",
+    title: "Stylized Toon Shader",
+    tile: "Toon Shader · UE",
+    image: "stylized-toon-shader.jpg",
+    meta: "Shader · Unreal Engine 5, HLSL · 2026",
+    group: "tech-art",
+    scale: 3,
+    year: 2026,
+    pin: 3,
+    status: "draft",
+  },
+  {
     id: "unravel",
     title: "Unravel",
     tile: "Unravel",

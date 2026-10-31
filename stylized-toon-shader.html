@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stylized Toon Shader · Paraminder Dhiman</title>
+  <meta name="description" content="A post-process toon shader for Unreal Engine 5 that keeps PBR textures: banded lighting, pencil cross hatching that sticks to surfaces, and ink outlines that thin with distance, in one material.">
+  <!-- Link previews: the card shown when this page is shared -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Paraminder Dhiman">
+  <meta property="og:title" content="Stylized Toon Shader · Paraminder Dhiman">
+  <meta property="og:description" content="A post-process toon shader for Unreal Engine 5 that keeps PBR textures: banded lighting, pencil cross hatching that sticks to surfaces, and ink outlines that thin with distance, in one material.">
+  <meta property="og:url" content="https://paraminder-dhiman.github.io/stylized-toon-shader.html">
+  <meta property="og:image" content="https://paraminder-dhiman.github.io/images/og/stylized-toon-shader.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Stylized Toon Shader: the project&#x27;s tile render">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    /* Light or dark, set before the page draws so it never flashes the wrong colours.
+       A choice made with the switch wins; otherwise follow the device; otherwise dark. */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="stylized-toon-shader">
+
+<div class="sheet">
+
+  <header class="masthead">
+    <a href="index.html">
+      <span class="name">Paraminder Dhiman</span>
+      <span class="role">Technical artist</span>
+    </a>
+  </header>
+
+  <div class="pagehead">
+    <h1>Stylized Toon Shader</h1>
+    <p class="meta">Shader · Unreal Engine 5, HLSL · 2026</p>
+  </div>
+
+  <nav class="rail" aria-label="Pages">
+    <ul class="tiles" id="tiles"></ul>
+    <noscript><p><a href="index.html">About</a></p></noscript>
+  </nav>
+
+  <main>
+    <div class="prose">
+      <p class="lead">A toon shader for Unreal Engine 5 that turns a normal, realistic scene into an illustration without touching a single asset. Lighting falls into clean bands, shadows fill with pencil cross hatching that sticks to surfaces, and ink lines trace every silhouette, thinning as objects move away.</p>
+      <p>It's one post-process material. Textures, normal maps, roughness and metalness all stay intact, because only the light gets stylised, never the surface. It works with Lumen, Virtual Shadow Maps, Substrate and every light type, and it's on <a href="FAB_LINK_HERE" target="_blank" rel="noopener">Fab</a> with four look presets and an overview level.</p>
+    </div>
+
+    <figure>
+      <img src="images/stylized-toon/01-hero.jpg" width="1600" height="900" alt="Six spheres, a cube, a cylinder and a cone on a tiled floor, shaded in flat colour bands with purple shadows, cross hatching on the shadow sides and black ink outlines.">
+    </figure>
+
+    <h2>How it fits together</h2>
+    <div class="prose">
+      <p>Unreal renders the scene as usual. Before glass, particles and depth of field are drawn, the material reads the finished image along with the buffers Unreal keeps for every pixel: surface colour, reflectivity, roughness, normal and depth. From those it rebuilds the image in stages, and each stage hands a named result to the next.</p>
+    </div>
+    <figure class="diagram" role="img" aria-label="Diagram. Unreal's lit image and its surface buffers feed the post-process material. Inside it, the light is extracted, banded, styled in the shadows and recombined with the surface colour and reflections, then a highlight, hatching and outlines are layered on. Per-object stencil flags decide what applies where. Glass, particles and depth of field are drawn afterwards.">
+      <svg viewBox="0 0 780 300" xmlns="http://www.w3.org/2000/svg">
+        <rect class="box" x="20" y="40" width="150" height="70"></rect>
+        <text class="t-title" x="34" y="67">Lit image</text>
+        <text class="t-soft" x="34" y="90">Unreal's normal render</text>
+        <rect class="box" x="20" y="130" width="150" height="90"></rect>
+        <text class="t-title" x="34" y="157">Surface buffers</text>
+        <text class="t-soft" x="34" y="180">colour · reflectivity</text>
+        <text class="t-soft" x="34" y="199">normal · depth · stencil</text>
+
+        <rect class="box" x="215" y="18" width="320" height="264"></rect>
+        <text class="t-title" x="229" y="42">Post-process material</text>
+        <text class="t-soft" x="395" y="42">before DOF</text>
+        <rect class="chip" x="229" y="56" width="292" height="30"></rect>
+        <text x="375" y="76" text-anchor="middle">Extract · image ÷ reflectance</text>
+        <rect class="chip" x="229" y="92" width="292" height="30"></rect>
+        <text x="375" y="112" text-anchor="middle">Band · anti-aliased steps</text>
+        <rect class="chip" x="229" y="128" width="292" height="30"></rect>
+        <text x="375" y="148" text-anchor="middle">Rebuild · colour × bands + reflections</text>
+        <rect class="chip" x="229" y="164" width="292" height="30"></rect>
+        <text x="375" y="184" text-anchor="middle">Highlight · sun from the atmosphere</text>
+        <rect class="chip" x="229" y="200" width="292" height="30"></rect>
+        <text x="375" y="220" text-anchor="middle">Hatching · world-anchored lines</text>
+        <rect class="chip" x="229" y="236" width="292" height="30"></rect>
+        <text x="375" y="256" text-anchor="middle">Outlines · depth, normals, IDs</text>
+
+        <rect class="box" x="585" y="60" width="175" height="62"></rect>
+        <text class="t-title" x="599" y="84">Stencil flags</text>
+        <text class="t-soft" x="599" y="105">per object, opt in</text>
+        <rect class="box" x="585" y="178" width="175" height="62"></rect>
+        <text class="t-title" x="599" y="202">Then Unreal draws</text>
+        <text class="t-soft" x="599" y="223">glass · particles · DOF</text>
+
+        <path class="wire" d="M170 75 H208 M170 175 H190 V75 M535 209 H578 M585 91 H560 V150 H542"></path>
+        <path class="head" d="M215 75 l-7 -3.5 v7 z M585 209 l-7 -3.5 v7 z M535 150 l7 -3.5 v7 z"></path>
+      </svg>
+    </figure>
+    <div class="figure-grid">
+      <figure>
+        <img src="images/stylized-toon/02-extracted-light.jpg" width="800" height="450" alt="The extracted light: the scene with its textures removed, leaving only light and shadow." loading="lazy">
+        <figcaption>Extracted light · scene colour ÷ reflectance</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/02-bands.jpg" width="800" height="450" alt="The light split into three flat bands with soft one-pixel edges." loading="lazy">
+        <figcaption>Bands · three steps, anti-aliased edges</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/02-hatching.jpg" width="800" height="450" alt="The hatching pass on its own: pencil lines in the shadows, world anchored." loading="lazy">
+        <figcaption>Hatching · world anchored, up to three tiers</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/02-lines.jpg" width="800" height="450" alt="The lines pass on its own: thin ink silhouettes around every object." loading="lazy">
+        <figcaption>Lines · silhouettes, creases, object IDs</figcaption>
+      </figure>
+    </div>
+    <h3 class="why">Why it's built this way</h3>
+    <dl class="entries">
+      <div>
+        <dt>Post-process only</dt>
+        <dd>I first planned a pair: a post-process plus a surface material on every asset. A single post-process works on any project without touching its materials, which is what a Fab buyer expects. The cost is that glass and particles aren't in the buffers it reads, so they stay realistic.</dd>
+      </div>
+      <div>
+        <dt>Before depth of field</dt>
+        <dd>The pass runs after opaque lighting and before glass, particles and depth of field. Glass then refracts the already-stylised world, out-of-focus areas blur the lines naturally, and temporal anti-aliasing smooths the lines with the rest of the frame.</dd>
+      </div>
+      <div>
+        <dt>Extract light, don't relight</dt>
+        <dd>A custom shading model would band each light properly, but it needs an engine source build, and a Fab content pack can't ship one. Dividing the image by reflectance keeps every light type, real shadows and Lumen working.</dd>
+      </div>
+      <div>
+        <dt>Named stages</dt>
+        <dd>Every stage ends in a named reroute, like Lighting, BandLevel or HatchMask, and twelve small custom HLSL nodes each do one job. A stage can be read, debugged or replaced without following wires across the graph.</dd>
+      </div>
+    </dl>
+
+    <h2>Pulling the light out</h2>
+    <div class="prose">
+      <p>A toon shader usually needs its own lighting model. In a post-process, the light has already been calculated, so instead the shader takes it back out. Every lit pixel is roughly its surface colour times the light that reached it, plus a reflection. Dividing the image by how much the surface reflects leaves just the light: shadows, light colour and falloff, with the textures gone.</p>
+    </div>
+    <pre class="formula" aria-label="Formula">Lighting = SceneColor ÷ max(Albedo + w × Spec, 0.02)
+Spec     = F0 × A + B                          <span class="c">A and B: Karis' fitted curve, from roughness and N·V</span>
+w        = lerp(0.5, 1, metal)
+metal    = saturate((max(F0) − 0.08) ÷ 0.42)   <span class="c">how metallic, read from the specular colour</span></pre>
+    <div class="prose">
+      <p>Dividing by the surface colour alone isn't enough. Metals have almost no surface colour, and dark materials still reflect a little, so their reflections came out as bright glowing lines on the floor's dark grid. The fix was to divide by the total reflectance: surface colour plus how much the surface reflects at that angle and roughness, using Epic's fitted Fresnel curve. That one change made metals behave and removed the leak.</p>
+    </div>
+    <figure>
+      <img src="images/stylized-toon/03-light-extraction.jpg" width="1600" height="900" alt="The extracted light shown twice. On the left, dividing by surface colour only, the floor's dark grid lines glow. On the right, dividing by total reflectance, they are gone." loading="lazy">
+      <figcaption>Divide by surface colour only, and divide by total reflectance.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>Hatching later exposed a limit of taking light out of a finished image. Seen at a shallow angle, the floor reflects mostly sky, which is far dimmer than the sun. Dividing by the full reflectance assumed the reflection was as bright as the sun, so dark tiles came out too dark, dropped a band and got hatched in full sunlight. That's what the weight w is for: non-metals count only half their reflection, while metals, where reflection is all there is, count all of it.</p>
+    </div>
+    <figure>
+      <img src="images/stylized-toon/07-false-hatching.jpg" width="1600" height="900" alt="The hatching pass on the far floor. On the left, dark checker tiles are hatched in full sun. On the right, with the reflection weight at 0.5, they are clean." loading="lazy">
+      <figcaption>Dark tiles hatched in full sun, and clean with the reflection weight at 0.5.</figcaption>
+    </figure>
+    <h3 class="why">Why it's built this way</h3>
+    <dl class="entries">
+      <div>
+        <dt>Total reflectance, not albedo</dt>
+        <dd>Albedo alone has no answer for metals and shiny dark surfaces, whose light is almost all reflection. Adding the reflectance from the GBuffer's specular colour, roughness and normal accounts for both without a second pass.</dd>
+      </div>
+      <div>
+        <dt>A floor of 0.02</dt>
+        <dd>Near-black albedo would make the division explode into noise. Clamping it keeps the result stable, and the colour is multiplied back by the same clamped value later, so dark textures stay exactly as dark as authored.</dd>
+      </div>
+      <div>
+        <dt>Half the reflection for non-metals</dt>
+        <dd>The extraction can't tell sunlight from a sky reflection. Counting half trades false shadow bands, which show badly, for slightly over-bright surfaces, which never show, because nothing above full light is drawn differently.</dd>
+      </div>
+      <div>
+        <dt>Metalness from the specular colour</dt>
+        <dd>Metals have a specular colour far above the roughly 0.04 of non-metals, so how metallic a pixel is can be read from the same specular colour the reflectance already uses, with no extra buffer read.</dd>
+      </div>
+    </dl>
+
+    <h2>Bands and shadows</h2>
+    <div class="prose">
+      <p>The extracted light is measured by brightness, scaled so that 1.0 means fully lit, and split into steps. Only the brightness is banded, so a warm lamp stays warm. The surface colour is then multiplied back in, which is why every texture survives untouched.</p>
+    </div>
+    <pre class="formula" aria-label="Formula">Y       = dot(Lighting, (0.2126, 0.7152, 0.0722)) ÷ LightRef   <span class="c">brightness, 1 = fully lit</span>
+t       = Y × N − 0.5                                          <span class="c">N bands, 1 to 8</span>
+h       = clamp(Softness ÷ 2, fwidth(t), 0.5)
+Band    = (floor(t) + 1 + smoothstep(0.5 − h, 0.5 + h, frac(t))) ÷ N
+Shade   = lerp(Ambient, 1, Band)
+Hue     = Lighting ÷ max(Y × LightRef, 0.0001)                 <span class="c">the light's colour at brightness 1</span>
+Diffuse = Albedo × Hue × Shade × LightRef</pre>
+    <div class="prose">
+      <p>The first pass exposed a problem the realistic image hid. Lumen's bounce light is slightly noisy, and banding turns every flicker across a threshold into a hard edge, so contact shadows grew hairy fringes. Halving the bounce light and raising Lumen's quality calmed it. The darkest band is then lifted to an ambient level instead of being clipped, and shadows gain saturation rather than turning grey, a painter's trick that all of my references lean on.</p>
+    </div>
+    <figure>
+      <img src="images/stylized-toon/04-first-pass.jpg" width="1600" height="900" alt="Two early versions. On the left, the first toon pass with grainy fringes at the base of the objects. On the right, the calmer version with saturated red and green shadows." loading="lazy">
+      <figcaption>The first toon pass, and the calmer version with saturated shadows.</figcaption>
+    </figure>
+    <h3 class="why">Why it's built this way</h3>
+    <dl class="entries">
+      <div>
+        <dt>Band brightness, not colour</dt>
+        <dd>Banding each colour channel separately would posterise coloured lights into odd hues. Banding brightness and putting the light's own colour back keeps a warm lamp warm and a blue sky fill blue.</dd>
+      </div>
+      <div>
+        <dt>One-pixel edges</dt>
+        <dd>fwidth measures how much the band value changes across one pixel, so even a band softness of zero gives an edge exactly one pixel wide. Hard bands never stair-step, at any resolution.</dd>
+      </div>
+      <div>
+        <dt>Bands above full light</dt>
+        <dd>Light brighter than 1, under a strong point light for example, keeps adding bands instead of clipping, so a bright light still reads as brighter.</dd>
+      </div>
+      <div>
+        <dt>A remap, not a clip</dt>
+        <dd>Clamping the darkest band to an ambient level would merge the lower bands into one. Remapping 0 to 1 onto Ambient to 1 keeps every band distinct.</dd>
+      </div>
+      <div>
+        <dt>Saturated shadows</dt>
+        <dd>Shadows that are only darkened go grey and muddy. Each pixel's shadow amount comes from its band, and saturation and an optional tint are pushed by that amount.</dd>
+      </div>
+    </dl>
+
+    <h2>Reflections and metals</h2>
+    <div class="prose">
+      <p>The image is rebuilt in two parts. The diffuse part is the surface colour times the banded light. The reflection part is the reflectance times a blend of banded and original light, set by a Reflection Detail slider: at 0, chrome turns into flat graphic shapes, and at 1, it keeps full reflection detail. Roughness and metalness stay visible either way.</p>
+    </div>
+    <pre class="formula" aria-label="Formula">BandedReflection = Hue × Band × LightRef   <span class="c">no ambient lift</span>
+Reflection       = Spec × lerp(BandedReflection, Lighting, ReflectionDetail)
+Output           = Diffuse + Reflection</pre>
+    <div class="prose">
+      <p>My first version banded reflections with the same light as the diffuse part, ambient lift included. Lifting the dark parts of a reflection toward grey killed its contrast and made chrome look milky. Reflections now get their own banded light without the lift.</p>
+    </div>
+    <figure>
+      <img src="images/stylized-toon/05-metals.jpg" width="1600" height="900" alt="Two close-ups of the chrome sphere. On the left its reflection is pale and washed out. On the right it has strong darks and clean graphic shapes." loading="lazy">
+      <figcaption>Reflections banded with the ambient lift, and without it.</figcaption>
+    </figure>
+    <div class="prose">
+      <p>On top sits a stylised sun highlight: a hard-edged shape whose size follows roughness, tinted by the metal's own colour and shown only in the lit band. A post-process doesn't know where the lights are, so the sun's direction and colour are read from the Sky Atmosphere. That updates live in the editor and in cinematics, with a manual yaw and pitch for levels without an atmosphere.</p>
+    </div>
+    <h3 class="why">Why it's built this way</h3>
+    <dl class="entries">
+      <div>
+        <dt>Reflection Detail as a slider</dt>
+        <dd>Some styles want graphic, poster-like chrome and others want readable reflections. A blend between banded and original light covers both with one control, and roughness and metalness keep showing in either.</dd>
+      </div>
+      <div>
+        <dt>Sun from the atmosphere</dt>
+        <dd>I planned a helper Blueprint to pass the sun's direction in. Reading it from the Sky Atmosphere in the material updates live in the editor and in Sequencer and needs no setup, with an explicit manual switch instead of guessing when the atmosphere has no sun.</dd>
+      </div>
+      <div>
+        <dt>Highlight only in the lit band</dt>
+        <dd>A hard highlight inside a shadow band reads as a mistake, so the highlight is masked to fully lit pixels.</dd>
+      </div>
+      <div>
+        <dt>Rim on silhouettes</dt>
+        <dd>A standard Fresnel rim lights the whole floor near the horizon. The rim reuses the outline search to light a band inside real silhouettes only. It's off by default, and switched off it costs nothing.</dd>
+      </div>
+    </dl>
+
+    <h2>Hatching</h2>
+    <div class="prose">
+      <p>The hatching is drawn in world space. Each pixel's position is rebuilt from depth, and lines are projected from the three world axes and blended by the surface's direction, so they need no UVs and stay put as the camera moves. Which lines appear comes from the bands: one band below full light gets single lines, deeper bands add crossing sets, so hatch edges line up exactly with band edges. A packed pencil texture breaks up the strokes, and a boil setting redraws them a few times a second, like hand-drawn animation.</p>
+    </div>
+    <pre class="formula" aria-label="Formula">weights   = |N|^Sharpness, normalised                  <span class="c">one projection per world axis</span>
+steps     = (1 − Band) × N                             <span class="c">bands below full light · 1 = single lines, more = crossings</span>
+footprint = one pixel's size along this set of lines   <span class="c">from ddx and ddy of world position</span>
+level     = log2(SpacingPx × footprint ÷ Spacing)
+s0        = Spacing × 2^floor(level),   s1 = 2 × s0,   blended by frac(level)
+d         = |frac(c ÷ s + 0.5) − 0.5| × s              <span class="c">distance to the nearest line</span>
+ink       = saturate((HalfWidth − d) ÷ footprint + 0.5)
+hatch     = max over the three projections</pre>
+    <div class="prose">
+      <p>Line density stays constant on screen. Spacing works in powers of two: when the camera pulls back, every other line fades out, and the lines that stay are the same ones, so nothing slides. The first version was faint and grey for two reasons. On curved surfaces it averaged two projections, drawing both at half strength, and on the floor it treated every surface as if it faced the camera, so the squashed lines on a shallow floor faded to grey to avoid shimmer. Each set of lines now measures how squashed it really is on screen and picks its own spacing, and projections combine by taking the strongest.</p>
+    </div>
+    <figure>
+      <img src="images/stylized-toon/06-hatching.jpg" width="1600" height="900" alt="Three versions of the hatching pass. First, faint grey lines in one direction. Second, solid lines with even spacing. Third, dense cross hatching in the deepest shadows." loading="lazy">
+      <figcaption>The first version, the foreshortening fix, and three crossing tiers in deep shadow.</figcaption>
+    </figure>
+    <h3 class="why">Why it's built this way</h3>
+    <dl class="entries">
+      <div>
+        <dt>Anchored to the world</dt>
+        <dd>Screen-space hatching is cheap but swims over surfaces whenever the camera moves, which reads as a filter laid on top. Lines fixed in world space look drawn on the objects.</dd>
+      </div>
+      <div>
+        <dt>Powers of two</dt>
+        <dd>Halving or doubling the spacing keeps every other line where it was, so as the camera moves, lines fade in and out between existing ones instead of sliding.</dd>
+      </div>
+      <div>
+        <dt>A footprint per set of lines</dt>
+        <dd>One pixel covers much more floor along the view direction than across it. Measuring the footprint along each set's own direction keeps lines on a shallow floor crisp instead of grey.</dd>
+      </div>
+      <div>
+        <dt>Strongest projection wins</dt>
+        <dd>Averaging the three projections drew overlapping lines at half strength. Taking the strongest keeps ink solid, at the price of a little extra crossing where projections meet.</dd>
+      </div>
+      <div>
+        <dt>Grain at both octaves</dt>
+        <dd>The pencil texture is sampled at both spacings and blended the same way as the lines, with its mip level chosen by hand, so the grain neither pops nor shimmers when the spacing changes.</dd>
+      </div>
+    </dl>
+
+    <h2>Outlines</h2>
+    <div class="prose">
+      <p>A silhouette is a jump in depth. Comparing neighbouring depths fails on floors seen at a low angle, where depth grows fast with no edge at all. Instead, each pixel predicts the plane its surface lies on and draws a line only where a nearby pixel is clearly farther than that prediction. The prediction works in one over depth, which changes in a straight line across any flat surface on screen, so floors and walls at any angle produce no false lines.</p>
+    </div>
+    <pre class="formula" aria-label="Formula">i      = 1 ÷ depth                   <span class="c">linear across any flat surface on screen</span>
+gx, gy = slope of i, from the gentler side of each axis
+iP     = i0 + gx × ox + gy × oy      <span class="c">predicted at an offset (ox, oy)</span>
+edge   = iS &lt; iP × (1 − Threshold)   <span class="c">8 directions per ring, rings out to the width</span>
+t      = smoothstep(saturate(log(dist ÷ Near) ÷ log(Far ÷ Near)))
+W      = lerp(WidthNear, WidthFar, t) × ScreenHeight ÷ 1080
+ink    = edge × saturate(W)          <span class="c">lines under a pixel fade instead of breaking up</span></pre>
+    <div class="prose">
+      <p>Width is set in pixels at 1080p and scaled to the real resolution. It thins between a near and a far distance on a log scale, so going from 3 to 6 metres changes the width as much as going from 30 to 60, and it's clamped at both ends. Crease lines come from the same search: where surface normals turn sharper than a set angle, a thinner line is drawn centred on the edge, which also closes the gap where objects meet the floor.</p>
+    </div>
+    <figure>
+      <img src="images/stylized-toon/08-outlines.jpg" width="1600" height="900" alt="The lines pass on the cube and cylinder. On the left, silhouettes only, with no line down the cube's front corner. On the right, crease lines are added on every sharp edge and at the base." loading="lazy">
+      <figcaption>Silhouettes only, and with crease lines.</figcaption>
+    </figure>
+    <h3 class="why">Why it's built this way</h3>
+    <dl class="entries">
+      <div>
+        <dt>Depth plane test</dt>
+        <dd>A plain depth difference needs a threshold that's either too loose for floors or too tight for small steps. Predicting each pixel's plane gives exact predictions on flat surfaces, so silhouettes need only one threshold and floors never get false lines.</dd>
+      </div>
+      <div>
+        <dt>The gentler side</dt>
+        <dd>A pixel right at an edge would measure its slope across the gap. Taking the gentler of its two neighbours on each axis makes it measure its own surface.</dd>
+      </div>
+      <div>
+        <dt>Lines on the near side</dt>
+        <dd>A line is drawn on the pixel whose neighbour is farther, so it belongs to the object in front, which is where an illustrator would put it.</dd>
+      </div>
+      <div>
+        <dt>Rings, rotated</dt>
+        <dd>The search checks rings of 8 samples out to the line width, with every other ring turned 22.5 degrees so wide lines have no gaps. It's capped at 16 pixels and stops as soon as a pixel is fully inked.</dd>
+      </div>
+      <div>
+        <dt>1080p pixels, log distance</dt>
+        <dd>Widths in 1080p pixels look the same at 4K. A log scale makes the thinning feel even to the eye, where a linear blend would thin everything close to the camera and then barely change.</dd>
+      </div>
+    </dl>
+
+    <h2>Per-object control</h2>
+    <div class="prose">
+      <p>Any actor can opt out of parts of the effect through its Custom Stencil value. The values are flags, added together, so one number sets several switches. Nothing changes unless an artist tags an object, which matters for a product dropped into other people's projects.</p>
+    </div>
+    <dl class="entries">
+      <div><dt>1</dt><dd>No toon shading. The object keeps realistic lighting but can still be outlined.</dd></div>
+      <div><dt>2</dt><dd>No hatching.</dd></div>
+      <div><dt>4</dt><dd>No outlines.</dd></div>
+      <div><dt>8</dt><dd>Foliage: thinner lines and no creases, so leaves don't turn into a tangle of ink.</dd></div>
+      <div><dt>16 to 240</dt><dd>Object ID. A line is drawn wherever two different IDs meet, even where they touch with no depth gap or angle, like a hand holding a prop.</dd></div>
+    </dl>
+    <h3 class="why">Why it's built this way</h3>
+    <dl class="entries">
+      <div>
+        <dt>Stencil flags</dt>
+        <dd>One stencil value per actor holds several switches and an object ID, so mixing realistic and toon objects, foliage and touching props needs no extra materials and no changes to anyone's assets.</dd>
+      </div>
+    </dl>
+
+    <h2>Presets</h2>
+    <div class="figure-grid">
+      <figure>
+        <img src="images/stylized-toon/09-default.jpg" width="800" height="450" alt="The Default preset: bands, cross hatching and black ink lines." loading="lazy">
+        <figcaption>Default · bands, cross hatching, ink lines</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/09-cel.jpg" width="800" height="450" alt="The Cel preset: two bands, a rim light and no hatching." loading="lazy">
+        <figcaption>Cel · two bands, rim light, no hatching</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/09-painterly.jpg" width="800" height="450" alt="The Painterly preset: soft bands and coloured lines." loading="lazy">
+        <figcaption>Painterly · soft bands, coloured lines</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/09-sketch.jpg" width="800" height="450" alt="The Sketch preset: pencil hatching and a grey palette." loading="lazy">
+        <figcaption>Sketch · pencil hatching, grey palette</figcaption>
+      </figure>
+    </div>
+
+    <h2>Material graph and parameters</h2>
+    <div class="split wide">
+      <div class="prose">
+        <p>The graph uses named reroutes, so every signal has a name, like Lighting, BandLevel or HatchMask, and wires never cross the graph. The heavy lifting sits in twelve small custom HLSL nodes, each doing one job, and everything an artist would tune is a parameter, grouped in pipeline order with a tooltip on each.</p>
+        <p>A Debug View parameter shows any stage on its own: the extracted light, a calibration view that marks anything above full light in red, the bands, reflectance, the sun direction, the highlight, the hatching, the lines and the rim. It made every problem on this page visible, and it doubles as a breakdown tool for anyone using the shader.</p>
+      </div>
+      <figure>
+        <img src="images/stylized-toon/11-parameters.png" width="743" height="1231" alt="The material instance's parameter panel, grouped into Debug, Light Extraction, Bands, Shadows, Reflections, Specular, Hatching and Outlines." loading="lazy">
+      </figure>
+    </div>
+    <div class="figure-grid">
+      <figure>
+        <img src="images/stylized-toon/10-calibration.jpg" width="800" height="450" alt="The light calibration view: anything above full light is marked in red." loading="lazy">
+        <figcaption>Light calibration · red is above full light</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/10-reflectance.jpg" width="800" height="450" alt="The reflectance view: Fresnel from roughness and specular colour, in greys." loading="lazy">
+        <figcaption>Reflectance · Fresnel from roughness and F0</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/10-sun-direction.jpg" width="800" height="450" alt="The sun direction as simple shading on white objects." loading="lazy">
+        <figcaption>Sun direction · read live from the Sky Atmosphere</figcaption>
+      </figure>
+      <figure>
+        <img src="images/stylized-toon/10-highlight.jpg" width="800" height="450" alt="The stylised highlight on its own: small hard-edged white shapes on black." loading="lazy">
+        <figcaption>Stylized highlight · hard edged, sized by roughness</figcaption>
+      </figure>
+    </div>
+
+    <h2>Performance</h2>
+    <div class="prose">
+      <p>The whole pass measured 0.17 ms at about 1.3 million pixels on my machine, roughly 0.5 ms at 1440p and 1.1 ms at 4K. The outline search stops as soon as a pixel is fully inked and is capped at 16 pixels, hatch projections with almost no weight are skipped, and features that are switched off skip their texture reads.</p>
+    </div>
+
+    <h2>Known limits</h2>
+    <div class="prose">
+      <p>Glass and particles render realistically on top of the toon world. Hatching is anchored to the world, so on a moving, textured character the surface slides under the lines; boil hides most of it. Very dark textures under strong reflections can still drop a band, and they're best checked with the calibration view.</p>
+    </div>
+
+    <h2>Credit</h2>
+    <div class="prose">
+      <p>Built by me in Unreal Engine 5.8, node by node, as a project to learn Unreal's post-process pipeline. The shader maths and HLSL were developed with AI assistance, and every step was wired, tested and tuned by me in the editor.</p>
+    </div>
+  </main>
+
+  <div class="foot-place">© 2026 Paraminder Dhiman</div>
+
+  <footer class="foot-note">
+    <span class="egg-side">Made with <span class="heart">♥</span> in Pune, India</span>
+    <button class="egg-dot" type="button" aria-label="A very small black hole"></button>
+    <span class="egg-side">No polygons were harmed</span>
+  </footer>
+
+</div>
+
+<script src="js/projects.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
