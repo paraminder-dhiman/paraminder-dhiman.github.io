@@ -790,6 +790,25 @@ h3.sub { margin-top: 44px; }
 .note-meta { font-size: 15px; color: var(--muted) !important; margin-bottom: 8px !important; }
 @media (max-width: 760px) { .notes.versus { gap: 14px; } }
 
+/* Text beside a tall panel screenshot. The text column also carries what follows, such as a grid of
+   images or a numbered tour of the panel, so the space beside the screenshot is filled. */
+.side-shot { display: grid; grid-template-columns: minmax(0, 1fr) max-content; gap: 36px; align-items: start; max-width: var(--column); margin: 0 0 28px; }
+.side-shot .panel-shot { margin: 4px 0 0; }
+.side-shot .panel-shot img { display: block; width: 246px; height: auto; }
+.side-shot .panel-shot.wide img { width: 380px; }
+.side-shot .prose p { margin: 0 0 16px; }
+.figure-grid.tight { margin: 22px 0 0; }
+.side-shot h3.sub { margin-top: 0; }
+.tour { list-style: none; counter-reset: tour; margin: 4px 0 18px; padding: 0; }
+.tour li { counter-increment: tour; position: relative; padding: 10px 0 10px 44px; border-top: 1px solid var(--hair); color: var(--soft); }
+.tour li:last-child { border-bottom: 1px solid var(--hair); }
+.tour li::before { content: counter(tour); position: absolute; left: 0; top: 11px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--accent); color: var(--accent); font-size: 14px; }
+.tour b { display: block; font-weight: 500; color: var(--text); }
+@media (max-width: 760px) {
+  .side-shot { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .side-shot .panel-shot img, .side-shot .panel-shot.wide img { max-width: 100%; }
+}
+
 /* Desktop at 90%, like the rest of the site. */
 @media (min-width: 761px) {
   .pull { font-size: 21px; }
@@ -799,6 +818,8 @@ h3.sub { margin-top: 44px; }
   .sw { font-size: 13.5px; }
   .sw em, .sw-label { font-size: 12px; }
   .specimen { font-size: 36px; }
+  .side-shot .panel-shot img { width: 221px; }
+  .side-shot .panel-shot.wide img { width: 342px; }
   .result-label { font-size: 12px; }
   .steps li::before { font-size: 16px; }
 }

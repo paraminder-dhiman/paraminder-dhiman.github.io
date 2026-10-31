@@ -386,16 +386,13 @@ ink    = edge × saturate(W)          <span class="c">lines under a pixel fade i
     </div>
 
     <h2>Material graph and parameters</h2>
-    <div class="split wide">
-      <div class="prose">
+    <div class="side-shot">
+      <div>
+        <div class="prose">
         <p>The graph uses named reroutes, so every signal has a name, like Lighting, BandLevel or HatchMask, and wires never cross the graph. The heavy lifting sits in twelve small custom HLSL nodes, each doing one job, and everything an artist would tune is a parameter, grouped in pipeline order with a tooltip on each.</p>
         <p>A Debug View parameter shows any stage on its own: the extracted light, a calibration view that marks anything above full light in red, the bands, reflectance, the sun direction, the highlight, the hatching, the lines and the rim. It made every problem on this page visible, and it doubles as a breakdown tool for anyone using the shader.</p>
       </div>
-      <figure>
-        <img src="images/stylized-toon/11-parameters.png" width="743" height="1231" alt="The material instance's parameter panel, grouped into Debug, Light Extraction, Bands, Shadows, Reflections, Specular, Hatching and Outlines." loading="lazy">
-      </figure>
-    </div>
-    <div class="figure-grid">
+    <div class="figure-grid tight">
       <figure>
         <img src="images/stylized-toon/10-calibration.jpg" width="800" height="450" alt="The light calibration view: anything above full light is marked in red." loading="lazy">
         <figcaption>Light calibration · red is above full light</figcaption>
@@ -412,6 +409,9 @@ ink    = edge × saturate(W)          <span class="c">lines under a pixel fade i
         <img src="images/stylized-toon/10-highlight.jpg" width="800" height="450" alt="The stylised highlight on its own: small hard-edged white shapes on black." loading="lazy">
         <figcaption>Stylized highlight · hard edged, sized by roughness</figcaption>
       </figure>
+    </div>
+      </div>
+      <figure class="panel-shot wide"> <img src="images/stylized-toon/11-parameters.png" width="743" height="1231" alt="The material instance's parameter panel, grouped into Debug, Light Extraction, Bands, Shadows, Reflections, Specular, Hatching and Outlines." loading="lazy"> </figure>
     </div>
 
     <h2>Performance</h2>

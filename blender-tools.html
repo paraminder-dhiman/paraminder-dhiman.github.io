@@ -77,15 +77,19 @@
       <img src="images/blender-tools/positive-mirror-transforms.png" width="1228" height="370" alt="The Transform panels of the source and the copy side by side. The copy's X location and its Y and Z rotations are mirrored, and its scale is 2.573 on every axis, the same positive value as the source." loading="lazy">
       <figcaption>Source and copy. The copy's location and rotation are mirrored, its scale stays positive, and its transform is locked because the constraints drive it.</figcaption>
     </figure>
-    <h3 class="sub">A live link without a handler</h3>
-    <p class="sub-text">My first version kept copies in sync with a depsgraph handler. The extensions review flagged that as a risk to stability and performance, so I rebuilt the link with Blender's own constraints. Copy Location inverts the plane axis, Copy Rotation inverts the other two, and Copy Scale keeps the scale. When the Flip Axis differs from the plane axis, a Transformation constraint adds a fixed half turn. Blender evaluates all of it natively, and copies keep following even with the add-on disabled.</p>
-    <div class="split wide">
-      <div class="prose">
-        <p>For a mirror across X, the copy gets three constraints targeting the source: Copy Location with X inverted, Copy Rotation with Y and Z inverted, and Copy Scale as it is. That's the same result as the quaternion rule for an X mirror, keeping x and w and negating y and z, but worked out by Blender every frame instead of by Python.</p>
+    <div class="side-shot">
+      <div>
+        <h3 class="sub">A live link without a handler</h3>
+        <div class="prose"><p>My first version kept copies in sync with a depsgraph handler. The extensions review flagged that as a risk to stability and performance, so I rebuilt the link with Blender's own constraints. Copy Location inverts the plane axis, Copy Rotation inverts the other two, and Copy Scale keeps the scale. When the Flip Axis differs from the plane axis, a Transformation constraint adds a fixed half turn. Blender evaluates all of it natively, and copies keep following even with the add-on disabled.</p></div>
+        <div class="prose"><p>For a mirror across X, the copy gets three constraints, each targeting the source in world space:</p></div>
+        <ol class="tour">
+          <li><b>Copy Location</b>With X inverted, so the copy sits on the other side of the plane.</li>
+          <li><b>Copy Rotation</b>With Y and Z inverted, which mirrors the rotation.</li>
+          <li><b>Copy Scale</b>Kept as it is, so the scale stays positive.</li>
+        </ol>
+        <div class="prose"><p>That's the same result as the quaternion rule for an X mirror, keeping x and w and negating y and z, but worked out by Blender every frame instead of by Python.</p></div>
       </div>
-      <figure>
-        <img src="images/blender-tools/positive-mirror-constraints.png" width="628" height="1058" alt="The copy's constraint stack: Positive Mirror Copy Location with Invert X, Positive Mirror Copy Rotation with Invert Y and Z, and Positive Mirror Copy Scale, all targeting Suzanne in world space.">
-      </figure>
+      <figure class="panel-shot wide"><img src="images/blender-tools/positive-mirror-constraints.png" width="628" height="1058" alt="The copy's constraint stack: Positive Mirror Copy Location with Invert X, Positive Mirror Copy Rotation with Invert Y and Z, and Positive Mirror Copy Scale, all targeting Suzanne in world space."></figure>
     </div>
     <div class="notes three">
       <div>
