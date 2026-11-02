@@ -75,7 +75,7 @@ const PROJECTS = [
     scale: 3,
     year: 2026,
     pin: 3,
-    status: "draft",
+    status: "live",
   },
   {
     id: "unravel",
