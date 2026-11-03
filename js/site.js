@@ -193,6 +193,13 @@
     });
   }
 
+  // A filled shape with an outline, like a sparkle or a dot: its outline traces in with the other lines,
+  // and its fill only appears once the whole tile has drawn.
+  function hasFill(s) {
+    var f = s.getAttribute("fill"), st = s.getAttribute("stroke");
+    return f && f !== "none" && st !== "none";
+  }
+
   // Set every line to "not drawn yet", then let the CSS transition draw it.
   function draw(svg, duration, startDelay) {
     startDelay = startDelay || 0;
@@ -205,8 +212,13 @@
       s.style.strokeDashoffset = len + 4;
       s.getBoundingClientRect();                      // apply the starting state before animating
       var delay = startDelay + (i / shapes.length) * duration * 0.35;   // later lines start a little later
-      s.style.transition = "stroke-dashoffset " + duration * 0.65 + "ms ease-out " + delay + "ms";
+      var fill = hasFill(s);
+      if (fill) s.style.fillOpacity = 0;
+      s.getBoundingClientRect();
+      s.style.transition = "stroke-dashoffset " + duration * 0.65 + "ms ease-out " + delay + "ms" +
+        (fill ? ", fill-opacity 300ms ease-out " + (startDelay + duration) + "ms" : "");
       s.style.strokeDashoffset = 0;
+      if (fill) s.style.fillOpacity = 1;
     });
     if (svg.hasAttribute("data-bubble")) bubble(svg, { duration: duration, delay: startDelay });
   }
@@ -223,8 +235,11 @@
       s.style.strokeDashoffset = 0;
       s.getBoundingClientRect();
       var delay = ((n - 1 - i) / n) * duration * 0.35;
-      s.style.transition = "stroke-dashoffset " + duration * 0.65 + "ms ease-in " + delay + "ms";
+      var fill = hasFill(s);
+      s.style.transition = "stroke-dashoffset " + duration * 0.65 + "ms ease-in " + delay + "ms" +
+        (fill ? ", fill-opacity 150ms ease-in 0ms" : "");
       s.style.strokeDashoffset = len + 4;
+      if (fill) s.style.fillOpacity = 0;
     });
     if (svg.hasAttribute("data-bubble")) bubble(svg, { duration: duration, reverse: true });
   }
@@ -814,6 +829,52 @@
       frame.allowFullscreen = true;
       link.parentNode.replaceChild(frame, link);
     });
+  });
+
+  // A divider to drag between two images. The slider underneath does the work, so it also moves with the
+  // arrow keys and is read out by screen readers.
+  Array.prototype.forEach.call(document.querySelectorAll(".compare-slider"), function (fig) {
+    var input = fig.querySelector("input[type=range]");
+    if (!input) return;
+    function set() { fig.style.setProperty("--pos", input.value + "%"); }
+    input.addEventListener("input", set);
+    set();
+  });
+
+  // A tile's line art shown on a page. It draws in when it scrolls into view. Hovering it (or tapping it
+  // on a touch screen) fades the render in underneath while the lines draw again over it, to show that
+  // they land exactly on the shapes.
+  Array.prototype.forEach.call(document.querySelectorAll(".line-demo"), function (fig) {
+    var img = fig.querySelector("img.demo-line");
+    if (!img) return;
+    var still = reduceMotion || location.protocol === "file:";
+    function on() {
+      fig.classList.add("is-on");
+      var svg = fig.querySelector("svg");
+      if (svg && !still) draw(svg, REDRAW_TIME);
+    }
+    function off() { fig.classList.remove("is-on"); }
+    fig.addEventListener("mouseenter", on);
+    fig.addEventListener("mouseleave", off);
+    fig.addEventListener("focus", on);
+    fig.addEventListener("blur", off);
+    if (window.matchMedia && window.matchMedia("(hover: none)").matches) {
+      fig.addEventListener("click", function () { if (fig.classList.contains("is-on")) off(); else on(); });
+    }
+    if (still) return;
+    img.style.visibility = "hidden";
+    inlineSvg(img).then(function (svg) {
+      if (!svg) return;
+      svg.style.visibility = "hidden";
+      if (!("IntersectionObserver" in window)) { svg.style.visibility = ""; return; }
+      var seen = new IntersectionObserver(function (entries) {
+        if (!entries[0].isIntersecting) return;
+        seen.disconnect();
+        svg.style.visibility = "";
+        draw(svg, DRAW_TIME);
+      }, { threshold: 0.5 });
+      seen.observe(fig);
+    }).catch(function () { img.style.visibility = ""; });
   });
 
   // Screen recordings on a page play silently on a loop. With reduced motion asked for, they stay on their still frame.

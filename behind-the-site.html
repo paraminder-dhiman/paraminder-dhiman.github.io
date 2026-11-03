@@ -58,7 +58,7 @@
     </div>
 
     <figure>
-      <img src="images/behind-the-site/tiles-grid-dark.jpg" data-themed width="1600" height="1101" alt="A selection of tiles, each twice, its line art beside its 3D render. Me: About and Contact. Tech art: Black Hole · UE, Toon Shader · UE and Unravel. Beyond tech art: Home Server, Video Editing and Behind the Site.">
+      <img src="images/behind-the-site/tiles-grid-dark.jpg" data-themed width="1600" height="1101" alt="A selection of tiles, each twice, its line art beside its 3D render. Me: About and Contact. Tech art: Black Hole · Blender, Toon Shader · UE and Unravel. Beyond tech art: Home Server, Video Editing and Behind the Site.">
       <figcaption>A few tiles from each group, as line art and as the render you see on hover.</figcaption>
     </figure>
 
@@ -78,8 +78,11 @@
         <p>The switch in the header swaps one set of colours for another. The light theme uses a soft off-white rather than stark white, and a deeper teal, because the dark theme's teal is too pale to read on a light page.</p>
         <p>The site opens in whatever the device is set to, remembers a choice on every page after it, and sets the theme before anything is drawn, so a page never flashes the wrong colours.</p>
       </div>
-      <figure>
-        <img src="images/behind-the-site/themes.jpg" width="1600" height="955" alt="The Black Hole Shader page split diagonally: the left part in the dark theme, slate with off-white text, and the right part in the light theme, off-white with deep slate text.">
+      <figure class="compare-slider" style="--pos: 50%">
+        <img src="images/behind-the-site/themes-dark.jpg" width="1600" height="956" alt="The Black Hole Shader page in the dark theme: slate background with off-white text.">
+        <img class="slider-top" src="images/behind-the-site/themes-light.jpg" width="1600" height="956" alt="The same page in the light theme: off-white background with deep slate text.">
+        <span class="slider-handle" aria-hidden="true"></span>
+        <input type="range" min="0" max="100" value="50" step="0.5" aria-label="Move the divider between the dark and light theme">
       </figure>
     </div>
 
@@ -169,7 +172,7 @@
     <h2>Projects from one list</h2>
     <p class="pull">Every project is one entry in one list, and everything that shows a project is built from it.</p>
 
-    <p class="sub-text">Adding a project is one edit. The entry below is all it takes for the Toon Shader to get its tile in the rail, its place in the phone menu and its row in the work list on the About page, once its status is set to live.</p>
+    <p class="sub-text">Adding a project is one edit. The entry below is all it takes for the Toon Shader to get its tile in the rail, its place in the phone menu and its row in the work list on the About page.</p>
     <div class="code-result">
       <pre class="formula" aria-label="The Stylized Toon Shader entry in the project list">{
   id:     "stylized-toon-shader",   <span class="c">the page, and the tile's files</span>
@@ -180,7 +183,7 @@
   scale:  3,                        <span class="c">used for sorting</span>
   year:   2026,
   pin:    3,
-  status: "live",                  <span class="c">live, draft or planned</span>
+  status: "live",                   <span class="c">live, draft or planned</span>
 }</pre>
       <div class="result">
         <figure class="result-tile">
@@ -295,19 +298,33 @@
         <p>The line art isn't edge detection on the image. Each tile lists what to draw by object name, and those real 3D points are projected through the render camera into a clean SVG. Laid over the render, it lands exactly on the shapes.</p>
         <p>It's saved on every F12, so it always matches the scene as it is, and moving something can never leave the two out of step.</p>
       </div>
-      <figure><img src="images/behind-the-site/lines-over-render.jpg" width="600" height="600" alt="The Toon Shader tile's render with its white line art drawn on top, every line sitting on the edge it traces." class="square"></figure>
+      <div>
+        <figure class="line-demo" tabindex="0" aria-label="The Toon Shader tile's line art. Hover or tap it to show the render underneath.">
+          <img class="demo-render" src="tiles/stylized-toon-shader-dark.jpg" data-themed alt="The Toon Shader tile's render.">
+          <img class="demo-line tile-line" src="tiles/stylized-toon-shader-dark.svg" data-themed alt="">
+        </figure>
+        <p class="line-demo-caption">Hover the drawing to see the render under it.</p>
+      </div>
     </div>
 
     <div class="feature flip">
       <div class="feature-text">
         <h3>From sketch to tile</h3>
-        <p>New tiles start as quick flat sketches in the browser, where layouts and colours are cheap to try. The one I pick becomes the build script, and the render is checked against the sketch.</p>
+        <p>New tiles start as quick flat sketches in the browser, where layouts and colours are cheap to try. The Toon tile went through more than thirty before one stuck. The one I pick becomes the build script, and the render is checked against the sketch.</p>
       </div>
       <div class="compare cols">
         <figure><span class="result-label">Sketch</span><img src="images/behind-the-site/toon-sketch.jpg" width="600" height="600" alt="A flat sketch of the Toon Shader tile: four shapes on a plate split into quarters, with purple outlines."></figure>
         <figure><span class="result-label">Render</span><img src="images/behind-the-site/toon-final.jpg" width="600" height="600" alt="The final Toon Shader tile: the same layout, rendered, with orange, purple and cyan glowing outlines."></figure>
       </div>
     </div>
+
+    <div class="compare four">
+      <figure><span class="result-label">Split sphere</span><img src="images/behind-the-site/sketch-split.jpg" width="600" height="600" alt="A sketch of a sphere split down the middle, realistic on one side and toon on the other." loading="lazy"></figure>
+      <figure><span class="result-label">Passes pulled apart</span><img src="images/behind-the-site/sketch-layers.jpg" width="600" height="600" alt="A sketch of the shader's stages as stacked transparent layers above a sphere." loading="lazy"></figure>
+      <figure><span class="result-label">One sphere</span><img src="images/behind-the-site/sketch-one.jpg" width="600" height="600" alt="A sketch of a single toon sphere with a sparkle on its highlight." loading="lazy"></figure>
+      <figure><span class="result-label">A sphere per look</span><img src="images/behind-the-site/sketch-four.jpg" width="600" height="600" alt="A sketch of four spheres in a cluster, each shaded in a different preset." loading="lazy"></figure>
+    </div>
+    <p class="caption">Sketches tried for the Toon tile before the four-quarter layout.</p>
 
     <div class="notes">
       <div>
