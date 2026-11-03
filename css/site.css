@@ -287,14 +287,23 @@ h2 { margin: 48px 0 10px; font-size: 25px; font-weight: 500; line-height: 1.3; }
 .work .work-group:first-child { padding-top: 12px; }
 
 /* Tools used in a role: highlighted as small tags under the role line. */
-.tools { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+/* Plain labels with no border, so they don't read as buttons. */
+.tools { list-style: none; margin: 0 0 16px; padding: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.tools::before {
+  content: "Tools";
+  content: "Tools" / "";                       /* the list already has a label for screen readers */
+  margin-right: 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
 .tools li {
-  padding: 3px 11px;
-  font-size: 15px;
-  line-height: 1.5;
-  color: var(--accent-hi);
+  padding: 1px 8px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: var(--muted);
   background: var(--tint);
-  border: 1px solid var(--tint-line);
 }
 
 /* The short contact line at the end of every page. */
@@ -637,7 +646,9 @@ code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-siz
   .work .w-title { font-size: 18px; }
   .work .w-meta, .section-meta, .role-block .meta, .prose .sibling,
   figcaption, .caption, .contact-button { font-size: 14.5px; }
-  .tools li, .contact-hint, .foot-note { font-size: 13.5px; }
+  .tools li { font-size: 12.5px; }
+  .contact-hint, .foot-note { font-size: 13.5px; }
+  .tools::before { font-size: 11px; }
   .role-block h3 { font-size: 19px; }
   .entries > div { grid-template-columns: 180px minmax(0, 1fr); gap: 4px 25px; padding: 12px 0; }
   .split figure img { width: 221px; }

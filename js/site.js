@@ -791,6 +791,29 @@
     }
   }
 
+  // ----- Keep the rail where it was between pages.
+  // The rail scrolls on its own, and each page load would start it from the top again. Its scroll
+  // position is saved as a page is left and put back on the next page, for this visit only.
+  // On the first page of a visit, the current page's tile is scrolled into view instead.
+  var railBox = rail ? rail.closest(".rail") : null;
+  if (railBox) {
+    var RAIL_KEY = "rail-scroll";
+    var saved = null;
+    try { saved = sessionStorage.getItem(RAIL_KEY); } catch (e) {}
+    if (saved !== null) {
+      railBox.scrollTop = Number(saved);
+    } else {
+      var here = rail.querySelector(".tile[aria-current]");
+      if (here) {
+        var box = railBox.getBoundingClientRect(), tileBox = here.getBoundingClientRect();
+        if (tileBox.bottom > box.bottom) railBox.scrollTop += tileBox.bottom - box.bottom + 24;
+      }
+    }
+    window.addEventListener("pagehide", function () {
+      try { sessionStorage.setItem(RAIL_KEY, String(railBox.scrollTop)); } catch (e) {}
+    });
+  }
+
   // ----- Keyboard scrolling in the fixed frame.
   // On larger screens only the content area scrolls, so the arrow keys, Page Down and Space
   // need it focused. Focusing it quietly on load does that without moving anything.
