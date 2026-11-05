@@ -125,7 +125,7 @@
     <div class="notes grid">
       <div>
         <h3>Hardware</h3>
-        <p>A Ryzen 9 build with an RTX 2070 Super, which handles video encoding in hardware. I moved the server onto it from a small office desktop.</p>
+        <p>A Ryzen 9 5900X with 64 GB of RAM and an RTX 2070 Super, which handles video encoding in hardware. How it moved here from a small office desktop is further down.</p>
       </div>
       <div>
         <h3>Platform</h3>
@@ -157,9 +157,83 @@
       </div>
     </div>
 
+    <h2>Housekeeping service</h2>
+    <p class="pull">A second Python service, written from scratch, whose main job is to move finished files from the server to my workstation without ever losing one.</p>
+    <p class="sub-text">It runs in its own container with its own repository, and works on a loop: every few minutes it checks each job, moves what's ready and reports what it did.</p>
+
+    <figure class="diagram" role="img" aria-label="Diagram of the file hand-off. A job finishes on the server. Once it's released, it's paused and its files are moved to a ready folder. The files wait there until a scheduled script on the workstation picks them up: copy, verify with SHA-256, then delete.">
+      <svg viewBox="0 0 780 120" xmlns="http://www.w3.org/2000/svg">
+        <rect class="box" x="15" y="20" width="156" height="72"></rect>
+        <text class="t-title" x="29" y="45">On the server</text>
+        <text class="t-soft" x="29" y="66">A job finishes</text>
+
+        <rect class="box" x="213" y="20" width="156" height="72"></rect>
+        <text class="t-title" x="227" y="45">Released</text>
+        <text class="t-soft" x="227" y="66">Paused, files moved</text>
+
+        <rect class="chip" x="411" y="20" width="156" height="72"></rect>
+        <text class="t-title" x="425" y="45">Ready folder</text>
+        <text class="t-soft" x="425" y="66">Waits for pickup</text>
+
+        <rect class="box" x="609" y="20" width="156" height="72"></rect>
+        <text class="t-title" x="623" y="45">Workstation</text>
+        <text class="t-soft" x="623" y="66">Copy · verify · delete</text>
+        <text class="t-soft" x="623" y="83">SHA-256 checked</text>
+
+        <path class="wire" d="M171 56 H206 M369 56 H404 M567 56 H602"></path>
+        <path class="head" d="M213 56 l-7 -3.5 v7 z M411 56 l-7 -3.5 v7 z M609 56 l-7 -3.5 v7 z"></path>
+      </svg>
+    </figure>
+
+    <ol class="steps four">
+      <li><b>Tag</b>Ten minutes after a job arrives, it gets a destination: the workstation by default, unless I've already set one by hand.</li>
+      <li><b>Release</b>When the job meets its release condition, the service pauses it, moves its files to a ready folder and clears the job.</li>
+      <li><b>Pick up</b>A scheduled script on the workstation copies each file across, checks it with a SHA-256 hash, and only then deletes the original.</li>
+      <li><b>Report</b>Every action is posted as one line to a private Discord channel through a webhook.</li>
+    </ol>
+
+    <div class="notes three">
+      <div>
+        <h3>Tidying up</h3>
+        <p>Empty folders are removed on a timer, and leftovers older than three days are cleared out.</p>
+      </div>
+      <div>
+        <h3>Backup watch</h3>
+        <p>It raises a flag if no backup has run in eight days.</p>
+      </div>
+      <div>
+        <h3>Weekly digest</h3>
+        <p>Once a week it posts a health report: backup age and copies, disk use, CPU and NVMe temperatures, what's waiting in each ready folder, and the week's counts.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Why it works this way</h3>
+    <div class="notes three">
+      <div>
+        <h3>Pause before moving</h3>
+        <p>A file that's still being written can't be moved half-finished.</p>
+      </div>
+      <div>
+        <h3>Copy, verify, then delete</h3>
+        <p>Every hop checks before it deletes, so no step removes anything it hasn't confirmed arrived.</p>
+      </div>
+      <div>
+        <h3>Dry run first</h3>
+        <p>Cleanup starts in dry-run mode. New deletion rules prove themselves in the logs before they touch a file.</p>
+      </div>
+      <div>
+        <h3>Alerts once a day</h3>
+        <p>A problem is reported at most once a day, so a missing backup drive doesn't flood the channel every five minutes.</p>
+      </div>
+      <div>
+        <h3>Async Python</h3>
+        <p>Built on aiohttp, so several services can be checked in one cycle without one slow reply holding up the rest.</p>
+      </div>
+    </div>
+
     <h2>The Discord bot</h2>
     <div class="prose">
-      <p>Everyone who uses the server is in one Discord server, so I wrote a bot to run the front desk. It's Python with <a href="https://github.com/Rapptz/discord.py" target="_blank" rel="noopener">discord.py</a> and slash commands. Each feature is its own module, loaded automatically at start, and the bot runs as its own container.</p>
+      <p>Everyone who uses the server is in one Discord server, so I wrote a bot to run the front desk. It's Python with <a href="https://github.com/Rapptz/discord.py" target="_blank" rel="noopener">discord.py</a> and slash commands. Each feature is its own module, loaded automatically at start, and the bot runs as its own container. It talks to the other services over the local network, never through their public addresses.</p>
     </div>
 
     <h3 class="sub">Onboarding</h3>
@@ -170,14 +244,30 @@
       <li><b>Login</b>The login details arrive in a direct message. Declining sends the reason instead.</li>
     </ol>
 
+    <h3 class="sub">Requests</h3>
+    <ol class="steps four">
+      <li><b>Ask</b>A member searches for a title and picks it from its posters, with a season picker for shows.</li>
+      <li><b>File</b>The request is filed under the member's own account, not the bot's.</li>
+      <li><b>Approve</b>Admins approve or decline it from a queue.</li>
+      <li><b>Ready</b>The member is tagged in Discord when it's ready to watch.</li>
+    </ol>
+
     <div class="notes three">
       <div>
         <h3>Accounts</h3>
-        <p>Creates streaming accounts with the tier's limits applied, and keeps a map between Discord members and their accounts.</p>
+        <p>Creates streaming accounts with the tier's limits applied, and keeps a JSON map between Discord members and their accounts.</p>
       </div>
       <div>
         <h3>Library</h3>
         <p>Commands for library stats, search and what was added recently.</p>
+      </div>
+      <div>
+        <h3>Server stats</h3>
+        <p>A hardware command shows GPU load and temperature from the graphics driver, and CPU power from the processor's energy counter. Containers can't see that counter, so it's passed in as a single read-only file.</p>
+      </div>
+      <div>
+        <h3>Held back on purpose</h3>
+        <p>A strike system is fully designed, from a warning to an automatic disable that expires after 30 days, but it waits until the server is big enough to need it. Storage warnings were dropped because the platform's own alerts already cover them.</p>
       </div>
       <div>
         <h3>Code</h3>
@@ -185,17 +275,8 @@
       </div>
     </div>
 
-    <h2>Housekeeping service</h2>
-    <p class="sub-text">A second, smaller Python service runs in its own container and looks after jobs between the server and my workstation. Files are handed over in three steps, so nothing is lost if one fails.</p>
-    <ol class="steps">
-      <li><b>Copy</b>The file is copied to the other machine.</li>
-      <li><b>Verify</b>The copy is checked against the original.</li>
-      <li><b>Delete</b>Only then is the original removed.</li>
-    </ol>
-    <p class="sub-text">Every action it takes is posted as one line to a private Discord channel through a webhook. It also raises a flag if no backup has run in eight days.</p>
-
     <h2>Backups</h2>
-    <p class="sub-text">App data and the boot drive are backed up once a week, at a time when I'm home to fix whatever breaks. Seven backups are kept, which covers the last 50 days. I chose weekly over daily because only a few people use the server on any given day.</p>
+    <p class="sub-text">App data and the boot drive are backed up once a week, on Saturday mornings, when I'm home to fix whatever breaks. Seven backups are kept, which covers the last 50 days. I chose weekly over daily because only a few people use the server on any given day.</p>
     <ol class="steps">
       <li><b>Flash drive</b>The weekly backup is written here first.</li>
       <li><b>Second drive</b>Then copied to another drive in the server.</li>
@@ -204,28 +285,72 @@
 
     <h2>Design decisions</h2>
     <p class="pull">Nothing is open to the internet, and everything the server does is written down where I can read it.</p>
+
+    <h3 class="sub">Keeping it safe</h3>
     <div class="notes three">
       <div>
         <h3>No open ports</h3>
         <p>Nothing on the router is opened to the internet. Public pages go out through Cloudflare Tunnels, and admin access is over Tailscale only, so there's nothing to scan or attack from outside.</p>
       </div>
       <div>
+        <h3>Lockout after three tries</h3>
+        <p>Accounts lock after three wrong passwords, which stops password guessing without running a separate blocking tool.</p>
+      </div>
+      <div>
         <h3>One place for the network</h3>
         <p>AdGuard Home is also the DHCP server, so every device's address and every DNS rule live in one place instead of being split with the router.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Keeping it running</h3>
+    <div class="notes three">
+      <div>
+        <h3>Back up, then update</h3>
+        <p>Apps update themselves, but only straight after the weekly backup, so an update that breaks something can be rolled back to that morning.</p>
+      </div>
+      <div>
+        <h3>Clean shutdowns</h3>
+        <p>A UPS tells the server when the power goes out, and it shuts itself down cleanly instead of risking the array.</p>
+      </div>
+      <div>
+        <h3>Logs that survive a crash</h3>
+        <p>A syslog server keeps the system log, so a crash's last messages are still there after the reboot.</p>
+      </div>
+      <div>
+        <h3>Checked every minute</h3>
+        <p>Every service is checked once a minute, so problems show on a status page before anyone using it notices.</p>
+      </div>
+      <div>
+        <h3>Tiers that share fairly</h3>
+        <p>Each tier caps bitrate and sessions, so a few people streaming at once never slows it down for everyone else.</p>
       </div>
       <div>
         <h3>Encode once, direct play everywhere</h3>
         <p>The library is re-encoded once to a format almost every device plays directly. That costs a one-off pass on the graphics card, but means the server rarely transcodes while people watch.</p>
       </div>
+    </div>
+
+    <h3 class="sub">Keeping it simple</h3>
+    <div class="notes">
       <div>
         <h3>Separate services</h3>
-        <p>The Discord bot and the housekeeping service are separate programs, each in its own container and Git repository. Media-facing jobs go to the bot, and jobs between machines go to the housekeeping service, so one can change without risking the other.</p>
+        <p>The Discord bot and the housekeeping service are separate programs, each in its own container and Git repository. Media-facing jobs go to the bot, and jobs between machines go to the housekeeping service, so one can break or restart without the other.</p>
       </div>
       <div>
         <h3>Logs you can read</h3>
         <p>Every automated action is posted as a single line to a private channel, so I can see what happened without opening a terminal. Noisy events are left out on purpose.</p>
       </div>
     </div>
+
+    <h2>Moving to new hardware</h2>
+    <p class="pull">The server started on a small office desktop. Moving it meant planning around people who use it every day.</p>
+    <ol class="steps four">
+      <li><b>Plan</b>A Ryzen 9 5900X, 64 GB of RAM and an RTX 2070 Super, built partly from parts I already had. One memory stick had once failed a test, so every stick was checked.</li>
+      <li><b>Prove it alone</b>The new machine was built and stress-tested on its own first, with three full MemTest86 passes before anything moved.</li>
+      <li><b>Move at once</b>The boot drive, the cache and every array drive moved across in one step, so the server only went down once.</li>
+      <li><b>Fix what broke</b>The new board's security chip changed how the licence is tied to the hardware, and the array wouldn't start. Replacing the key wrote an empty file, and recovering it fixed that. A device limit then blocked the array, solved by upgrading the licence.</li>
+    </ol>
+    <p class="sub-text">The server was back the next day on the new hardware with nothing lost, and video encoding moved to the graphics card.</p>
   </main>
 
   <div class="foot-place">© 2026 Paraminder Dhiman</div>

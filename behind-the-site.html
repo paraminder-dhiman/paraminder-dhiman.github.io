@@ -67,7 +67,7 @@
 
     <ul class="stats" aria-label="The site in numbers">
       <li><b>1</b> font</li>
-      <li><b>1</b> background</li>
+      <li><b>1</b> backdrop</li>
       <li><b>1</b> accent</li>
       <li><b>2</b> themes</li>
     </ul>
@@ -75,32 +75,32 @@
     <div class="feature">
       <div class="feature-text">
         <h3>Light and dark</h3>
-        <p>The switch in the header swaps one set of colours for another. The light theme uses a soft off-white rather than stark white, and a deeper teal, because the dark theme's teal is too pale to read on a light page.</p>
+        <p>The switch in the header swaps one set of colours for another. The dark theme is slate glass over soft slate-blue glows. The light theme is frosted white over a pale blue glow and a warm sand one, rather than stark white, with a deeper teal, because the dark theme's teal is too pale to read on a light page.</p>
         <p>The site opens in whatever the device is set to, remembers a choice on every page after it, and sets the theme before anything is drawn, so a page never flashes the wrong colours.</p>
       </div>
       <figure class="compare-slider" style="--pos: 50%">
-        <img src="images/behind-the-site/themes-dark.jpg" width="1600" height="956" alt="The Black Hole Shader page in the dark theme: slate background with off-white text.">
-        <img class="slider-top" src="images/behind-the-site/themes-light.jpg" width="1600" height="956" alt="The same page in the light theme: off-white background with deep slate text.">
+        <img src="images/behind-the-site/themes-dark.jpg" width="1600" height="956" alt="The Black Hole Shader page in the dark theme: slate glass panels over soft blue glows, with off-white text.">
+        <img class="slider-top" src="images/behind-the-site/themes-light.jpg" width="1600" height="956" alt="The same page in the light theme: frosted white panels with deep slate text.">
         <span class="slider-handle" aria-hidden="true"></span>
         <input type="range" min="0" max="100" value="50" step="0.5" aria-label="Move the divider between the dark and light theme">
       </figure>
     </div>
 
     <h3 class="sub">Colour</h3>
-    <p class="sub-text">Every colour is a variable at the top of one stylesheet, so a change happens in one place. Each pair was checked so text reads as easily in one theme as in the other.</p>
-    <div class="swatches" role="img" aria-label="The site's colours in each theme. Background: #212f3a in dark, #eef0ec in light. Text: #e2e5e1 and #1c2830. Secondary text: #a9b4b6 and #4a575e. Frame: #8a979b and #76838a. Accent: #63c5ce and #145b63. Links: #63c5ce and #0f6f7a.">
+    <p class="sub-text">Every colour is a variable at the top of one stylesheet, so a change happens in one place. Each pair was checked so text reads as easily in one theme as in the other. The panels are glass, so the colour shown is what a panel reads as, and what it turns solid to where glass isn't available.</p>
+    <div class="swatches" role="img" aria-label="The site's colours in each theme. Panels: #212f3a in dark, #eef0ec in light. Text: #e2e5e1 and #1c2830. Secondary text: #a9b4b6 and #4a575e. Frame: #a0afb6 at 34% and #76838a at 38%. Accent: #63c5ce and #145b63. Links: #63c5ce and #0f6f7a.">
       <span class="sw-label">Dark</span>
-      <span class="sw" style="--c:#212f3a"><i></i>Background<em>#212f3a</em></span>
+      <span class="sw" style="--c:#212f3a"><i></i>Panels<em>#212f3a</em></span>
       <span class="sw" style="--c:#e2e5e1"><i></i>Text<em>#e2e5e1</em></span>
       <span class="sw" style="--c:#a9b4b6"><i></i>Secondary<em>#a9b4b6</em></span>
-      <span class="sw" style="--c:#8a979b"><i></i>Frame<em>#8a979b</em></span>
+      <span class="sw" style="--c:rgba(160,175,182,.34); --under:#212f3a"><i></i>Frame<em>#a0afb6 · 34%</em></span>
       <span class="sw" style="--c:#63c5ce"><i></i>Accent<em>#63c5ce</em></span>
       <span class="sw" style="--c:#63c5ce"><i></i>Links<em>#63c5ce</em></span>
       <span class="sw-label">Light</span>
-      <span class="sw" style="--c:#eef0ec"><i></i>Background<em>#eef0ec</em></span>
+      <span class="sw" style="--c:#eef0ec"><i></i>Panels<em>#eef0ec</em></span>
       <span class="sw" style="--c:#1c2830"><i></i>Text<em>#1c2830</em></span>
       <span class="sw" style="--c:#4a575e"><i></i>Secondary<em>#4a575e</em></span>
-      <span class="sw" style="--c:#76838a"><i></i>Frame<em>#76838a</em></span>
+      <span class="sw" style="--c:rgba(118,131,138,.38); --under:#eef0ec"><i></i>Frame<em>#76838a · 38%</em></span>
       <span class="sw" style="--c:#145b63"><i></i>Accent<em>#145b63</em></span>
       <span class="sw" style="--c:#0f6f7a"><i></i>Links<em>#0f6f7a</em></span>
     </div>
@@ -108,19 +108,21 @@
     <div class="feature flip">
       <div class="feature-text">
         <h3>The frame</h3>
-        <p>The page is one grid laid over a sheet of the frame colour, with a 1px gap between its boxes. The lines are that colour showing through the gaps, so every box lines up without a single border drawn by hand.</p>
+        <p>The page sits on a few soft glows, fixed in place so they don't move as you scroll. Over them is one grid of glass panels, each a translucent tint that blurs what's behind it, with a bright hairline along its top edge.</p>
+        <p>The panels have a 1px gap between them, and each one's edge line falls into that gap, so the lines all meet without a border drawn by hand. A fine grain over everything keeps the glows from banding. Where a browser has no glass, or a visitor asks for less transparency, the panels turn solid.</p>
       </div>
-      <figure class="frame-fig" role="img" aria-label="Diagram: a sheet in the frame colour, plus the page's boxes laid on top with small gaps, makes the frame. The gaps are drawn wider than they are.">
+      <figure class="frame-fig" role="img" aria-label="Diagram: the glows, plus the glass panels laid on top with small gaps, make the page. The gaps are drawn wider than they are.">
         <svg viewBox="0 0 560 180">
+          <defs><linearGradient id="fr-glow" x1="0" y1="0" x2="1" y2="1"><stop class="g-a" offset="0"/><stop class="g-base" offset="0.55"/><stop class="g-b" offset="1"/></linearGradient></defs>
           <rect class="fr-sheet" x="0" y="10" width="150" height="130"/>
-          <text x="75" y="166">The sheet</text>
+          <text x="75" y="166">The glows</text>
           <text class="fr-op" x="173" y="82">+</text>
           <g class="fr-box"><rect x="196" y="10" width="38" height="18"/><rect x="240" y="10" width="110" height="18"/><rect x="196" y="34" width="38" height="88"/><rect x="240" y="34" width="110" height="88"/><rect x="196" y="128" width="38" height="12"/><rect x="240" y="128" width="110" height="12"/></g>
-          <text x="273" y="166">The boxes</text>
+          <text x="273" y="166">The glass</text>
           <text class="fr-op" x="373" y="82">=</text>
           <rect class="fr-sheet" x="400" y="10" width="150" height="130"/>
           <g class="fr-fill"><rect x="401" y="11" width="38" height="17"/><rect x="440" y="11" width="109" height="17"/><rect x="401" y="29" width="38" height="98"/><rect x="440" y="29" width="109" height="98"/><rect x="401" y="128" width="38" height="11"/><rect x="440" y="128" width="109" height="11"/></g>
-          <text x="475" y="166">The frame</text>
+          <text x="475" y="166">The page</text>
         </svg>
         <figcaption>The gaps in the middle step are drawn wider than they are, to show them.</figcaption>
       </figure>
@@ -188,7 +190,7 @@
       <div class="result">
         <figure class="result-tile">
           <span class="result-label">In the rail</span>
-          <span class="tile-pair"><img src="tiles/stylized-toon-shader-dark.svg" data-themed alt="The Toon Shader tile's line art"><img src="tiles/stylized-toon-shader-dark.jpg" data-themed alt="The Toon Shader tile's render, shown on hover"></span>
+          <span class="tile-pair"><img class="pair-line" src="tiles/stylized-toon-shader.svg" alt="The Toon Shader tile's line art"><img src="tiles/stylized-toon-shader.webp" alt="The Toon Shader tile's render, shown on hover"></span>
         </figure>
         <div class="result-row">
           <span class="result-label">On the About page</span>
@@ -222,7 +224,7 @@
 
     <h2>Tile pipeline</h2>
     <p class="pull">One script builds the scene, and one render makes everything a tile needs.</p>
-    <figure class="diagram" role="img" aria-label="Diagram of the tile pipeline. A build script creates the scene and saves a Blender file. Pressing F12 renders it. The compositor places the render on the site colour, adds bloom and saves three sizes, while the line art step projects the scene's shapes through the camera and saves an SVG and a PNG. The site shows the line art, and the render on hover.">
+    <figure class="diagram" role="img" aria-label="Diagram of the tile pipeline. A build script creates the scene and saves a Blender file. Pressing F12 renders it. The compositor adds bloom, keeps the background transparent and saves three sizes, while the line art step projects the scene's shapes through the camera and saves one SVG. The site shows the line art, and the render on hover.">
       <svg viewBox="0 0 780 250" xmlns="http://www.w3.org/2000/svg">
         <rect class="box" x="20" y="95" width="130" height="60"></rect>
         <text class="t-title" x="34" y="119">Build script</text>
@@ -234,13 +236,13 @@
 
         <rect class="box" x="350" y="24" width="220" height="90"></rect>
         <text class="t-title" x="364" y="47">Compositor</text>
-        <text class="t-soft" x="364" y="68">Site colour behind · bloom</text>
-        <text class="t-soft" x="364" y="88">2400 · 1200 · 600 images</text>
+        <text class="t-soft" x="364" y="68">Bloom · transparent background</text>
+        <text class="t-soft" x="364" y="88">2400 · 1200 PNG · 600 WebP</text>
 
         <rect class="box" x="350" y="136" width="220" height="90"></rect>
         <text class="t-title" x="364" y="159">Line art</text>
         <text class="t-soft" x="364" y="180">Shapes projected by the camera</text>
-        <text class="t-soft" x="364" y="200">SVG · PNG</text>
+        <text class="t-soft" x="364" y="200">One SVG, coloured by the site</text>
 
         <rect class="box" x="610" y="80" width="150" height="90"></rect>
         <text class="t-title" x="624" y="103">The site</text>
@@ -273,11 +275,11 @@
     </div>
 
     <h3 class="sub">Rendered clear</h3>
-    <p class="sub-text">Each tile renders with a transparent background and a shadow catcher. The compositor lays that one render onto each theme's exact background colour, so the shadows sit on the page in both themes with no visible edge, and a single F12 makes both tiles.</p>
+    <p class="sub-text">Each tile renders with a transparent background and a shadow catcher. The compositor writes the bloom into the transparency as well, so the glow and the shadow both show over whatever sits behind the tile. One image works on the dark glass and the light glass alike, and the site colours the line art to match, so a single F12 makes everything a tile needs.</p>
     <div class="compare three">
       <figure><span class="result-label">The render</span><img src="images/behind-the-site/clear-render.jpg" width="600" height="600" alt="The Toon Shader tile on a grey checkerboard, showing its transparent background and the soft shadow under the plate."></figure>
-      <figure><span class="result-label">Dark tile</span><img src="images/behind-the-site/clear-dark.jpg" width="600" height="600" alt="The same render placed on the dark theme's slate background."></figure>
-      <figure><span class="result-label">Light tile</span><img src="images/behind-the-site/clear-light.jpg" width="600" height="600" alt="The same render placed on the light theme's off-white background."></figure>
+      <figure><span class="result-label">On dark</span><span class="on-theme dark"><img src="tiles/stylized-toon-shader.webp" width="600" height="600" alt="The same tile over the dark theme's slate." loading="lazy"></span></figure>
+      <figure><span class="result-label">On light</span><span class="on-theme light"><img src="tiles/stylized-toon-shader.webp" width="600" height="600" alt="The same tile over the light theme's off-white." loading="lazy"></span></figure>
     </div>
 
     <div class="feature flip">
@@ -300,8 +302,8 @@
       </div>
       <div>
         <figure class="line-demo" tabindex="0" aria-label="The Toon Shader tile's line art. Hover or tap it to show the render underneath.">
-          <img class="demo-render" src="tiles/stylized-toon-shader-dark.jpg" data-themed alt="The Toon Shader tile's render.">
-          <img class="demo-line tile-line" src="tiles/stylized-toon-shader-dark.svg" data-themed alt="">
+          <img class="demo-render" src="tiles/stylized-toon-shader.webp" alt="The Toon Shader tile's render.">
+          <img class="demo-line tile-line" src="tiles/stylized-toon-shader.svg" alt="">
         </figure>
         <p class="line-demo-caption">Hover the drawing to see the render under it.</p>
       </div>

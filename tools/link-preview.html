@@ -7,7 +7,7 @@
 <!--
   Builds the 1200 × 630 card shown when a page of the site is shared on LinkedIn, WhatsApp, Discord or Slack.
 
-  A project card shows the project's tile render (tiles/<id>-dark.jpg) beside its title and meta line,
+  A project card shows the project's tile render (tiles/<id>.webp) beside its title and meta line,
   read from js/projects.js. The site card, used by the About and Contact pages, shows the tiles' line art.
 
   How to make a card
@@ -56,11 +56,20 @@
   var card = document.getElementById("card");
   var live = PROJECTS.filter(function (p) { return p.status === "live"; });
   var project = live.filter(function (p) { return p.id === id; })[0];
-  function themed(file) { return file.replace(/(\.\w+)$/, "-dark$1"); }
+  function tileImage(file) { return file.replace(/\.\w+$/, ".webp"); }
+  function tileLine(file) { return file.replace(/\.\w+$/, ".svg"); }
+  // The line art files are a neutral grey · the card draws them in white, as the dark theme does.
+  function whiteLines() {
+    Array.prototype.forEach.call(card.querySelectorAll(".strip img"), function (img) {
+      fetch(img.src).then(function (r) { return r.text(); }).then(function (text) {
+        img.src = "data:image/svg+xml," + encodeURIComponent(text.replace(/#808d92/g, "#fff"));
+      });
+    });
+  }
 
   if (project) {
     card.innerHTML =
-      '<img class="render" src="../tiles/' + themed(project.image || project.id + ".jpg") + '" alt="">' +
+      '<img class="render" src="../tiles/' + tileImage(project.image || project.id + ".jpg") + '" alt="">' +
       '<div class="text"><div class="who">Paraminder Dhiman · Technical Artist</div>' +
       '<div class="title' + (project.title.length >= 20 ? " long" : "") + '">' + project.title + '</div>' +
       '<div class="meta">' + project.meta + '</div>' +
@@ -73,11 +82,12 @@
     });
     card.innerHTML =
       '<div class="strip">' + order.map(function (p) {
-        return '<div><img src="../tiles/' + themed(p.line || p.id + ".svg") + '" alt=""></div>';
+        return '<div><img src="../tiles/' + tileLine(p.line || p.id + ".svg") + '" alt=""></div>';
       }).join("") + '</div>' +
       '<div class="name"><h1>Paraminder Dhiman</h1><div class="row">' +
       '<div class="role"><b>Technical Artist</b> · Tools, pipelines and shaders</div>' +
       '<div class="url">paraminder-dhiman.github.io</div></div></div>';
+    whiteLines();
   }
 </script>
 </body>

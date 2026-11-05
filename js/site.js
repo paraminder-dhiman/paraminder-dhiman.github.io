@@ -13,10 +13,14 @@
     ["localhost", "127.0.0.1", ""].indexOf(location.hostname) !== -1;
 
   // Light or dark. The page sets it on <html data-theme="..."> before it draws (see each page's <head>).
-  // Images that come in two versions are named name-dark.jpg and name-light.jpg.
+  // The few page images that come in two versions are named name-dark.jpg and name-light.jpg and carry
+  // data-themed. Tiles are one transparent image each and work in both themes.
   var root = document.documentElement;
   function theme() { return root.getAttribute("data-theme") === "light" ? "light" : "dark"; }
   function themed(file) { return file.replace(/(-dark|-light)?(\.\w+)$/, "-" + theme() + "$2"); }
+  // A tile's render is tiles/name.webp, whatever name projects.js gives it (unravel.jpg works too).
+  function tileImage(file) { return file.replace(/(-dark|-light)?\.\w+$/, ".webp"); }
+  function tileLine(file) { return file.replace(/(-dark|-light)?\.\w+$/, ".svg"); }
 
   // The page tells us which tile is "current" through <body data-page="...">.
   var currentPage = document.body.getAttribute("data-page") || "";
@@ -57,13 +61,13 @@
     var box = el("span", "tile-box");
     // The line drawing. A plain image, so it also shows when the page is opened from disk.
     var line = el("img", "tile-line");
-    line.src = "tiles/" + themed(item.line || item.id + ".svg");
+    line.src = "tiles/" + tileLine(item.line || item.id + ".svg");
     line.alt = "";
     box.appendChild(line);
 
     if (item.image) {
       var img = el("img", "tile-img");
-      img.src = "tiles/" + themed(item.image);
+      img.src = "tiles/" + tileImage(item.image);
       img.alt = "";
       img.loading = "lazy";
       box.appendChild(img);
@@ -401,7 +405,7 @@
   // ----- Light and dark switch, in the header.
   // One button that swaps to the other theme. A choice is remembered; until one is made, the site follows
   // the device. The swap is a single crossfade of the whole page, so everything changes at once.
-  var themedImages = "img.tile-img, img.tile-line, img[data-themed]";
+  var themedImages = "img[data-themed]";
   function swapImages() {
     var waits = [];
     Array.prototype.forEach.call(document.querySelectorAll(themedImages), function (img) {
@@ -426,7 +430,7 @@
     if (document.startViewTransition && !reduceMotion) document.startViewTransition(apply);
     else apply();
   }
-  // Images written into the page itself start as -dark; bring them in line with the theme.
+  // Two-version images written into the page start as -dark; bring them in line with the theme.
   swapImages();
   // Fetch the other theme's images once the page has settled, so a swap never has to wait for them.
   window.addEventListener("load", function () {
@@ -863,6 +867,13 @@
     input.addEventListener("input", set);
     set();
   });
+
+  // A tile's line art beside its render on a page · swapped in as SVG so it takes the theme's line colour.
+  if (location.protocol !== "file:") {
+    Array.prototype.forEach.call(document.querySelectorAll(".tile-pair img.pair-line"), function (img) {
+      inlineSvg(img).then(function (svg) { if (svg) svg.setAttribute("class", "tile-line pair-line"); });
+    });
+  }
 
   // A tile's line art shown on a page. It draws in when it scrolls into view. Hovering it (or tapping it
   // on a touch screen) fades the render in underneath while the lines draw again over it, to show that

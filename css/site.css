@@ -27,6 +27,21 @@
   --video-bg: #10181e;                     /* behind a video before it loads */
   --play-bg: rgba(33, 47, 58, 0.82);       /* the play button over a video poster */
   --name-shadow: rgba(0, 0, 0, 0.7);       /* behind tile names that sit on a render */
+
+  /* Glass · the page is a dark slate with soft slate-blue glows, and every panel of the frame is
+     frosted glass over it. --ground stays as the solid colour a panel reads as, for the few things
+     that need a solid colour and for browsers without glass. */
+  --base: #182229;                         /* the page under the glass */
+  --glass: rgba(33, 47, 58, 0.48);         /* a panel */
+  --glass-hi: rgba(255, 255, 255, 0.06);   /* the bright top edge of a panel */
+  --glass-rule: rgba(160, 175, 182, 0.34); /* the frame lines between panels */
+  --menu-glass: rgba(24, 34, 41, 0.84);    /* the phone header and menu · stronger, as content moves under them */
+  --frame-shadow: rgba(0, 0, 0, 0.28);
+  /* the glows · each fades out on an eased curve rather than a straight line, so there's no visible edge */
+  --glows:
+    radial-gradient(1000px 700px at 10% 6%, rgba(120, 150, 185, 0.22) 0%, rgba(120, 150, 185, 0.18) 18%, rgba(120, 150, 185, 0.136) 32%, rgba(120, 150, 185, 0.092) 46%, rgba(120, 150, 185, 0.055) 58%, rgba(120, 150, 185, 0.026) 68%, rgba(120, 150, 185, 0.009) 77%, rgba(120, 150, 185, 0.0) 85%),
+    radial-gradient(900px 640px at 94% 92%, rgba(90, 110, 160, 0.2) 0%, rgba(90, 110, 160, 0.164) 18%, rgba(90, 110, 160, 0.124) 32%, rgba(90, 110, 160, 0.084) 46%, rgba(90, 110, 160, 0.05) 58%, rgba(90, 110, 160, 0.024) 68%, rgba(90, 110, 160, 0.008) 77%, rgba(90, 110, 160, 0.0) 85%),
+    radial-gradient(600px 460px at 62% 34%, rgba(150, 165, 180, 0.1) 0%, rgba(150, 165, 180, 0.082) 18%, rgba(150, 165, 180, 0.062) 32%, rgba(150, 165, 180, 0.042) 46%, rgba(150, 165, 180, 0.025) 58%, rgba(150, 165, 180, 0.012) 68%, rgba(150, 165, 180, 0.004) 77%, rgba(150, 165, 180, 0.0) 85%);
   color-scheme: dark;
 }
 
@@ -49,6 +64,17 @@
   --video-bg: #dde2df;
   --play-bg: rgba(238, 240, 236, 0.88);
   --name-shadow: rgba(238, 240, 236, 0.9);
+  /* frosted white, with a pale blue glow top left and a warm sand glow bottom right */
+  --base: #e3e7e3;
+  --glass: rgba(250, 251, 249, 0.58);
+  --glass-hi: rgba(255, 255, 255, 0.85);
+  --glass-rule: rgba(118, 131, 138, 0.38);
+  --menu-glass: rgba(244, 246, 243, 0.86);
+  --frame-shadow: rgba(40, 55, 65, 0.14);
+  --glows:
+    radial-gradient(1000px 700px at 10% 6%, rgba(140, 175, 195, 0.4) 0%, rgba(140, 175, 195, 0.328) 18%, rgba(140, 175, 195, 0.248) 32%, rgba(140, 175, 195, 0.168) 46%, rgba(140, 175, 195, 0.1) 58%, rgba(140, 175, 195, 0.048) 68%, rgba(140, 175, 195, 0.016) 77%, rgba(140, 175, 195, 0.0) 85%),
+    radial-gradient(900px 640px at 94% 92%, rgba(205, 190, 165, 0.34) 0%, rgba(205, 190, 165, 0.279) 18%, rgba(205, 190, 165, 0.211) 32%, rgba(205, 190, 165, 0.143) 46%, rgba(205, 190, 165, 0.085) 58%, rgba(205, 190, 165, 0.041) 68%, rgba(205, 190, 165, 0.014) 77%, rgba(205, 190, 165, 0.0) 85%),
+    radial-gradient(600px 460px at 62% 34%, rgba(160, 190, 200, 0.22) 0%, rgba(160, 190, 200, 0.18) 18%, rgba(160, 190, 200, 0.136) 32%, rgba(160, 190, 200, 0.092) 46%, rgba(160, 190, 200, 0.055) 58%, rgba(160, 190, 200, 0.026) 68%, rgba(160, 190, 200, 0.009) 77%, rgba(160, 190, 200, 0.0) 85%);
   color-scheme: light;
 }
 
@@ -57,17 +83,47 @@
 ::view-transition-old(root),
 ::view-transition-new(root) { animation-duration: 0.4s; animation-timing-function: ease; }
 
+/* Going from page to page: the same crossfade, so a new page fades in rather than cutting. */
+@view-transition { navigation: auto; }
+@media (prefers-reduced-motion: reduce) { @view-transition { navigation: none; } }
+
 * { box-sizing: border-box; }
 
-html { background: var(--ground); }
+html { background: var(--base); }
 
 body {
   margin: 0;
-  background: var(--ground);
+  background: transparent;
   color: var(--text);
   font: 400 19px/1.6 "IBM Plex Sans", system-ui, sans-serif;
   -webkit-text-size-adjust: 100%;
 }
+
+/* The glows, fixed behind everything, so they stay put while the page scrolls. */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: var(--glows);
+}
+
+/* Grain · a fine noise over the whole page. It breaks up the banding a soft gradient gets on
+   most screens and gives the glass a little texture. images/grain.png is a 256px tile. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: url("../images/grain.png");
+  mix-blend-mode: overlay;
+}
+
+/* Text wrapping · headings split into lines of even length, and paragraphs avoid a lone last word. */
+h1, h2, h3, .pull { text-wrap: balance; }
+p, li, figcaption, .caption { text-wrap: pretty; }
 
 ::selection { background: var(--accent); color: var(--ground); }
 
@@ -76,7 +132,7 @@ a:hover { color: var(--link-hi); }
 a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* ---------- The frame ----------
-   A grid whose 1px gaps show the rule colour behind it. */
+   A grid of glass panels. The 1px gaps between them carry each panel's edge line, which makes the frame. */
 
 .sheet {
   margin: var(--edge);
@@ -86,11 +142,27 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
   grid-template-columns: var(--rail) minmax(0, 1fr);
   grid-template-rows: auto 1fr auto;
   gap: 1px;
-  background: var(--rule);
-  border: 1px solid var(--rule);
+  box-shadow: 0 30px 80px var(--frame-shadow);
 }
 
-.sheet > * { background: var(--ground); min-width: 0; }
+.sheet > * {
+  min-width: 0;
+  background: var(--glass);
+  -webkit-backdrop-filter: blur(22px) saturate(135%);
+  backdrop-filter: blur(22px) saturate(135%);
+  /* the line is a 1px shadow rather than an outline: Chrome skips the outline of a panel
+     with a scrollbar on that side, which lost the frame's right edge beside the content */
+  box-shadow: inset 0 1px 0 var(--glass-hi), 0 0 0 1px var(--glass-rule);
+}
+
+/* No glass · a browser without it, or a visitor who has asked for less transparency, gets solid panels. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .sheet > * { background: var(--ground); }
+}
+@media (prefers-reduced-transparency: reduce) {
+  body::after { display: none; }
+  .sheet > * { background: var(--ground); -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
 
 /* ---------- Header ---------- */
 
@@ -404,7 +476,6 @@ figcaption { margin-top: 8px; font-size: 16px; color: var(--muted); }
   width: 100%;
   aspect-ratio: 16 / 9;
   background: var(--video-bg);
-  border: 1px solid var(--hair);
   overflow: hidden;
 }
 .video-link img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -520,7 +591,8 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
     align-items: center;
     gap: 16px;
     padding: 12px 16px;
-    box-shadow: 0 1px 0 var(--rule);
+    background: var(--menu-glass);
+    box-shadow: inset 0 1px 0 var(--glass-hi), 0 1px 0 var(--glass-rule);
   }
   .masthead .role { font-size: 21px; }
   .masthead { justify-content: flex-start; gap: 12px; }
@@ -556,7 +628,7 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
     overflow-y: auto;
     overscroll-behavior: contain;
     padding: 0 16px 36px;
-    background: var(--ground);
+    background: var(--menu-glass);
   }
   .menu-head {
     display: flex;
@@ -567,8 +639,10 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
     z-index: 2;
     margin: 0 -16px 6px;
     padding: 12px 16px;
-    background: var(--ground);
-    box-shadow: 0 1px 0 var(--rule);
+    background: var(--menu-glass);
+    -webkit-backdrop-filter: blur(22px) saturate(135%);
+    backdrop-filter: blur(22px) saturate(135%);
+    box-shadow: 0 1px 0 var(--glass-rule);
   }
   .menu-title { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
   .menu-close { display: flex; padding: 9px; border: 1px solid var(--rule); background: none; color: var(--text); cursor: pointer; }
@@ -577,7 +651,7 @@ main:focus { outline: none; }   /* the content is focused quietly on load for ke
   .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; perspective: 1200px; }
   .tiles > li.is-wide { grid-column: span 2; }
   .is-wide .tile-box { aspect-ratio: 2 / 1; }
-  .is-wide .tile-img, .is-wide img.tile-line { object-fit: contain; }   /* the renders sit on the page colour, so the sides blend in */
+  .is-wide .tile-img, .is-wide img.tile-line { object-fit: contain; }   /* the renders are transparent, so the sides are just glass */
   .tile { position: relative; }
   .tile-box { border-color: var(--hair); }
   .tile[aria-current] .tile-box { border-color: var(--accent); background: none; }
@@ -675,7 +749,7 @@ code { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-siz
 .feature { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: 40px; align-items: center; max-width: var(--column); margin: 40px 0; }
 .feature.flip .feature-text { order: 2; }
 .feature figure { margin: 0; }
-.feature figure img, .feature figure video { border: 1px solid var(--hair); }
+
 .feature h3, .notes h3, h3.sub { margin: 0 0 8px; font-size: 20px; font-weight: 500; line-height: 1.3; }
 .feature p { margin: 0 0 14px; color: var(--soft); }
 .feature p:last-child { margin-bottom: 0; }
@@ -688,20 +762,28 @@ h3.sub { margin-top: 44px; }
 .swatches { display: grid; grid-template-columns: 70px repeat(6, minmax(0, 1fr)); gap: 14px 14px; align-items: start; max-width: var(--column); margin: 0 0 40px; }
 .sw-label { padding-top: 12px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .sw { display: block; font-size: 15px; line-height: 1.35; color: var(--soft); }
-.sw i { display: block; height: 46px; margin-bottom: 7px; background: var(--c); border: 1px solid var(--hair); }
+.sw i { display: block; height: 46px; margin-bottom: 7px; background: linear-gradient(var(--c), var(--c)), var(--under, transparent); border: 1px solid var(--hair); }   /* --under: what a see-through colour sits on */
 .sw em { display: block; font-style: normal; font-size: 13px; color: var(--muted); font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; }
 
 /* The frame diagram. */
 .frame-fig svg { display: block; width: 100%; height: auto; font-family: inherit; }
-.frame-fig .fr-sheet { fill: var(--rule); }
-.frame-fig .fr-box rect { fill: var(--ground); stroke: var(--muted); stroke-width: 1; }
-.frame-fig .fr-fill rect { fill: var(--ground); }
+.frame-fig .fr-sheet { fill: url(#fr-glow); }
+.frame-fig .g-a { stop-color: #2e3c49; }
+.frame-fig .g-base { stop-color: #182229; }
+.frame-fig .g-b { stop-color: #253141; }
+:root[data-theme="light"] .frame-fig .g-a { stop-color: #c0d1d6; }
+:root[data-theme="light"] .frame-fig .g-base { stop-color: #e3e7e3; }
+:root[data-theme="light"] .frame-fig .g-b { stop-color: #dcd9ce; }
+.frame-fig .fr-box rect { fill: var(--glass); stroke: var(--glass-rule); stroke-width: 1; }
+.frame-fig .fr-fill rect { fill: var(--glass); stroke: var(--glass-rule); stroke-width: 1; }
+.frame-fig .fr-base { fill: none; stroke: var(--glass-rule); stroke-width: 1; stroke-dasharray: 3 4; }
 .frame-fig text { fill: var(--muted); font-size: 14px; text-anchor: middle; }
 .frame-fig .fr-op { fill: var(--text); font-size: 24px; font-weight: 300; }
 .feature figure.frame-fig figcaption { margin-top: 10px; }
 
 /* Short notes, two side by side. */
 .notes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; max-width: var(--column); margin: 40px 0 0; border-top: 1px solid var(--hair); }
+h3.sub + .notes { margin-top: 14px; }   /* notes straight under a small heading sit close to it */
 .notes > div { padding-top: 18px; }
 .notes p { margin: 0 0 12px; color: var(--soft); }
 .specimen { display: flex; gap: 22px; font-size: 40px; line-height: 1.1; color: var(--text) !important; }
@@ -723,7 +805,7 @@ h3.sub { margin-top: 44px; }
 .feature.phone { grid-template-columns: minmax(0, 8fr) minmax(0, 4fr); }
 .feature.phone.flip { grid-template-columns: minmax(0, 4fr) minmax(0, 8fr); }
 .feature.phone figure { justify-self: center; width: 100%; max-width: 300px; }
-.feature video { display: block; width: 100%; height: auto; background: var(--video-bg); border: 1px solid var(--hair); }
+.feature video { display: block; width: 100%; height: auto; background: var(--video-bg); }
 
 /* Three short notes in a row. */
 .notes.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 32px; }
@@ -741,7 +823,8 @@ h3.sub { margin-top: 44px; }
 .result figure { margin: 0; }
 .result-label { display: block; margin-bottom: 8px; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
 .tile-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; max-width: 360px; }
-.tile-pair img { display: block; width: 100%; aspect-ratio: 1; border: 1px solid var(--rule); }
+.tile-pair img, .tile-pair svg { display: block; width: 100%; height: auto; aspect-ratio: 1; border: 1px solid var(--rule); }
+.tile-pair svg.pair-line { position: static; opacity: 1; }
 .result .work { max-width: none; }
 
 /* Numbered steps in a row. */
@@ -756,15 +839,15 @@ h3.sub { margin-top: 44px; }
 }
 
 /* Images compared side by side, each with a small label. */
-.compare { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.compare { display: grid; grid-template-columns: minmax(0, 1fr); gap: 24px; }
 .compare figure { margin: 0; }
-.compare img, .feature img.square { display: block; width: 100%; height: auto; border: 1px solid var(--hair); }
+.compare img, .feature img.square { display: block; width: 100%; height: auto; }
 .compare.three { grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 0 0 40px; }
 .compare.cols { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .feature figure img.square { max-width: 400px; margin: 0 auto; }
 
 @media (max-width: 760px) {
-  .compare.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .compare.three { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 }
 
 /* Screen recordings: narrow ones beside text, two rail clips side by side, wide strips across. */
@@ -772,7 +855,7 @@ h3.sub { margin-top: 44px; }
 .feature figure.narrow.small { max-width: 220px; }
 .compare.clips { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 460px; justify-self: center; width: 100%; }
 .compare.two { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: var(--column); margin: 0 0 40px; }
-.compare video, .wide-clip video { display: block; width: 100%; height: auto; background: var(--video-bg); border: 1px solid var(--hair); }
+.compare video, .wide-clip video { display: block; width: 100%; height: auto; background: var(--video-bg); }
 .wide-clip { max-width: var(--column); margin: 0 0 36px; }
 .feature .note { font-size: 15px; color: var(--muted); }
 
@@ -828,6 +911,11 @@ h3.sub { margin-top: 44px; }
 :root[data-theme="light"] .line-demo svg.tile-line { transition: stroke 0.3s ease; }
 :root[data-theme="light"] .line-demo.is-on svg.tile-line { stroke: #fff; }
 :root[data-theme="light"] .line-demo.is-on svg.tile-line [fill]:not([fill="none"]) { fill: #fff; }
+/* A tile shown over each theme's colour, whichever theme the page is in. */
+.on-theme { display: block; aspect-ratio: 1; outline: 1px solid var(--hair); outline-offset: 4px; }
+.on-theme.dark { background: #212f3a; }
+.on-theme.light { background: #eef0ec; }
+.compare .on-theme img { outline: none; }
 .line-demo-caption { max-width: 400px; margin: 10px auto 0; font-size: 15px; color: var(--muted); }
 
 /* A row of four images, such as the sketches tried for a tile. */
@@ -836,7 +924,7 @@ h3.sub { margin-top: 44px; }
 @media (max-width: 760px) { .compare.four { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 
 /* Two images on top of each other with a divider you drag, such as the same page in both themes. */
-.compare-slider { position: relative; margin: 0; overflow: hidden; border: 1px solid var(--hair); touch-action: pan-y; user-select: none; }
+.compare-slider { position: relative; margin: 0; overflow: hidden; touch-action: pan-y; user-select: none; }
 .compare-slider img { display: block; width: 100%; height: auto; pointer-events: none; }
 .compare-slider .slider-top { position: absolute; inset: 0; height: 100%; clip-path: inset(0 0 0 var(--pos)); }
 .slider-handle { position: absolute; top: 0; bottom: 0; left: var(--pos); width: 2px; margin-left: -1px; background: var(--accent); pointer-events: none; }
@@ -857,4 +945,21 @@ h3.sub { margin-top: 44px; }
   .side-shot .panel-shot.wide img { width: 342px; }
   .result-label { font-size: 12px; }
   .steps li::before { font-size: 16px; }
+}
+
+/* ---------- Picture frames ----------
+   Every image and video in a page's figures gets a hairline with a thin gap around it, like a mat in a frame.
+   It's drawn as an outline, so it takes no space and doesn't change the layout. Tiles keep their own borders. */
+main figure img, main figure video,
+.video-link, .video iframe, .compare-slider {
+  outline: 1px solid var(--hair);
+  outline-offset: 4px;
+}
+.video-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.compare-slider img, .line-demo img, .tile-pair img, .video-link img { outline: none; }   /* these frame themselves */
+.figure-grid { gap: 0 24px; }   /* room for the frames side by side */
+
+/* Less transparency asked for · the phone header and menu go solid too. */
+@media (prefers-reduced-transparency: reduce) {
+  .masthead, html.menu-open .rail, .menu-head { background: var(--ground); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
