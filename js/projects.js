@@ -80,7 +80,7 @@ const PROJECTS = [
   {
     id: "unravel",
     title: "Unravel",
-    tile: "Unravel",
+    tile: "Unravel · Blender",
     image: "unravel.jpg",
     meta: "Tool · Blender, Geometry Nodes, Python · 2026",
     group: "tech-art",
