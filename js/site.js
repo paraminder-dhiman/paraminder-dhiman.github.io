@@ -176,8 +176,25 @@
   var REDRAW_TIME = 900;    // leaving a tile: the lines draw back over the render as it fades out
   var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // The same drawing can be on a page more than once (the rail, and Behind the Site's examples).
+  // Each copy gets its own ids, or every copy would use the first one's clip shapes and masks.
+  var svgCopies = 0;
+  function uniqueIds(text) {
+    var n = ++svgCopies;
+    var ids = [];
+    text.replace(/\sid="([^"]+)"/g, function (m, id) { ids.push(id); return m; });
+    ids.forEach(function (id) {
+      var safe = id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      text = text
+        .replace(new RegExp('id="' + safe + '"', "g"), 'id="' + id + "-" + n + '"')
+        .replace(new RegExp("#" + safe + "([)\"])", "g"), "#" + id + "-" + n + "$1");
+    });
+    return text;
+  }
+
   function inlineSvg(img) {
     return fetch(img.src).then(function (r) { return r.text(); }).then(function (text) {
+      text = uniqueIds(text);
       var holder = document.createElement("div");
       holder.innerHTML = text;
       var svg = holder.querySelector("svg");
