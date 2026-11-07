@@ -99,14 +99,17 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
-/* The glows, fixed behind everything, so they stay put while the page scrolls. */
+/* The glows, fixed behind everything, so they stay put while the page scrolls. The saturation is the
+   lift the panels' glass used to add with a blur. That blur was re-run over only the part of the page
+   that changed (a hover, a browser popup closing), which left faint seams; this layer never changes. */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: var(--glows);
+  background: var(--glows), var(--base);
+  filter: saturate(135%);
 }
 
 /* Grain · a fine noise over the whole page. It breaks up the banding a soft gradient gets on
@@ -147,21 +150,16 @@ a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 .sheet > * {
   min-width: 0;
-  background: var(--glass);
-  -webkit-backdrop-filter: blur(22px) saturate(135%);
-  backdrop-filter: blur(22px) saturate(135%);
+  background: var(--glass);   /* see-through over the glows · no blur, as nothing moves behind the frame */
   /* the line is a 1px shadow rather than an outline: Chrome skips the outline of a panel
      with a scrollbar on that side, which lost the frame's right edge beside the content */
   box-shadow: inset 0 1px 0 var(--glass-hi), 0 0 0 1px var(--glass-rule);
 }
 
-/* No glass · a browser without it, or a visitor who has asked for less transparency, gets solid panels. */
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .sheet > * { background: var(--ground); }
-}
+/* No glass · a visitor who has asked for less transparency gets solid panels. */
 @media (prefers-reduced-transparency: reduce) {
   body::after { display: none; }
-  .sheet > * { background: var(--ground); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .sheet > * { background: var(--ground); }
 }
 
 /* ---------- Header ---------- */
