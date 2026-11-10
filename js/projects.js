@@ -109,6 +109,17 @@ const PROJECTS = [
     status: "live",
   },
   {
+    id: "last-arpeggio",
+    title: "The Last Arpeggio",
+    tile: "The Last Arpeggio",
+    image: "last-arpeggio.jpg",
+    meta: "Tool · Python, CustomTkinter · 2026",
+    group: "beyond",
+    scale: 2,
+    year: 2026,
+    status: "live",
+  },
+  {
     id: "behind-the-site",
     title: "Behind the Site",
     tile: "Behind the Site",

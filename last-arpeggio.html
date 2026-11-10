@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The Last Arpeggio · Paraminder Dhiman</title>
+  <meta name="description" content="A Windows app that plays songs on the guitar in The Last of Us Part II from any MIDI file. It fits the song to the guitar, plans every move round the chord wheel, and plays it in time.">
+  <!-- Link previews: the card shown when this page is shared -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Paraminder Dhiman">
+  <meta property="og:title" content="The Last Arpeggio · Paraminder Dhiman">
+  <meta property="og:description" content="A Windows app that plays songs on the guitar in The Last of Us Part II from any MIDI file. It fits the song to the guitar, plans every move round the chord wheel, and plays it in time.">
+  <meta property="og:url" content="https://paraminder-dhiman.github.io/last-arpeggio.html">
+  <meta property="og:image" content="https://paraminder-dhiman.github.io/images/og/last-arpeggio.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="The Last Arpeggio: the project&#x27;s tile render">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <meta name="color-scheme" content="dark light">
+  <script>
+    /* Light or dark, set before the page draws so it never flashes the wrong colours.
+       A choice made with the switch wins; otherwise follow the device; otherwise dark. */
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem("theme"); } catch (e) {}
+      if (t !== "light" && t !== "dark") t = window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body data-page="last-arpeggio">
+
+<div class="sheet">
+
+  <header class="masthead">
+    <a href="index.html">
+      <span class="name">Paraminder Dhiman</span>
+      <span class="role">Technical artist</span>
+    </a>
+  </header>
+
+  <div class="pagehead">
+    <h1>The Last Arpeggio</h1>
+    <p class="meta">Tool · Python, CustomTkinter · 2026</p>
+  </div>
+
+  <nav class="rail" aria-label="Pages">
+    <ul class="tiles" id="tiles"></ul>
+    <noscript><p><a href="index.html">About</a></p></noscript>
+  </nav>
+
+  <main>
+    <div class="prose">
+      <p class="lead">A Windows app that plays songs on the guitar in <i>The Last of Us Part II</i>. You give it a MIDI file, and it fits the song to the guitar, plans every move round the chord wheel, and plays it in the game in time.</p>
+      <p>It started as a script that read notes from text files, and was rebuilt from scratch as an app anyone can use without a terminal. It's free and open source, a fan-made tool not affiliated with Naughty Dog or Sony. The code is on <a href="https://github.com/paraminder-dhiman/last-arpeggio" target="_blank" rel="noopener">GitHub</a>, and the app can be downloaded from its <a href="https://github.com/paraminder-dhiman/last-arpeggio/releases" target="_blank" rel="noopener">releases page</a>.</p>
+    </div>
+
+    <figure class="video">
+      <a class="video-link" href="https://www.youtube.com/watch?v=8TgcBcrl5XU" target="_blank" rel="noopener" data-youtube="8TgcBcrl5XU" data-title="The Last Arpeggio · Auto-playing the guitar in The Last of Us Part II">
+        <img src="https://i.ytimg.com/vi/8TgcBcrl5XU/maxresdefault.jpg" alt="" loading="lazy">
+        <span class="video-play" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="26" height="26"><path d="M8 5.5v13l11-6.5z" fill="currentColor"></path></svg>
+        </span>
+        <span class="visually-hidden">Play the video: The Last Arpeggio playing Ode to Joy and Greensleeves in the game</span>
+      </a>
+      <figcaption>The app playing Ode to Joy and Greensleeves in the game, with its window on top so the live values can be seen. Sound on.</figcaption>
+    </figure>
+
+    <ul class="stats" aria-label="The guitar in numbers">
+      <li><b>5</b> chord wheels</li>
+      <li><b>6</b> directions each</li>
+      <li><b>30</b> notes, E2 to A4</li>
+      <li><b>24</b> chords</li>
+    </ul>
+
+    <h2>How it fits together</h2>
+    <figure class="diagram" role="img" aria-label="Diagram. A MIDI file is imported: a part and a mode are picked. The song is fitted to the guitar's key, octaves and speed, and saved as a song file timed in beats. The planner works out the route round the chord wheel. The player then times every mouse flick and key press to play it in the game. The plan can also be previewed through the speakers.">
+      <svg viewBox="0 0 780 240" xmlns="http://www.w3.org/2000/svg">
+        <rect class="box" x="15" y="20" width="156" height="72"></rect>
+        <text class="t-title" x="29" y="45">MIDI file</text>
+        <text class="t-soft" x="29" y="66">Any song, any parts</text>
+
+        <rect class="box" x="213" y="20" width="156" height="72"></rect>
+        <text class="t-title" x="227" y="45">Import</text>
+        <text class="t-soft" x="227" y="66">Part · mode · melody</text>
+
+        <rect class="box" x="411" y="20" width="156" height="72"></rect>
+        <text class="t-title" x="425" y="45">Fit</text>
+        <text class="t-soft" x="425" y="66">Key · octaves · speed</text>
+
+        <rect class="chip" x="609" y="20" width="156" height="72"></rect>
+        <text class="t-title" x="623" y="45">Song file</text>
+        <text class="t-soft" x="623" y="66">JSON, timed in beats</text>
+
+        <rect class="box" x="15" y="150" width="156" height="72"></rect>
+        <text class="t-title" x="29" y="175">Preview</text>
+        <text class="t-soft" x="29" y="196">Through the speakers</text>
+
+        <rect class="box" x="213" y="150" width="156" height="72"></rect>
+        <text class="t-title" x="227" y="175">Planner</text>
+        <text class="t-soft" x="227" y="196">Route round the wheel</text>
+
+        <rect class="box" x="411" y="150" width="156" height="72"></rect>
+        <text class="t-title" x="425" y="175">Player</text>
+        <text class="t-soft" x="425" y="196">Timed flicks and keys</text>
+
+        <rect class="chip" x="609" y="150" width="156" height="72"></rect>
+        <text class="t-title" x="623" y="175">The game</text>
+        <text class="t-soft" x="623" y="196">The guitar in Part II</text>
+
+        <path class="wire" d="M171 56 H206 M369 56 H404 M567 56 H602 M687 92 V121 H291 V143 M213 186 H178 M369 186 H404 M567 186 H602"></path>
+        <path class="head" d="M213 56 l-7 -3.5 v7 z M411 56 l-7 -3.5 v7 z M609 56 l-7 -3.5 v7 z M291 150 l-3.5 -7 h7 z M171 186 l7 -3.5 v7 z M411 186 l-7 -3.5 v7 z M609 186 l-7 -3.5 v7 z"></path>
+      </svg>
+    </figure>
+    <p class="caption">Every input is turned into one song format first, so the planner and the player never need to know where a song came from.</p>
+
+    <h2>The app</h2>
+
+    <div class="feature">
+      <div class="feature-text">
+        <h3>Library</h3>
+        <p>Every saved song, with its mode, length and key. A speed slider plays any song slower without changing the file, and the fit panel re-plans at that speed straight away, so you can see the moment a fast passage becomes playable.</p>
+        <p>Preview plays the plan through the speakers, so a song can be checked without the game open.</p>
+      </div>
+      <figure>
+        <img src="images/last-arpeggio/library-dark.jpg" data-themed width="1600" height="989" alt="The Library page of The Last Arpeggio: a list with Greensleeves and Ode to Joy, and Greensleeves open beside it with its speed slider at 90 percent, its fit, and the Play, Preview and Delete buttons." loading="lazy">
+      </figure>
+    </div>
+
+    <div class="feature flip">
+      <div class="feature-text">
+        <h3>Import</h3>
+        <p>Choose a MIDI file, then pick a part and a mode. Drums are hidden, and the part that looks most like the melody is marked as suggested.</p>
+        <p>The fit panel shows how the song was moved to suit the guitar. If any spots are too fast, it asks before fixing them: thin out, slow down, or keep.</p>
+      </div>
+      <figure>
+        <img src="images/last-arpeggio/import-dark.jpg" data-themed width="1600" height="989" alt="The Import page: greensleeves.mid loaded, its Melody part marked as suggested, Both mode chosen, and the fit report showing the song kept in its key." loading="lazy">
+      </figure>
+    </div>
+
+    <div class="feature">
+      <div class="feature-text">
+        <h3>Now playing</h3>
+        <p>After Play, the app brings the game to the front and counts down. While it plays, this screen shows the wheel, the note or chord and the bar as they happen.</p>
+        <p>The sidebar locks until the song ends, because any click in the app would take focus away from the game. When it's over, the result stays up with Play again, which is handy while tuning the settings.</p>
+      </div>
+      <figure>
+        <img src="images/last-arpeggio/playing-dark.jpg" data-themed width="1600" height="989" alt="The Now playing screen during Greensleeves: wheel A, note A2, bar 7 of 31, a progress bar at 0:12 of 1:05, and a Stop button. Import and Settings are dimmed in the sidebar." loading="lazy">
+      </figure>
+    </div>
+
+    <h2>Technical breakdown</h2>
+    <p class="pull">The game reads a guitar from a wheel and six keys. The app's job is to turn a song into the right sequence of those, early enough that each sound lands on the beat.</p>
+
+    <h3 class="sub">The guitar as data</h3>
+    <figure class="diagram" role="img" aria-label="Diagram of the guitar. The C wheel has six directions: C at the top, then G, Dm, Am, Em and F going round. There are five wheels, A, B, C, C sharp and D sharp, switched with Q and E. Choosing Am on the C wheel puts its six strings on keys 1 to 6: E2, A2, E3, A3, C4 and E4, and Space strums the whole chord.">
+      <svg viewBox="0 0 780 260" xmlns="http://www.w3.org/2000/svg">
+        <path class="box" d="M171.9 39.7 A100 100 0 0 0 78.1 39.7 L108.1 96.2 A36 36 0 0 1 141.9 96.2 Z"></path>
+        <text x="125.0" y="64.5" text-anchor="middle">C</text>
+        <path class="box" d="M224.9 124.5 A100 100 0 0 0 178.0 43.2 L144.1 97.5 A36 36 0 0 1 161.0 126.7 Z"></path>
+        <text x="183.9" y="98.5" text-anchor="middle">G</text>
+        <path class="box" d="M178.0 212.8 A100 100 0 0 0 224.9 131.5 L161.0 129.3 A36 36 0 0 1 144.1 158.5 Z"></path>
+        <text x="183.9" y="166.5" text-anchor="middle">Dm</text>
+        <path class="chip" d="M78.1 216.3 A100 100 0 0 0 171.9 216.3 L141.9 159.8 A36 36 0 0 1 108.1 159.8 Z"></path>
+        <text class="t-title" x="125.0" y="200.5" text-anchor="middle">Am</text>
+        <path class="box" d="M25.1 131.5 A100 100 0 0 0 72.0 212.8 L105.9 158.5 A36 36 0 0 1 89.0 129.3 Z"></path>
+        <text x="66.1" y="166.5" text-anchor="middle">Em</text>
+        <path class="box" d="M72.0 43.2 A100 100 0 0 0 25.1 124.5 L89.0 126.7 A36 36 0 0 1 105.9 97.5 Z"></path>
+        <text x="66.1" y="98.5" text-anchor="middle">F</text>
+        <text class="t-title" x="125" y="132" text-anchor="middle">C</text>
+        <text class="t-soft" x="125" y="146" text-anchor="middle">wheel</text>
+        <text class="t-soft" x="125" y="252" text-anchor="middle">A mouse flick picks a direction</text>
+
+        <text class="t-title" x="300" y="98">Five wheels</text>
+        <text class="t-soft" x="270" y="135" text-anchor="middle">Q</text>
+        <rect class="box" x="284" y="114" width="40" height="32"></rect><text x="304" y="135" text-anchor="middle">A</text>
+        <rect class="box" x="330" y="114" width="40" height="32"></rect><text x="350" y="135" text-anchor="middle">B</text>
+        <rect class="chip" x="376" y="114" width="40" height="32"></rect><text class="t-title" x="396" y="135" text-anchor="middle">C</text>
+        <rect class="box" x="422" y="114" width="40" height="32"></rect><text x="442" y="135" text-anchor="middle">C#</text>
+        <rect class="box" x="468" y="114" width="40" height="32"></rect><text x="488" y="135" text-anchor="middle">D#</text>
+        <text class="t-soft" x="522" y="135" text-anchor="middle">E</text>
+        <text class="t-soft" x="300" y="168">Q and E step between them</text>
+
+        <rect class="box" x="565" y="20" width="200" height="222"></rect>
+        <text class="t-title" x="581" y="45">Am on the C wheel</text>
+        <rect class="chip" x="581" y="58" width="24" height="20"></rect><text x="593" y="73" text-anchor="middle">1</text><text x="617" y="73">E2</text>
+        <rect class="chip" x="581" y="84" width="24" height="20"></rect><text x="593" y="99" text-anchor="middle">2</text><text x="617" y="99">A2</text>
+        <rect class="chip" x="581" y="110" width="24" height="20"></rect><text x="593" y="125" text-anchor="middle">3</text><text x="617" y="125">E3</text>
+        <rect class="chip" x="581" y="136" width="24" height="20"></rect><text x="593" y="151" text-anchor="middle">4</text><text x="617" y="151">A3</text>
+        <rect class="chip" x="581" y="162" width="24" height="20"></rect><text x="593" y="177" text-anchor="middle">5</text><text x="617" y="177">C4</text>
+        <rect class="chip" x="581" y="188" width="24" height="20"></rect><text x="593" y="203" text-anchor="middle">6</text><text x="617" y="203">E4</text>
+        <text class="t-soft" x="581" y="229">Space strums the whole chord</text>
+
+        <path class="wire" d="M172 205 H558"></path>
+        <path class="head" d="M565 205 l-7 -3.5 v7 z"></path>
+      </svg>
+    </figure>
+    <p class="sub-text">Mapped out, the guitar covers 30 notes from E2 to A4 and all 24 major and minor chords, kept in one data file the rest of the app reads. Most notes can be played from several wheels and directions, and that choice is what the planner works with.</p>
+
+    <h3 class="sub">Reading a MIDI file</h3>
+    <ol class="steps four">
+      <li><b>Parts</b>Read with <a href="https://github.com/mido/mido" target="_blank" rel="noopener">mido</a> and split by track and channel, so a file with everything in one track still lists every instrument. Tempo changes are kept.</li>
+      <li><b>Find the melody</b>Each part is scored on how often it plays one note at a time, how high it sits, and whether its name sounds like a lead. The best is suggested.</li>
+      <li><b>Melody</b>Notes are snapped to a sixteenth-note grid. Where several start together, the highest is kept, since the tune is usually on top.</li>
+      <li><b>Chords</b>Each beat's notes are matched against all 24 chords. Matching notes score, extra notes cost, and a root in the bass earns a bonus.</li>
+    </ol>
+    <p class="sub-text">Both mode takes chords once a bar with the melody in between, and drops a melody note that lands on a chord change, since the guitar can't strum and pluck at the same moment.</p>
+
+    <h3 class="sub">Fitting a song to the guitar</h3>
+    <div class="notes three">
+      <div>
+        <h3>Choosing the key</h3>
+        <p>Every shift from two octaves down to two up is tried. Octave shifts keep the song's key, so they win unless a key change keeps noticeably more notes on the guitar. Ties go to the fewest wheel switches.</p>
+      </div>
+      <div>
+        <h3>Folding stray notes</h3>
+        <p>Any note still off the guitar is moved by octaves until it fits, rather than being dropped.</p>
+      </div>
+      <div>
+        <h3>Too fast</h3>
+        <p>Thin out removes the note nearest the first spot that's too fast, re-plans and repeats, so it drops only what it has to. Slow down lowers the tempo in 5 percent steps.</p>
+      </div>
+    </div>
+
+    <h3 class="sub">Planning and playing</h3>
+    <figure class="diagram" role="img" aria-label="Timing diagram. When there's room, the move to the next note, a wheel switch and a flick, starts early by its lead time, so the sound lands on the beat. When the next note comes too soon, the move would have to start before the last note has finished, and the spot is flagged as too fast.">
+      <svg viewBox="0 0 780 190" xmlns="http://www.w3.org/2000/svg">
+        <text class="t-title" x="15" y="64">Room to move</text>
+        <path class="wire" d="M140 70 H765"></path>
+        <rect class="chip" x="200" y="56" width="34" height="14"></rect>
+        <text class="t-soft" x="217" y="48" text-anchor="middle">tap</text>
+        <rect class="chip" x="400" y="56" width="140" height="14"></rect>
+        <text class="t-soft" x="470" y="48" text-anchor="middle">switch wheel · flick</text>
+        <path class="wire" d="M400 84 V92 H540 V84"></path>
+        <text class="t-soft" x="470" y="108" text-anchor="middle">lead time</text>
+        <circle class="chip" cx="200" cy="70" r="6"></circle>
+        <circle class="chip" cx="540" cy="70" r="6"></circle>
+        <text x="200" y="30" text-anchor="middle">note</text>
+        <text x="540" y="30" text-anchor="middle">next note, on the beat</text>
+
+        <text class="t-title" x="15" y="154">Too fast</text>
+        <path class="wire" d="M140 160 H765"></path>
+        <rect class="chip" x="200" y="146" width="34" height="14"></rect>
+        <rect class="box" x="166" y="146" width="140" height="14"></rect>
+        <circle class="chip" cx="200" cy="160" r="6"></circle>
+        <circle class="chip" cx="306" cy="160" r="6"></circle>
+        <text class="t-soft" x="330" y="157">the move would start before the last note is done · flagged</text>
+      </svg>
+    </figure>
+
+    <div class="feature" style="align-items: start">
+      <div class="feature-text">
+        <h3>The route round the wheel</h3>
+        <p>Every note has a few places it can be played from. The planner finds the cheapest path through them with dynamic programming, where the cost of each move is the time it takes: wheel taps, then a flick out from the centre.</p>
+      </div>
+      <div class="feature-text">
+        <h3>Timing</h3>
+        <p>Each move starts early by its lead time, so the sound lands on the beat. The player sleeps in short naps and waits out the last few milliseconds exactly against a high-resolution clock, records how late each sound landed, and reports the average.</p>
+      </div>
+    </div>
+
+    <div class="notes">
+      <div>
+        <h3>Stopping</h3>
+        <p>A global hotkey stops playback at any moment, set by pressing the key or combo you want. The app always finishes back on the C wheel with the mouse centred, ready for the next song.</p>
+      </div>
+      <div>
+        <h3>Preview</h3>
+        <p>A small synth in NumPy: each string is six harmonics with their own decay and a 4 ms attack, and chords are spread across six strings 15 ms apart, like a real strum.</p>
+      </div>
+    </div>
+
+    <h2>Design decisions</h2>
+    <p class="pull">The app should be easy for anyone to run, and honest about what the guitar can and can't do.</p>
+    <dl class="entries">
+      <div>
+        <dt>Mouse over a virtual controller</dt>
+        <dd>The game locks the hidden mouse to the wheel, so a flick out and back picks any chord reliably, even at speed. That kept the app free of extra drivers.</dd>
+      </div>
+      <div>
+        <dt>MIDI only</dt>
+        <dd>Tabs and chord sheets were planned as inputs, but MIDI covers both and is far easier to find. One input done well beat three done loosely.</dd>
+      </div>
+      <div>
+        <dt>Ask before fixing</dt>
+        <dd>A song that's too fast is never changed silently. Thin out is suggested because it usually costs one or two notes, where slowing down changes the whole feel.</dd>
+      </div>
+      <div>
+        <dt>Pick the window, don't type it</dt>
+        <dd>The game's window title can vary. Settings lists the windows that are open and lets you pick the game, and the app also finds it by name on its own.</dd>
+      </div>
+      <div>
+        <dt>A folder, not a single file</dt>
+        <dd>A single .exe unpacks itself on every launch and gets flagged by antivirus more often. A folder starts at once and keeps the songs and settings beside the app.</dd>
+      </div>
+      <div>
+        <dt>No music from the game</dt>
+        <dd>The app ships with two public-domain songs I arranged for it. Songs from the game are copyrighted, so the README explains how to play the main theme from a MIDI file you have instead.</dd>
+      </div>
+    </dl>
+
+    <h3 class="sub">Tried and dropped</h3>
+    <div class="notes">
+      <div>
+        <h3>A frosted window</h3>
+        <p>A see-through acrylic backdrop for the sidebar was built, but it only works on Windows 11, so the app kept its solid colours in the end.</p>
+      </div>
+      <div>
+        <h3>Fading between pages</h3>
+        <p>Tk can only fade whole windows, so a fade meant laying a second window over the page. It drifted when the app was moved, and a 100 ms effect wasn't worth that.</p>
+      </div>
+    </div>
+
+    <h2>How it was built</h2>
+    <ol class="steps four">
+      <li><b>Data and input</b>The guitar mapped out, then the mouse and keys tested in the game until every chord landed.</li>
+      <li><b>Songs and planning</b>The song format, then the planner and the player, checked step by step with small scripts before any interface existed.</li>
+      <li><b>MIDI and fitting</b>Import, the three modes, key fitting, the too-fast fixes and the speaker preview.</li>
+      <li><b>App and release</b>The interface, styled to match this site, then a Windows build, the tile and the app icon, which is the line art of this page's tile.</li>
+    </ol>
+
+    <h2>Credit</h2>
+    <div class="prose">
+      <p>The first version, a script that played songs from text files, was built by me. The 2026 version was rebuilt with AI-assisted scripting, directed, tested and tuned by me in the game.</p>
+    </div>
+  </main>
+
+  <div class="foot-place">© 2026 Paraminder Dhiman</div>
+
+  <footer class="foot-note">
+    <span class="egg-side">Made with <span class="heart">♥</span> in Pune, India</span>
+    <button class="egg-dot" type="button" aria-label="A very small black hole"></button>
+    <span class="egg-side">No polygons were harmed</span>
+  </footer>
+
+</div>
+
+<script src="js/projects.js"></script>
+<script src="js/site.js"></script>
+</body>
+</html>
